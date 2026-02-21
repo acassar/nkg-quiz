@@ -11,8 +11,9 @@ import { UpdateQuizDto } from "./dto/update-quiz.dto";
 export class QuizService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list() {
+  list(userId: number) {
     return this.prisma.quiz.findMany({
+      where: { createdById: userId },
       include: {
         questions: {
           include: { choices: true },
@@ -41,15 +42,21 @@ export class QuizService {
     return quiz;
   }
 
-  async create(dto: CreateQuizDto) {
+  async create(dto: CreateQuizDto, userId: number) {
     if (!dto.questions.length) {
       throw new BadRequestException("At least one question is required");
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new BadRequestException("Invalid user");
     }
 
     return this.prisma.quiz.create({
       data: {
         title: dto.title,
         status: dto.status,
+        createdById: userId,
         questions: {
           create: dto.questions.map((question, index) => ({
             prompt: question.prompt,

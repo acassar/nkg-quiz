@@ -23,6 +23,25 @@ export class SessionService {
   ) {}
 
   async createSession(dto: CreateSessionDto) {
+    const existingSession = await this.prisma.session.findFirst({
+      where: {
+        quizId: dto.quizId,
+        status: {
+          in: [
+            SessionStatus.LOBBY,
+            SessionStatus.RUNNING,
+            SessionStatus.REVEAL,
+          ],
+        },
+      },
+    });
+
+    if (existingSession) {
+      throw new BadRequestException(
+        "An active session already exists for this quiz",
+      );
+    }
+
     const quiz = await this.prisma.quiz.findUnique({
       where: { id: dto.quizId },
       include: {
@@ -51,6 +70,24 @@ export class SessionService {
     });
 
     return { session, state };
+  }
+
+  async userActiveSessions(userId: number) {
+    const sessions = await this.prisma.session.findMany({
+      where: {
+        quiz: {
+          createdById: userId,
+        },
+        status: {
+          in: [
+            SessionStatus.LOBBY,
+            SessionStatus.RUNNING,
+            SessionStatus.REVEAL,
+          ],
+        },
+      },
+    });
+    return sessions;
   }
 
   async joinSession(code: string, dto: JoinSessionDto) {

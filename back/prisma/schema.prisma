@@ -26,7 +26,6 @@ model User {
   createdAt    DateTime @default(now())
 
   quizzes  Quiz[]
-  sessions Session[]
 }
 
 model Quiz {
@@ -35,8 +34,8 @@ model Quiz {
   status     QuizStatus @default(DRAFT)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  createdBy  User?      @relation(fields: [createdById], references: [id])
-  createdById Int?
+  createdBy  User      @relation(fields: [createdById], references: [id])
+  createdById Int
 
   questions Question[]
   sessions  Session[]
@@ -75,8 +74,6 @@ model Session {
   createdAt           DateTime      @default(now())
   startedAt           DateTime?
   endedAt             DateTime?
-  createdBy           User?         @relation(fields: [createdById], references: [id])
-  createdById         Int?
 
   players SessionPlayer[]
   answers SessionAnswer[]

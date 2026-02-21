@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
+import { AuthenticatedRequest } from "../common/types/authenticated-request.type";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { QuizService } from "./quiz.service";
@@ -19,8 +21,9 @@ export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Get()
-  list() {
-    return this.quizService.list();
+  list(@Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    return this.quizService.list(userId);
   }
 
   @Get(":id")
@@ -29,8 +32,9 @@ export class QuizController {
   }
 
   @Post()
-  create(@Body() dto: CreateQuizDto) {
-    return this.quizService.create(dto);
+  create(@Body() dto: CreateQuizDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user.sub;
+    return this.quizService.create(dto, userId);
   }
 
   @Patch(":id")

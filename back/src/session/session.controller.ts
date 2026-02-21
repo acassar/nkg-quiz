@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
+import { AuthenticatedRequest } from "../common/types/authenticated-request.type";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
 import { SessionService } from "./session.service";
+import { Session } from "@prisma/client";
 
 @Controller("sessions")
 export class SessionController {
@@ -12,6 +22,12 @@ export class SessionController {
   @Post()
   create(@Body() dto: CreateSessionDto) {
     return this.sessionService.createSession(dto);
+  }
+
+  @Get("active")
+  @UseGuards(AuthGuard)
+  userActiveSessions(@Req() req: AuthenticatedRequest): Promise<Session[]> {
+    return this.sessionService.userActiveSessions(req.user.sub);
   }
 
   @Post(":code/join")

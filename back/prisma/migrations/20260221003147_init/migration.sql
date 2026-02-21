@@ -104,6 +104,11 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Session_code_key" ON "Session"("code");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Session_active_quiz_unique"
+ON "Session" ("quizId")
+WHERE status IN ('LOBBY', 'RUNNING', 'REVEAL');
+
+-- CreateIndex
 CREATE UNIQUE INDEX "SessionPlayer_sessionId_nickname_key" ON "SessionPlayer"("sessionId", "nickname");
 
 -- CreateIndex
