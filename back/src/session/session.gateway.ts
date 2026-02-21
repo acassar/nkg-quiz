@@ -6,6 +6,7 @@ import {
   WebSocketServer,
   WsException,
 } from "@nestjs/websockets";
+import { forwardRef, Inject } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
 import { SessionService } from "./session.service";
 
@@ -14,7 +15,10 @@ export class SessionGateway {
   @WebSocketServer()
   server!: Server;
 
-  constructor(private readonly sessionService: SessionService) {}
+  constructor(
+    @Inject(forwardRef(() => SessionService))
+    private readonly sessionService: SessionService,
+  ) {}
 
   @SubscribeMessage("join-session")
   async joinSession(
@@ -86,6 +90,10 @@ export class SessionGateway {
       .to(this.room(body.code))
       .emit("answer:received", { playerId: body.playerId });
     return result;
+  }
+
+  broadcast(code: string, event: string, data: any) {
+    this.server?.to(this.room(code)).emit(event, data);
   }
 
   private room(code: string) {

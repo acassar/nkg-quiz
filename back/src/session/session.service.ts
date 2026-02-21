@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -9,12 +11,15 @@ import { JoinSessionDto } from "./dto/join-session.dto";
 import { SessionStateStore } from "./state-store";
 import { nanoid } from "nanoid";
 import { SessionStatus } from "@prisma/client";
+import { SessionGateway } from "./session.gateway";
 
 @Injectable()
 export class SessionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stateStore: SessionStateStore,
+    @Inject(forwardRef(() => SessionGateway))
+    private readonly gateway: SessionGateway,
   ) {}
 
   async createSession(dto: CreateSessionDto) {
@@ -118,6 +123,9 @@ export class SessionService {
       updatedAt: new Date().toISOString(),
     });
 
+    this.gateway?.broadcast(code, "session:state", state);
+    this.gateway?.broadcast(code, "question:show", question);
+
     return { state, question };
   }
 
@@ -145,6 +153,11 @@ export class SessionService {
       updatedAt: new Date().toISOString(),
     });
 
+    this.gateway?.broadcast(code, "session:state", state);
+    if (question) {
+      this.gateway?.broadcast(code, "question:show", question);
+    }
+
     return { state, question };
   }
 
@@ -162,6 +175,9 @@ export class SessionService {
       updatedAt: new Date().toISOString(),
     });
 
+    this.gateway?.broadcast(code, "session:state", state);
+    this.gateway?.broadcast(code, "answer:reveal", { ok: true });
+
     return { state };
   }
 
@@ -178,6 +194,8 @@ export class SessionService {
       currentQuestionIndex: null,
       updatedAt: new Date().toISOString(),
     });
+
+    this.gateway?.broadcast(code, "session:end", state);
 
     return { state };
   }
