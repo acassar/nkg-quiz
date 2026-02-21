@@ -1,8 +1,9 @@
 import { ref } from "vue";
 import { useAuth } from "./useAuth";
-import { Session, SessionState } from "../types/Session.types";
+import { Session, SessionAction, SessionState } from "../types/Session.types";
 
 const activeSession = ref<Session | null>(null);
+const activeSessions = ref<Session[]>([]);
 const sessionState = ref<SessionState | null>(null);
 const error = ref("");
 
@@ -46,6 +47,7 @@ export const useSession = () => {
     error.value = "";
     try {
       const data = await apiFetch(`/api/sessions/active`);
+      activeSessions.value = data;
       return data;
     } catch (err) {
       error.value =
@@ -67,7 +69,7 @@ export const useSession = () => {
     }
   };
 
-  const performAction = async (action: "start" | "next" | "reveal" | "end") => {
+  const performAction = async (action: SessionAction) => {
     if (!activeSession.value) return;
     error.value = "";
     try {
@@ -76,6 +78,12 @@ export const useSession = () => {
         { method: "POST" },
       );
       sessionState.value = data.state as SessionState;
+
+      if (action === "archive") {
+        activeSession.value = null;
+        sessionState.value = null;
+        getActiveSessions();
+      }
 
       return data;
     } catch (err) {
@@ -88,6 +96,7 @@ export const useSession = () => {
   return {
     // State
     activeSession,
+    activeSessions,
     sessionState,
     error,
     // Methods

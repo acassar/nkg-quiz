@@ -1,25 +1,22 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useAuth } from "../composables/useAuth";
 import { useQuiz } from "../composables/useQuiz";
 import { useSession } from "../composables/useSession";
-import { Session } from "../types/Session.types";
 
 const { isAuthed } = useAuth();
 const { loadQuizzes, quizzes, loading } = useQuiz();
-const { createSession, getActiveSessions, changeActiveSession } = useSession();
-
-const activeSessions = ref<Session[]>([]);
+const {
+  createSession,
+  getActiveSessions,
+  changeActiveSession,
+  activeSessions,
+} = useSession();
 
 if (isAuthed.value) init();
 
 async function init() {
   try {
-    const [, sessions] = await Promise.all([
-      loadQuizzes(),
-      getActiveSessions(),
-    ]);
-    activeSessions.value = sessions;
+    await Promise.all([loadQuizzes(), getActiveSessions()]);
   } catch (err) {
     console.error("Error loading quizzes or sessions:", err);
   }

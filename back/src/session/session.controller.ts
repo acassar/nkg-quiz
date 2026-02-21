@@ -47,6 +47,12 @@ export class SessionController {
   }
 
   @UseGuards(AuthGuard)
+  @Post(":code/restart")
+  restart(@Param("code") code: string) {
+    return this.sessionService.restartSession(code);
+  }
+
+  @UseGuards(AuthGuard)
   @Post(":code/next")
   next(@Param("code") code: string) {
     return this.sessionService.nextQuestion(code);
@@ -62,5 +68,11 @@ export class SessionController {
   @Post(":code/end")
   end(@Param("code") code: string) {
     return this.sessionService.endSession(code);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(":code/archive")
+  archive(@Param("code") code: string) {
+    return this.sessionService.archiveSession(code);
   }
 }

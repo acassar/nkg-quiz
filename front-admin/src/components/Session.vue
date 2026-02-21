@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useQuiz } from "../composables/useQuiz";
 import { useSession } from "../composables/useSession";
-import { SessionState } from "../types/Session.types";
+import { SessionAction, SessionState } from "../types/Session.types";
 
 const {
   performAction,
@@ -20,7 +20,7 @@ const sessionQuiz = computed(() => {
   );
 });
 
-const sessionAction = async (action: "start" | "next" | "reveal" | "end") => {
+const sessionAction = async (action: SessionAction) => {
   if (!activeSession.value) return;
   const data = await performAction(action);
   sessionState.value = data.state as SessionState;
@@ -45,10 +45,29 @@ const sessionAction = async (action: "start" | "next" | "reveal" | "end") => {
         </div>
       </div>
       <div class="row">
-        <button @click="sessionAction('start')">Start</button>
+        <button
+          v-if="sessionState?.status === 'LOBBY'"
+          @click="sessionAction('start')"
+        >
+          Start
+        </button>
+        <button
+          v-else-if="sessionState?.status !== 'ARCHIVED'"
+          @click="sessionAction('restart')"
+        >
+          Restart
+        </button>
+
         <button @click="sessionAction('next')">Next</button>
         <button @click="sessionAction('reveal')">Reveal</button>
         <button class="secondary" @click="sessionAction('end')">End</button>
+        <button
+          v-if="sessionState?.status === 'ENDED'"
+          class="secondary"
+          @click="sessionAction('archive')"
+        >
+          Archive
+        </button>
       </div>
     </div>
     <p v-if="sessionError">{{ sessionError }}</p>

@@ -9,6 +9,7 @@
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:reset": "prisma migrate reset --force",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {

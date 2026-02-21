@@ -10,8 +10,10 @@ import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
 import { SessionStateStore } from "./state-store";
 import { nanoid } from "nanoid";
-import { SessionStatus } from "@prisma/client";
+import { Session, SessionStatus } from "@prisma/client";
 import { SessionGateway } from "./session.gateway";
+
+//TODO make interfaces to create contracts between service and users of the service (controller and gateway).
 
 @Injectable()
 export class SessionService {
@@ -22,6 +24,27 @@ export class SessionService {
     private readonly gateway: SessionGateway,
   ) {}
 
+  async startSession(code: string) {
+    return this._startSession(code);
+  }
+
+  async restartSession(code: string) {
+    return this._startSession(code, true);
+  }
+
+  async archiveSession(code: string) {
+    const session = await this.getSessionByCode(code);
+
+    if (session.status === SessionStatus.ARCHIVED) {
+      throw new BadRequestException("Session already archived");
+    }
+
+    return this.prisma.session.update({
+      where: { id: session.id },
+      data: { status: SessionStatus.ARCHIVED },
+    });
+  }
+
   async createSession(dto: CreateSessionDto) {
     const existingSession = await this.prisma.session.findFirst({
       where: {
@@ -31,6 +54,7 @@ export class SessionService {
             SessionStatus.LOBBY,
             SessionStatus.RUNNING,
             SessionStatus.REVEAL,
+            SessionStatus.ENDED,
           ],
         },
       },
@@ -83,6 +107,7 @@ export class SessionService {
             SessionStatus.LOBBY,
             SessionStatus.RUNNING,
             SessionStatus.REVEAL,
+            SessionStatus.ENDED,
           ],
         },
       },
@@ -132,7 +157,32 @@ export class SessionService {
     };
   }
 
-  async startSession(code: string) {
+  /**
+   * Resets session state and answers for a restart. Used when restarting a session that is already running or ended.
+   */
+  private async handleRestartSession(session: Session) {
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: {
+        status: SessionStatus.LOBBY,
+        currentQuestionIndex: null,
+        startedAt: new Date(),
+        answers: {
+          deleteMany: {
+            sessionId: session.id,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Start a session by code. If restart is true, it will restart the session if it's already running or ended. Otherwise, it will throw an error if the session is not in lobby status.
+   * @param code session code
+   * @param restart is a restart or not
+   * @returns session state and the first question
+   */
+  private async _startSession(code: string, restart = false) {
     const session = await this.getSessionByCode(code);
     const currentQuestionIndex = 0;
     const question = await this.getQuestionByIndex(
@@ -144,14 +194,22 @@ export class SessionService {
       throw new BadRequestException("No question available");
     }
 
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: {
-        status: SessionStatus.RUNNING,
-        currentQuestionIndex,
-        startedAt: session.startedAt ?? new Date(),
-      },
-    });
+    if (session.status !== SessionStatus.LOBBY) {
+      if (restart) {
+        await this.handleRestartSession(session);
+      } else {
+        throw new BadRequestException("Session already started");
+      }
+    } else {
+      await this.prisma.session.update({
+        where: { id: session.id },
+        data: {
+          status: SessionStatus.RUNNING,
+          currentQuestionIndex,
+          startedAt: new Date(),
+        },
+      });
+    }
 
     const state = await this.stateStore.set({
       code: session.code,

@@ -1,4 +1,4 @@
-export type SESSION_STATUS = "LOBBY" | "RUNNING" | "REVEAL" | "ENDED";
+export type SESSION_STATUS = "LOBBY" | "RUNNING" | "REVEAL" | "ENDED" | "ARCHIVED";
 
 export type Session = {
   id: number;
@@ -9,6 +9,14 @@ export type Session = {
 
 export type SessionState = {
   code: string;
-  status: SESSION_STATUS;
+  =status: SESSION_STATUS;
   currentQuestionIndex: number | null;
 };
+
+export type SessionAction =
+  | "start"
+  | "next"
+  | "reveal"
+  | "end"
+  | "restart"
+  | "archive";
