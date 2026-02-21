@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuizStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SessionStatus {
+  LOBBY
+  RUNNING
+  REVEAL
+  ENDED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  quizzes  Quiz[]
+  sessions Session[]
+}
+
+model Quiz {
+  id         Int        @id @default(autoincrement())
+  title      String
+  status     QuizStatus @default(DRAFT)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  createdBy  User?      @relation(fields: [createdById], references: [id])
+  createdById Int?
+
+  questions Question[]
+  sessions  Session[]
+}
+
+model Question {
+  id           Int      @id @default(autoincrement())
+  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  quizId       Int
+  prompt       String
+  timeLimitSec Int?
+  points       Int?     @default(1000)
+  orderIndex   Int
+
+  choices Choice[]
+}
+
+model Choice {
+  id         Int      @id @default(autoincrement())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+  text       String
+  isCorrect  Boolean  @default(false)
+}
+
+model Session {
+  id                  Int           @id @default(autoincrement())
+  quiz                Quiz          @relation(fields: [quizId], references: [id])
+  quizId              Int
+  code                String        @unique
+  status              SessionStatus @default(LOBBY)
+  currentQuestionIndex Int?
+  createdAt           DateTime      @default(now())
+  startedAt           DateTime?
+  endedAt             DateTime?
+  createdBy           User?         @relation(fields: [createdById], references: [id])
+  createdById         Int?
+
+  players SessionPlayer[]
+  answers SessionAnswer[]
+  results SessionResult[]
+}
+
+model SessionPlayer {
+  id        Int      @id @default(autoincrement())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId Int
+  nickname  String
+  joinedAt  DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  answers SessionAnswer[]
+  results SessionResult[]
+
+  @@unique([sessionId, nickname])
+}
+
+model SessionAnswer {
+  id         Int      @id @default(autoincrement())
+  session    Session  @relation(fields: [sessionId], references: [id])
+  sessionId  Int
+  player     SessionPlayer @relation(fields: [playerId], references: [id])
+  playerId   Int
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+  choice     Choice   @relation(fields: [choiceId], references: [id])
+  choiceId   Int
+  answeredAt DateTime @default(now())
+
+  @@unique([sessionId, playerId, questionId])
+}
+
+model SessionResult {
+  id         Int      @id @default(autoincrement())
+  session    Session  @relation(fields: [sessionId], references: [id])
+  sessionId  Int
+  player     SessionPlayer @relation(fields: [playerId], references: [id])
+  playerId   Int
+  score      Int      @default(0)
+  computedAt DateTime @default(now())
+
+  @@unique([sessionId, playerId])
+}
