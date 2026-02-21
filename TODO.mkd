@@ -1,0 +1,9 @@
+##TODO
+
+- creer page de creation des questions par section
+- sur l'ecran principal, garder la création du quiz avec ses options (autoriser la modification, afficher le resultat dès le choix, afficher le resultat a la fin de la question etc...)
+- reflechir au reveal
+- pouvoir editer son quiz
+- dupliquer un quiz
+- ecran des sessions archivées
+- rendre le quiz automatique (defilement des questions)
