@@ -1,0 +1,5 @@
+export type Quiz = {
+  id: number;
+  title: string;
+  status: string;
+};
