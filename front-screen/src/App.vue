@@ -1,0 +1,115 @@
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { io, Socket } from "socket.io-client";
+
+type Choice = { id: number; text: string };
+type Question = {
+  id: number;
+  prompt: string;
+  timeLimitSec?: number | null;
+  points?: number | null;
+  choices: Choice[];
+};
+
+type SessionState = {
+  code: string;
+  status: string;
+  currentQuestionIndex: number | null;
+  updatedAt: string;
+  currentQuestion?: Question | null;
+};
+
+const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const wsBase = import.meta.env.VITE_WS_URL || apiBase;
+
+const sessionCode = ref("");
+const status = ref("disconnected");
+const state = ref<SessionState | null>(null);
+const question = ref<Question | null>(null);
+const answersCount = ref(0);
+let socket: Socket | null = null;
+
+const isConnected = computed(() => status.value === "connected");
+
+const connect = () => {
+  if (!sessionCode.value) return;
+  if (socket) socket.disconnect();
+
+  socket = io(wsBase, { transports: ["websocket"] });
+
+  socket.on("connect", () => {
+    status.value = "connected";
+    answersCount.value = 0;
+    socket?.emit("join-session", { code: sessionCode.value.trim() });
+  });
+
+  socket.on("disconnect", () => {
+    status.value = "disconnected";
+  });
+
+  socket.on("session:state", (payload: SessionState) => {
+    state.value = payload;
+    question.value = payload.currentQuestion ?? null;
+  });
+
+  socket.on("question:show", (payload: Question) => {
+    question.value = payload;
+    answersCount.value = 0;
+  });
+
+  socket.on("answer:received", () => {
+    answersCount.value += 1;
+  });
+
+  socket.on("session:end", () => {
+    question.value = null;
+  });
+
+  socket.on("connect_error", () => {
+    status.value = "error";
+  });
+};
+</script>
+
+<template>
+  <div class="screen">
+    <header class="header">
+      <div>
+        <div class="brand">NKG Quiz Live</div>
+        <div class="meta-row">
+          <span class="status-pill">{{ status }}</span>
+          <span v-if="state">Session {{ state.code }}</span>
+        </div>
+      </div>
+      <div class="session-card">
+        <input
+          v-model.trim="sessionCode"
+          placeholder="Session code"
+          aria-label="Session code"
+        />
+        <button @click="connect">Connect</button>
+      </div>
+    </header>
+
+    <section v-if="question" class="question-card">
+      <h1 class="question-title">{{ question.prompt }}</h1>
+      <div class="meta-row">
+        <span>Answers: {{ answersCount }}</span>
+        <span v-if="question.timeLimitSec">
+          Timer: {{ question.timeLimitSec }}s
+        </span>
+        <span v-if="question.points">Points: {{ question.points }}</span>
+      </div>
+      <div class="choices">
+        <div v-for="choice in question.choices" :key="choice.id" class="choice">
+          {{ choice.text }}
+        </div>
+      </div>
+    </section>
+
+    <section v-else class="empty">
+      <p v-if="!isConnected">Connect to a session to display questions here.</p>
+      <p v-else>No active question yet.</p>
+    </section>
+  </div>
+</template>
