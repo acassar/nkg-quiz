@@ -1,0 +1,1186 @@
+# 🎮 NKG Quiz - Documentation Architecture
+
+## 📋 Table des matières
+
+1. [Vue d'ensemble](#vue-densemble)
+2. [Architecture globale](#architecture-globale)
+3. [Technologies expliquées](#technologies-expliquées)
+4. [Backend NestJS](#backend-nestjs)
+5. [Base de données avec Prisma](#base-de-données-avec-prisma)
+6. [Cache et état avec Redis](#cache-et-état-avec-redis)
+7. [Communication temps réel avec WebSockets](#communication-temps-réel-avec-websockets)
+8. [Les trois frontends](#les-trois-frontends)
+9. [Flow complet de l'application](#flow-complet-de-lapplication)
+10. [Problèmes résolus](#problèmes-résolus)
+
+---
+
+## 🎯 Vue d'ensemble
+
+**NKG Quiz** est une application de quiz interactif en temps réel avec trois interfaces :
+- **Admin** : Crée les quiz et contrôle les sessions
+- **Screen** : Affiche les questions pour l'audience
+- **Player** : Permet aux joueurs de répondre
+
+### Le concept
+```
+┌─────────────┐
+│   Admin     │ Crée un quiz → Démarre une session
+└──────┬──────┘
+       │
+       ├──→ Génère un CODE (ex: "ABC123")
+       │
+       ├──→ Screen se connecte avec le code
+       │    └─→ Affiche les questions
+       │
+       └──→ Players se connectent avec le code
+            └─→ Répondent aux questions
+
+Tout est synchronisé en TEMPS RÉEL via WebSockets !
+```
+
+---
+
+## 🏗️ Architecture globale
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        FRONTEND                              │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐              │
+│  │  Admin   │    │  Screen  │    │  Player  │              │
+│  │ :5176    │    │  :5174   │    │  :5175   │              │
+│  └────┬─────┘    └────┬─────┘    └────┬─────┘              │
+└───────┼───────────────┼───────────────┼─────────────────────┘
+        │               │               │
+        │ HTTP/WS       │ WS            │ HTTP/WS
+        │               │               │
+┌───────▼───────────────▼───────────────▼─────────────────────┐
+│                      BACKEND                                 │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │              NestJS Server :4000                    │     │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐         │     │
+│  │  │Auth      │  │Quiz      │  │Session   │         │     │
+│  │  │Module    │  │Module    │  │Module    │         │     │
+│  │  └──────────┘  └──────────┘  └────┬─────┘         │     │
+│  │                                    │               │     │
+│  │                          ┌─────────▼─────────┐    │     │
+│  │                          │ WebSocket Gateway │    │     │
+│  │                          └───────────────────┘    │     │
+│  └────────────────────────────────────────────────────┘     │
+└───────┬──────────────────────────────────┬───────────────────┘
+        │                                  │
+        │ Prisma ORM                       │ ioredis
+        │                                  │
+┌───────▼─────────┐              ┌─────────▼──────────┐
+│   PostgreSQL    │              │      Redis         │
+│   Database      │              │   State Store      │
+│   :5432         │              │   :6379            │
+└─────────────────┘              └────────────────────┘
+```
+
+---
+
+## 🔧 Technologies expliquées
+
+### 1. **NestJS** (Backend Framework)
+
+**C'est quoi ?**
+NestJS est un framework Node.js pour construire des applications serveur. C'est comme les fondations d'une maison : ça structure ton code de manière organisée.
+
+**Pourquoi NestJS ?**
+- **Organisation par modules** : Chaque fonctionnalité (auth, quiz, session) est dans son propre dossier
+- **Injection de dépendances** : Les classes peuvent utiliser d'autres classes facilement
+- **TypeScript natif** : Détection d'erreurs avant l'exécution
+- **Décorateurs** : `@Controller()`, `@Injectable()`, etc. pour dire "ce fichier fait quoi"
+
+**Exemple concret :**
+```typescript
+@Controller('quiz')  // ← "Cette classe gère les routes /api/quiz"
+export class QuizController {
+  constructor(private quizService: QuizService) {}  // ← Injection automatique
+  
+  @Get()  // ← "Route GET /api/quiz"
+  @UseGuards(AuthGuard)  // ← "Vérifie que l'user est connecté"
+  findAll() {
+    return this.quizService.findAll();
+  }
+}
+```
+
+### 2. **Prisma** (ORM - Object Relational Mapping)
+
+**C'est quoi ?**
+Prisma est un outil qui te permet de parler à ta base de données PostgreSQL en écrivant du TypeScript au lieu de SQL.
+
+**Au lieu de :**
+```sql
+SELECT * FROM quiz WHERE status = 'PUBLISHED';
+```
+
+**Tu écris :**
+```typescript
+await prisma.quiz.findMany({
+  where: { status: 'PUBLISHED' }
+});
+```
+
+**Les avantages :**
+- **Auto-complétion** : Ton IDE te suggère les champs disponibles
+- **Type-safety** : Prisma sait que `quiz.title` est un string
+- **Migrations** : Gère les changements de structure de DB automatiquement
+- **Relations** : Facilite les jointures (quiz → questions → choices)
+
+**Le schema Prisma** (`back/prisma/schema.prisma`) :
+```prisma
+model Quiz {
+  id          String     @id @default(uuid())
+  title       String
+  questions   Question[]  // ← Relation "un quiz a plusieurs questions"
+  status      QuizStatus  @default(DRAFT)
+  createdAt   DateTime   @default(now())
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  quizId    String
+  text      String
+  choices   Choice[]  // ← Relation "une question a plusieurs choix"
+}
+```
+
+**Comment Prisma fonctionne :**
+```
+schema.prisma → prisma generate → PrismaClient
+                                      ↓
+                                  Types TypeScript
+                                      ↓
+                              Requêtes SQL automatiques
+```
+
+### 3. **Redis** (Cache In-Memory)
+
+**C'est quoi ?**
+Redis est une base de données ultra-rapide qui stocke les données en **mémoire RAM** (pas sur disque). C'est comme un bloc-notes temporaire pour les données qui changent souvent.
+
+**Pourquoi Redis ici ?**
+Pour gérer l'**état des sessions en temps réel** :
+- Quelle question est affichée actuellement ?
+- Quel est le statut de la session (LOBBY, RUNNING, ENDED) ?
+- Combien de joueurs ont répondu ?
+
+**Exemple d'état stocké dans Redis :**
+```typescript
+// Clé : "session:ABC123"
+{
+  "status": "RUNNING",
+  "currentQuestionIndex": 2,
+  "answers": {
+    "player1": "choice-id-456",
+    "player2": "choice-id-789"
+  }
+}
+```
+
+**Pourquoi pas PostgreSQL directement ?**
+- Redis est 10-100x plus rapide (RAM vs disque)
+- Parfait pour des données temporaires/volatiles
+- PostgreSQL garde les données permanentes (quiz, users, résultats finaux)
+
+### 4. **WebSockets** (Communication temps réel)
+
+**C'est quoi ?**
+Un WebSocket est une connexion permanente entre le navigateur et le serveur. Contrairement au HTTP classique (requête → réponse), le serveur peut **envoyer des messages sans être sollicité**.
+
+**HTTP classique :**
+```
+Client → "Donne-moi les données" → Serveur
+Client ← "Voici les données"     ← Serveur
+[connexion fermée]
+```
+
+**WebSocket :**
+```
+Client ↔ [connexion ouverte en permanence] ↔ Serveur
+
+Serveur peut envoyer : "Nouvelle question !"
+Serveur peut envoyer : "Un joueur a répondu !"
+```
+
+**Dans NKG Quiz :**
+```typescript
+// Admin clique "Start"
+POST /api/sessions/ABC123/start
+  ↓
+SessionService.startSession()
+  ↓
+gateway.broadcast('ABC123', 'question:show', { question: ... })
+  ↓
+TOUS les clients connectés à la room "session:ABC123" reçoivent l'événement
+  ↓
+Screen affiche la question
+Players voient la question
+```
+
+---
+
+## 🎮 Backend NestJS
+
+### Structure des modules
+
+```
+back/src/
+├── main.ts                 # Point d'entrée, démarre le serveur
+├── app.module.ts           # Module racine, importe tous les autres
+│
+├── prisma/                 # Module de connexion à PostgreSQL
+│   └── prisma.service.ts   # PrismaClient singleton
+│
+├── auth/                   # Module d'authentification
+│   ├── auth.module.ts
+│   ├── auth.service.ts     # Logique : register, login
+│   ├── auth.controller.ts  # Routes : POST /api/auth/register
+│   ├── auth.guard.ts       # Protège les routes (vérifie JWT)
+│   └── dto/                # Data Transfer Objects (validation)
+│       ├── register.dto.ts
+│       └── login.dto.ts
+│
+├── quiz/                   # Module de gestion des quiz
+│   ├── quiz.module.ts
+│   ├── quiz.service.ts     # CRUD : create, findAll, update, delete
+│   ├── quiz.controller.ts  # Routes : GET/POST /api/quiz
+│   └── dto/
+│       ├── create-quiz.dto.ts
+│       └── update-quiz.dto.ts
+│
+└── session/                # Module de gestion des sessions
+    ├── session.module.ts
+    ├── session.service.ts  # Logique : create, join, start, next, reveal, end
+    ├── session.controller.ts  # Routes : POST /api/sessions
+    ├── session.gateway.ts  # WebSocket events
+    ├── state-store.ts      # Connexion Redis pour l'état
+    └── dto/
+        ├── create-session.dto.ts
+        └── join-session.dto.ts
+```
+
+### Cycle de vie d'une requête HTTP
+
+```
+1. Client fait : POST /api/quiz
+   ↓
+2. NestJS route vers QuizController.create()
+   ↓
+3. @UseGuards(AuthGuard) vérifie le token JWT
+   ↓
+4. @Body() validation avec class-validator (CreateQuizDto)
+   ↓
+5. QuizController appelle QuizService.create()
+   ↓
+6. QuizService appelle PrismaService pour sauver en DB
+   ↓
+7. Retour de la réponse JSON au client
+```
+
+### Injection de dépendances expliquée
+
+**Le problème :**
+```typescript
+// ❌ Mauvaise approche
+class SessionService {
+  constructor() {
+    this.prisma = new PrismaService();  // Crée une nouvelle instance
+    this.stateStore = new SessionStateStore();
+  }
+}
+```
+
+**La solution NestJS :**
+```typescript
+// ✅ Bonne approche
+@Injectable()  // ← "Cette classe peut être injectée"
+class SessionService {
+  constructor(
+    private prisma: PrismaService,        // ← NestJS fournit l'instance
+    private stateStore: SessionStateStore // ← Instance partagée
+  ) {}
+}
+```
+
+**Avantages :**
+- Une seule instance de `PrismaService` pour toute l'app
+- Une seule connexion Redis
+- Facilite les tests (on peut injecter des mocks)
+
+### Gestion du problème de dépendance circulaire
+
+**Le problème :**
+```
+SessionService utilise SessionGateway.broadcast()
+SessionGateway utilise SessionService.joinSession()
+→ Qui doit être créé en premier ? 🤔
+```
+
+**La solution : forwardRef**
+```typescript
+// session.service.ts
+constructor(
+  @Inject(forwardRef(() => SessionGateway))
+  private gateway: SessionGateway
+) {}
+
+// session.gateway.ts
+constructor(
+  @Inject(forwardRef(() => SessionService))
+  private sessionService: SessionService
+) {}
+```
+
+`forwardRef` dit à NestJS : "Cette dépendance sera disponible plus tard, fais-moi confiance."
+
+---
+
+## 💾 Base de données avec Prisma
+
+### Modèles principaux
+
+#### 1. **User** (Admins)
+```prisma
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // ← Hashé avec bcrypt
+  createdAt DateTime @default(now())
+}
+```
+
+#### 2. **Quiz**
+```prisma
+model Quiz {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      QuizStatus @default(DRAFT)
+  questions   Question[]
+  sessions    Session[]
+  userId      String
+  createdAt   DateTime   @default(now())
+}
+
+enum QuizStatus {
+  DRAFT      // En cours de création
+  PUBLISHED  // Prêt à être utilisé
+}
+```
+
+#### 3. **Question**
+```prisma
+model Question {
+  id            String   @id @default(uuid())
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  quizId        String
+  text          String
+  timeLimitSec  Int      @default(30)
+  orderIndex    Int
+  choices       Choice[]
+  answers       SessionAnswer[]  // ← Réponses des joueurs
+}
+```
+
+#### 4. **Choice** (Choix de réponse)
+```prisma
+model Choice {
+  id         String   @id @default(uuid())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  text       String
+  isCorrect  Boolean  @default(false)  // ← La bonne réponse
+  orderIndex Int
+  answers    SessionAnswer[]
+}
+```
+
+#### 5. **Session** (Instance de jeu)
+```prisma
+model Session {
+  id        String        @id @default(uuid())
+  code      String        @unique  // ← "ABC123" pour rejoindre
+  quiz      Quiz          @relation(fields: [quizId], references: [id])
+  quizId    String
+  status    SessionStatus @default(LOBBY)
+  players   SessionPlayer[]
+  answers   SessionAnswer[]
+  results   SessionResult[]
+  createdAt DateTime      @default(now())
+}
+
+enum SessionStatus {
+  LOBBY    // En attente de joueurs
+  RUNNING  // Session active
+  REVEAL   // Affiche les réponses
+  ENDED    // Terminée
+}
+```
+
+#### 6. **SessionPlayer** (Joueur dans une session)
+```prisma
+model SessionPlayer {
+  id        String   @id @default(uuid())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId String
+  nickname  String
+  joinedAt  DateTime @default(now())
+  
+  @@unique([sessionId, nickname])  // ← Pas de doublons de pseudo
+}
+```
+
+#### 7. **SessionAnswer** (Réponse d'un joueur)
+```prisma
+model SessionAnswer {
+  id         String   @id @default(uuid())
+  session    Session  @relation(fields: [sessionId], references: [id])
+  sessionId  String
+  playerId   String
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  choice     Choice   @relation(fields: [choiceId], references: [id])
+  choiceId   String
+  answeredAt DateTime @default(now())
+}
+```
+
+### Relations visuelles
+
+```
+User (1) ──→ (N) Quiz
+Quiz (1) ──→ (N) Question
+Quiz (1) ──→ (N) Session
+
+Question (1) ──→ (N) Choice
+Question (1) ──→ (N) SessionAnswer
+
+Session (1) ──→ (N) SessionPlayer
+Session (1) ──→ (N) SessionAnswer
+
+Choice (1) ──→ (N) SessionAnswer
+```
+
+### Commandes Prisma importantes
+
+```bash
+# Générer le client TypeScript depuis le schema
+npm run prisma:generate
+
+# Créer une migration (après modification du schema)
+npm run prisma:migrate
+
+# Interface graphique pour voir la DB
+npm run prisma:studio
+```
+
+---
+
+## 🚀 Cache et état avec Redis
+
+### SessionStateStore (`back/src/session/state-store.ts`)
+
+**Rôle :** Gérer l'état volatile des sessions en cours.
+
+```typescript
+export interface SessionState {
+  status: SessionStatus;           // LOBBY, RUNNING, REVEAL, ENDED
+  currentQuestionIndex: number;    // 0, 1, 2...
+  answers: Record<string, string>; // { playerId: choiceId }
+}
+```
+
+**Méthodes principales :**
+
+```typescript
+// Récupérer l'état d'une session
+async getState(code: string): Promise<SessionState | null> {
+  const data = await this.redis.get(`session:${code}`);
+  return data ? JSON.parse(data) : null;
+}
+
+// Sauvegarder l'état
+async setState(code: string, state: SessionState): Promise<void> {
+  await this.redis.set(
+    `session:${code}`,
+    JSON.stringify(state),
+    'EX', 3600  // Expire après 1h
+  );
+}
+
+// Supprimer l'état (fin de session)
+async deleteState(code: string): Promise<void> {
+  await this.redis.del(`session:${code}`);
+}
+```
+
+**Fallback en mémoire :**
+Si Redis n'est pas disponible, utilise une `Map` JavaScript :
+```typescript
+private readonly memory = new Map<string, SessionState>();
+```
+
+### Flux de données
+
+```
+1. Admin démarre la session
+   ↓
+2. SessionService met à jour Redis
+   redis.set('session:ABC123', { status: 'RUNNING', currentQuestionIndex: 0 })
+   ↓
+3. WebSocket broadcast aux clients
+   ↓
+4. Player répond
+   ↓
+5. SessionService met à jour Redis
+   redis.set('session:ABC123', { ...state, answers: { player1: 'choice-id' } })
+   ↓
+6. Admin passe à la question suivante
+   redis.set('session:ABC123', { status: 'RUNNING', currentQuestionIndex: 1 })
+   ↓
+7. Fin de session
+   redis.del('session:ABC123')
+   Données permanentes sauvées dans PostgreSQL
+```
+
+---
+
+## 🔌 Communication temps réel avec WebSockets
+
+### SessionGateway (`back/src/session/session.gateway.ts`)
+
+**Rôle :** Gérer les connexions WebSocket et les events en temps réel.
+
+```typescript
+@WebSocketGateway({ cors: true })
+export class SessionGateway {
+  @WebSocketServer()
+  server: Server;  // ← Instance Socket.IO
+  
+  // Helper : nom de la room pour une session
+  private room(code: string): string {
+    return `session:${code}`;
+  }
+  
+  // Broadcast un événement à tous les clients d'une session
+  broadcast(code: string, event: string, data: any) {
+    this.server?.to(this.room(code)).emit(event, data);
+  }
+}
+```
+
+### Events WebSocket
+
+#### 1. **join-session** (Player/Screen rejoint)
+```typescript
+@SubscribeMessage("join-session")
+handleJoin(
+  @ConnectedSocket() client: Socket,
+  @MessageBody() { code }: { code: string }
+) {
+  client.join(this.room(code));  // Rejoint la room "session:ABC123"
+  return { success: true };
+}
+```
+
+#### 2. **player:answer** (Player répond)
+```typescript
+@SubscribeMessage("player:answer")
+async handleAnswer(
+  @MessageBody() dto: { code, playerId, choiceId }
+) {
+  // Sauvegarde en DB
+  await this.sessionService.submitAnswer(dto);
+  
+  // Broadcast aux autres clients
+  this.broadcast(dto.code, "answer:received", {
+    playerId: dto.playerId
+  });
+}
+```
+
+#### 3. **host:start/next/reveal/end** (Admin contrôle)
+```typescript
+@SubscribeMessage("host:start")
+async handleStart(
+  @MessageBody() { code }: { code: string }
+) {
+  const session = await this.sessionService.startSession(code);
+  // Le service broadcast directement (voir ci-dessous)
+  return session;
+}
+```
+
+### Architecture broadcast hybride
+
+**Problème initial :**
+```
+Admin (HTTP) → POST /api/sessions/ABC123/start
+              ↓
+        SessionService met à jour Redis
+              ↓
+        ❌ Pas de broadcast WebSocket !
+        
+Screen et Players ne reçoivent rien...
+```
+
+**Solution : Injection croisée**
+```typescript
+// session.service.ts
+async startSession(code: string) {
+  // ... logique métier ...
+  
+  // Broadcast via le gateway
+  this.gateway?.broadcast(code, 'session:state', {
+    status: 'RUNNING'
+  });
+  
+  this.gateway?.broadcast(code, 'question:show', {
+    question: currentQuestion
+  });
+}
+```
+
+**Maintenant ça fonctionne :**
+```
+Admin (HTTP) → POST /api/sessions/ABC123/start
+              ↓
+        SessionService.startSession()
+              ↓
+        SessionGateway.broadcast() ✅
+              ↓
+        Screen et Players reçoivent l'événement en temps réel !
+```
+
+### Rooms expliquées
+
+**Une room = un groupe de clients WebSocket**
+
+```typescript
+// Client A rejoint "session:ABC123"
+socket.join('session:ABC123');
+
+// Client B rejoint "session:ABC123"
+socket.join('session:ABC123');
+
+// Client C rejoint "session:XYZ789"
+socket.join('session:XYZ789');
+
+// Broadcast à TOUS les clients de ABC123 (A et B seulement)
+server.to('session:ABC123').emit('question:show', data);
+```
+
+**Avantages :**
+- Isolation entre sessions
+- Pas besoin de filtrer manuellement
+- Performance optimale
+
+---
+
+## 🎨 Les trois frontends
+
+### 1. **Front Admin** (`:5176`)
+
+**Rôle :** Interface pour les organisateurs.
+
+**Fonctionnalités :**
+- Connexion/Inscription (email + password)
+- Créer des quiz avec questions/choix
+- Créer une session depuis un quiz
+- Contrôler le déroulement (Start, Next, Reveal, End)
+
+**Technologies :**
+- Vue 3 avec Composition API
+- Fetch API pour HTTP
+- Socket.IO client pour WebSocket
+
+**Code principal :**
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { io } from 'socket.io-client';
+
+const token = ref(localStorage.getItem('nkg_token'));
+const currentSession = ref(null);
+
+async function createSession(quizId: string) {
+  const res = await fetch(`${API_URL}/api/sessions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token.value}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ quizId })
+  });
+  currentSession.value = await res.json();
+}
+
+async function sessionAction(action: string) {
+  await fetch(`${API_URL}/api/sessions/${currentSession.value.code}/${action}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token.value}` }
+  });
+}
+</script>
+```
+
+### 2. **Front Screen** (`:5174`)
+
+**Rôle :** Affichage des questions pour l'audience (projecteur, TV).
+
+**Fonctionnalités :**
+- Saisie du code de session
+- Connexion WebSocket automatique
+- Affichage de la question actuelle
+- Compteur de réponses en temps réel
+
+**Code principal :**
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { io } from 'socket.io-client';
+
+const socket = io(WS_URL);
+const sessionCode = ref('');
+const currentQuestion = ref(null);
+const answersCount = ref(0);
+
+function connectToSession() {
+  socket.emit('join-session', { code: sessionCode.value });
+}
+
+onMounted(() => {
+  socket.on('question:show', (data) => {
+    currentQuestion.value = data.question;
+    answersCount.value = 0;
+  });
+  
+  socket.on('answer:received', () => {
+    answersCount.value++;
+  });
+  
+  socket.on('session:end', () => {
+    currentQuestion.value = null;
+  });
+});
+</script>
+```
+
+### 3. **Front Player** (`:5175`)
+
+**Rôle :** Interface pour les participants.
+
+**Fonctionnalités :**
+- Saisie du code + pseudo
+- Rejoindre la session (HTTP + WebSocket)
+- Voir la question actuelle
+- Soumettre une réponse (une seule par question)
+
+**Code principal :**
+```vue
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { io } from 'socket.io-client';
+
+const socket = io(WS_URL);
+const sessionCode = ref('');
+const nickname = ref('');
+const playerId = ref('');
+const currentQuestion = ref(null);
+const selectedChoice = ref('');
+const hasAnswered = ref(false);
+
+async function joinSession() {
+  // 1. HTTP pour créer le player en DB
+  const res = await fetch(`${API_URL}/api/sessions/${sessionCode.value}/join`, {
+    method: 'POST',
+    body: JSON.stringify({ nickname: nickname.value })
+  });
+  const data = await res.json();
+  playerId.value = data.playerId;
+  
+  // 2. WebSocket pour recevoir les events
+  socket.emit('join-session', { code: sessionCode.value });
+}
+
+function submitAnswer(choiceId: string) {
+  socket.emit('player:answer', {
+    code: sessionCode.value,
+    playerId: playerId.value,
+    choiceId
+  });
+  hasAnswered.value = true;
+}
+
+onMounted(() => {
+  socket.on('question:show', (data) => {
+    currentQuestion.value = data.question;
+    hasAnswered.value = false;
+    selectedChoice.value = '';
+  });
+  
+  socket.on('answer:reveal', (data) => {
+    // Affiche la bonne réponse
+  });
+});
+</script>
+```
+
+---
+
+## 🎬 Flow complet de l'application
+
+### Phase 1 : Préparation (Admin)
+
+```
+1. Admin s'inscrit / se connecte
+   POST /api/auth/register → JWT token
+   
+2. Admin crée un quiz
+   POST /api/quiz
+   Body: {
+     title: "Culture Générale",
+     questions: [
+       {
+         text: "Capitale de la France ?",
+         timeLimitSec: 30,
+         choices: [
+           { text: "Paris", isCorrect: true },
+           { text: "Londres", isCorrect: false }
+         ]
+       }
+     ]
+   }
+   
+3. Admin crée une session
+   POST /api/sessions
+   Body: { quizId: "uuid-123" }
+   Response: { code: "ABC123", status: "LOBBY" }
+```
+
+### Phase 2 : Connexion (Screen + Players)
+
+```
+4. Screen se connecte
+   - Saisit le code "ABC123"
+   - WebSocket: emit('join-session', { code: 'ABC123' })
+   - Attend l'événement 'question:show'
+   
+5. Players rejoignent
+   - Player 1 : POST /api/sessions/ABC123/join { nickname: "Alice" }
+   - Player 2 : POST /api/sessions/ABC123/join { nickname: "Bob" }
+   - Chaque player reçoit un playerId unique
+   - WebSocket: emit('join-session', { code: 'ABC123' })
+```
+
+### Phase 3 : Déroulement (Admin contrôle)
+
+```
+6. Admin démarre la session
+   POST /api/sessions/ABC123/start
+   ↓
+   SessionService.startSession()
+   ├─→ Met à jour Redis : { status: 'RUNNING', currentQuestionIndex: 0 }
+   ├─→ Met à jour PostgreSQL : session.status = 'RUNNING'
+   └─→ SessionGateway.broadcast('ABC123', 'question:show', { question })
+   ↓
+   Screen affiche : "Capitale de la France ?"
+   Players voient les 4 choix
+   
+7. Players répondent
+   Player 1: socket.emit('player:answer', { choiceId: 'choice-1' })
+   Player 2: socket.emit('player:answer', { choiceId: 'choice-2' })
+   ↓
+   SessionService.submitAnswer()
+   ├─→ Sauvegarde dans PostgreSQL (SessionAnswer)
+   ├─→ Met à jour Redis : answers['player1'] = 'choice-1'
+   └─→ Broadcast('ABC123', 'answer:received', { playerId })
+   ↓
+   Screen met à jour : "2 réponses reçues"
+   
+8. Admin révèle la réponse
+   POST /api/sessions/ABC123/reveal
+   ↓
+   SessionGateway.broadcast('ABC123', 'answer:reveal', { correctChoiceId })
+   ↓
+   Screen affiche en vert : "Paris"
+   Players voient si leur choix était correct
+   
+9. Admin passe à la question suivante
+   POST /api/sessions/ABC123/next
+   ↓
+   SessionService.nextQuestion()
+   ├─→ Incrémente currentQuestionIndex dans Redis
+   └─→ Broadcast('ABC123', 'question:show', { question: question2 })
+   ↓
+   Tout le monde voit la question 2
+   
+10. Admin termine la session
+    POST /api/sessions/ABC123/end
+    ↓
+    SessionService.endSession()
+    ├─→ Met à jour PostgreSQL : session.status = 'ENDED'
+    ├─→ Supprime de Redis : redis.del('session:ABC123')
+    └─→ Broadcast('ABC123', 'session:end', {})
+    ↓
+    Screen affiche : "Session terminée"
+    Players voient le message de fin
+```
+
+### Schéma temporel
+
+```
+Timeline:
+─────────────────────────────────────────────────────────────→
+         Admin                 Screen              Players
+           │                     │                   │
+t0         │ Create Quiz         │                   │
+           │                     │                   │
+t1         │ Create Session      │                   │
+           │  ↓ code="ABC123"    │                   │
+           │                     │                   │
+t2         │                     │ Connect           │
+           │                     │  join-session ────┤
+           │                     │                   │
+t3         │                     │              Join (Alice)
+           │                     │              Join (Bob)
+           │                     │ ◄─────────────────┤
+           │                     │                   │
+t4         │ START ──────────────┼──► question:show ─┤
+           │                     │                   │
+t5         │                     │         ◄── answer (Alice)
+           │                     │ ◄── answer:received
+           │                     │                   │
+t6         │                     │         ◄── answer (Bob)
+           │                     │ ◄── answer:received
+           │                     │                   │
+t7         │ REVEAL ─────────────┼─► answer:reveal ──┤
+           │                     │  (correctChoiceId)│
+           │                     │                   │
+t8         │ NEXT ───────────────┼─► question:show ──┤
+           │                     │   (question 2)    │
+           │                     │                   │
+t9         │ END ────────────────┼─► session:end ────┤
+           │                     │                   │
+```
+
+---
+
+## 🔧 Problèmes résolus
+
+### 1. **Erreur Prisma P1012** (Relations manquantes)
+
+**Erreur :**
+```
+Error validating: relation field 'question' on model 'SessionAnswer' 
+is missing an opposite relation field
+```
+
+**Cause :**
+Prisma exige que chaque relation ait une **relation inverse**.
+
+```prisma
+// ❌ Incomplet
+model Question {
+  id      String  @id
+  // Manque : answers SessionAnswer[]
+}
+
+model SessionAnswer {
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+}
+```
+
+**Solution :**
+```prisma
+// ✅ Complet
+model Question {
+  id      String           @id
+  answers SessionAnswer[]  // ← Relation inverse ajoutée
+}
+
+model SessionAnswer {
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+}
+```
+
+### 2. **Erreur NestJS Dependency Injection**
+
+**Erreur :**
+```
+Nest can't resolve dependencies of the AuthService (PrismaService, ?)
+```
+
+**Cause :**
+Le `JwtModule` n'était pas disponible globalement. `AuthService` ne pouvait pas injecter `JwtService`.
+
+**Solution :**
+```typescript
+// app.module.ts
+JwtModule.registerAsync({
+  global: true,  // ← Ajout de cette ligne
+  useFactory: (config: ConfigService) => ({
+    secret: config.get('JWT_SECRET'),
+    signOptions: { expiresIn: '7d' }
+  }),
+  inject: [ConfigService]
+})
+```
+
+### 3. **WebSocket reactivity issue**
+
+**Symptôme :**
+- Admin clique sur "Start" → Rien ne se passe sur Screen/Players
+- L'état change en DB mais pas de broadcast WebSocket
+
+**Cause :**
+```typescript
+// session.controller.ts (appelé via HTTP)
+@Post(':code/start')
+async start(@Param('code') code: string) {
+  return this.sessionService.startSession(code);
+  // ← Met à jour DB mais ne broadcast pas !
+}
+```
+
+Les événements `@SubscribeMessage` dans le gateway broadcastaient correctement, mais les routes HTTP REST ne le faisaient pas.
+
+**Solution : Injection bidirectionnelle**
+
+```typescript
+// session.service.ts
+constructor(
+  private prisma: PrismaService,
+  private stateStore: SessionStateStore,
+  @Inject(forwardRef(() => SessionGateway))
+  private gateway: SessionGateway  // ← Injecte le gateway
+) {}
+
+async startSession(code: string) {
+  // ... logique métier ...
+  
+  // Broadcast aux WebSocket clients
+  this.gateway?.broadcast(code, 'session:state', { status: 'RUNNING' });
+  this.gateway?.broadcast(code, 'question:show', { question });
+}
+```
+
+```typescript
+// session.gateway.ts
+@WebSocketGateway({ cors: true })
+export class SessionGateway {
+  constructor(
+    @Inject(forwardRef(() => SessionService))
+    private sessionService: SessionService  // ← Injecte le service
+  ) {}
+  
+  // Méthode publique appelable depuis le service
+  broadcast(code: string, event: string, data: any) {
+    this.server?.to(this.room(code)).emit(event, data);
+  }
+}
+```
+
+**Résultat :**
+```
+Admin (HTTP) → SessionService.startSession()
+                     ↓
+              gateway.broadcast() ← Appel direct
+                     ↓
+              WebSocket emit to room
+                     ↓
+              Screen + Players reçoivent l'événement ✅
+```
+
+### 4. **Dépendance circulaire**
+
+**Problème :**
+```
+SessionService ──→ SessionGateway.broadcast()
+       ↑                    │
+       └────────────────────┘
+            SessionGateway ──→ SessionService.joinSession()
+```
+
+Qui crée qui en premier ? NestJS ne peut pas résoudre.
+
+**Solution : forwardRef**
+```typescript
+// Dit à NestJS : "Fais-moi confiance, cette classe existera"
+@Inject(forwardRef(() => SessionGateway))
+```
+
+NestJS crée un **proxy temporaire** puis le remplace par la vraie instance quand elle est prête.
+
+---
+
+## 🎓 Résumé pour débutant
+
+### Vue à 10,000 pieds
+
+**Backend = Cerveau de l'application**
+- NestJS organise le code en modules
+- Prisma parle à PostgreSQL (données permanentes)
+- Redis stocke l'état temporaire (quelle question en cours)
+- WebSocket envoie les updates en temps réel
+
+**Frontend = Trois interfaces**
+- Admin : crée et contrôle
+- Screen : affiche
+- Player : répond
+
+**Communication**
+- HTTP (REST) : Admin crée quiz/session (requête → réponse)
+- WebSocket : Tout le monde reçoit les updates instantanés (connexion permanente)
+
+### Technologies clés
+
+| Techno      | Rôle                          | Analogie                      |
+|-------------|-------------------------------|-------------------------------|
+| **NestJS**  | Structure du serveur          | Fondations d'une maison       |
+| **Prisma**  | Parle à PostgreSQL            | Traducteur SQL ↔ TypeScript   |
+| **PostgreSQL** | Stockage permanent         | Disque dur                    |
+| **Redis**   | Cache ultra-rapide            | Bloc-notes en RAM             |
+| **WebSocket** | Liaison temps réel          | Téléphone toujours décroché   |
+| **Vue 3**   | Interface utilisateur         | Façade de la maison           |
+
+### Points clés à retenir
+
+1. **HTTP = Question-Réponse** → WebSocket = Connexion permanente
+2. **PostgreSQL = Données durables** → Redis = Données temporaires
+3. **Prisma génère du code TypeScript** depuis le schema
+4. **NestJS injecte automatiquement les dépendances**
+5. **forwardRef** résout les dépendances circulaires
+6. **Les rooms WebSocket** isolent les sessions entre elles
+
+---
+
+## 📚 Pour aller plus loin
+
+### Documentation officielle
+- [NestJS](https://docs.nestjs.com)
+- [Prisma](https://www.prisma.io/docs)
+- [Socket.IO](https://socket.io/docs/v4/)
+- [Redis](https://redis.io/docs/)
+
+### Prochaines fonctionnalités possibles
+- ✅ Système de scoring avec calcul de points
+- ✅ Leaderboard en temps réel
+- ✅ Timer avec compte à rebours
+- ✅ Statistiques des réponses (% par choix)
+- ✅ Édition/suppression de quiz
+- ✅ Export des résultats en CSV
+- ✅ Thèmes personnalisables
+- ✅ Mode équipes
+
+---
+
+**Créé le 21 février 2026**  
+**Projet NKG Quiz - Architecture complète**
