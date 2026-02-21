@@ -52,6 +52,7 @@ model Question {
   orderIndex   Int
 
   choices Choice[]
+  answers SessionAnswer[]
 }
 
 model Choice {
@@ -60,6 +61,8 @@ model Choice {
   questionId Int
   text       String
   isCorrect  Boolean  @default(false)
+
+  answers SessionAnswer[]
 }
 
 model Session {
