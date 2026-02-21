@@ -33,7 +33,7 @@ export const useSession = () => {
     error.value = "";
     try {
       const data = await apiFetch(`/api/sessions/${code}/state`);
-      sessionState.value = data.state as SessionState;
+      sessionState.value = data;
       return data;
     } catch (err) {
       error.value =
@@ -76,9 +76,7 @@ export const useSession = () => {
         { method: "POST" },
       );
       sessionState.value = data.state as SessionState;
-      if (action === "end") {
-        activeSession.value = null;
-      }
+
       return data;
     } catch (err) {
       error.value =

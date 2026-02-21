@@ -3,10 +3,11 @@ import { useAuth } from "./useAuth";
 import { Quiz } from "../types/Quiz.types";
 import { QuestionInput } from "../types/Question.types";
 
+const quizzes = ref<Quiz[]>([]);
+const loading = ref(false);
+const error = ref("");
+
 export const useQuiz = () => {
-  const quizzes = ref<Quiz[]>([]);
-  const loading = ref(false);
-  const error = ref("");
   const { apiFetch } = useAuth();
 
   const loadQuizzes = async () => {

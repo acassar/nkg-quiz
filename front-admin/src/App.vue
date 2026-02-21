@@ -22,10 +22,7 @@ const { isAuthed } = useAuth();
         <Quizzes></Quizzes>
         <QuizForm></QuizForm>
       </div>
-
-      <div class="grid">
-        <Session></Session>
-      </div>
+      <Session></Session>
     </section>
   </div>
 </template>

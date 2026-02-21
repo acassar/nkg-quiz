@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useQuiz } from "../composables/useQuiz";
 import { useSession } from "../composables/useSession";
 import { SessionState } from "../types/Session.types";
 
@@ -9,21 +11,39 @@ const {
   error: sessionError,
 } = useSession();
 
+const { quizzes } = useQuiz();
+
+const sessionQuiz = computed(() => {
+  if (!activeSession.value) return null;
+  return (
+    quizzes.value.find((q) => q.id === activeSession.value?.quizId) || null
+  );
+});
+
 const sessionAction = async (action: "start" | "next" | "reveal" | "end") => {
   if (!activeSession.value) return;
   const data = await performAction(action);
   sessionState.value = data.state as SessionState;
-  if (action === "end") activeSession.value = null;
 };
 </script>
 
 <template>
   <div class="card">
-    <div class="section-title">Active session</div>
+    <div class="row">
+      <div class="section-title">Active session :</div>
+      <span>{{ sessionQuiz?.title }}</span>
+    </div>
     <p v-if="!activeSession">No active session yet.</p>
     <div v-else class="grid">
-      <div><strong>Code:</strong> {{ activeSession.code }}</div>
-      <div><strong>Status:</strong> {{ sessionState?.status }}</div>
+      <div class="code-status">
+        <div><strong>Code:</strong> {{ activeSession.code }}</div>
+        <div>
+          <strong>Status : </strong>
+          <span id="session-status" :status="sessionState?.status">{{
+            sessionState?.status
+          }}</span>
+        </div>
+      </div>
       <div class="row">
         <button @click="sessionAction('start')">Start</button>
         <button @click="sessionAction('next')">Next</button>
@@ -35,4 +55,32 @@ const sessionAction = async (action: "start" | "next" | "reveal" | "end") => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.code-status {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+#status {
+  font-size: large;
+}
+
+span[status="LOBBY"] {
+  color: #6b7280;
+}
+
+span[status="RUNNING"] {
+  color: #059669;
+}
+
+span[status="REVEAL"] {
+  color: #f59e0b;
+}
+
+span[status="ENDED"] {
+  color: #dc2626;
+}
+</style>

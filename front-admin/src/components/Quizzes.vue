@@ -46,7 +46,7 @@ const handleClickQuiz = async (quizId: number) => {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card grid">
     <div class="section-title">Quizzes</div>
     <button class="secondary" @click="init" :disabled="loading">
       Refresh list

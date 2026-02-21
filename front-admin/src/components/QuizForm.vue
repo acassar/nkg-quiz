@@ -56,7 +56,7 @@ const createQuiz = async () => {
 </script>
 
 <template>
-  <div class="card">
+  <div class="card grid">
     <div class="section-title">Create quiz</div>
     <input v-model.trim="quizForm.title" placeholder="Quiz title" />
     <select v-model="quizForm.status">
