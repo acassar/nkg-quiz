@@ -38,18 +38,32 @@ model Quiz {
   createdBy  User      @relation(fields: [createdById], references: [id])
   createdById Int
 
+  categories Category[]
   questions Question[]
   sessions  Session[]
 }
 
+model Category {
+  id     Int    @id @default(autoincrement())
+  name   String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId Int
+
+  questions Question[]
+
+  @@unique([quizId, name])
+}
+
 model Question {
-  id           Int      @id @default(autoincrement())
-  quiz         Quiz     @relation(fields: [quizId], references: [id])
-  quizId       Int
-  prompt       String
+  id         Int      @id @default(autoincrement())
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  quizId     Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int
+  prompt     String
   timeLimitSec Int?
-  points       Int?     @default(1000)
-  orderIndex   Int
+  points     Int?     @default(1000)
+  orderIndex Int
 
   choices Choice[]
   answers SessionAnswer[]
