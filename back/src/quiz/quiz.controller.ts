@@ -46,4 +46,30 @@ export class QuizController {
   remove(@Param("id") id: string) {
     return this.quizService.remove(Number(id));
   }
+
+  @Post(":id/categories")
+  createCategory(
+    @Param("id") id: string,
+    @Body() body: { name: string }
+  ) {
+    return this.quizService.createCategory(Number(id), body.name);
+  }
+
+  @Delete(":id/categories/:categoryId")
+  deleteCategory(@Param("categoryId") categoryId: string) {
+    return this.quizService.deleteCategory(Number(categoryId));
+  }
+
+  @Patch(":id/questions/:questionId")
+  updateQuestion(
+    @Param("questionId") questionId: string,
+    @Body() body: any
+  ) {
+    return this.quizService.updateQuestion(Number(questionId), body);
+  }
+
+  @Delete(":id/questions/:questionId")
+  deleteQuestion(@Param("questionId") questionId: string) {
+    return this.quizService.deleteQuestion(Number(questionId));
+  }
 }
