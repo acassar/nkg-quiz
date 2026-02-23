@@ -3,6 +3,10 @@ import { useAuth } from "../composables/useAuth";
 import { useQuiz } from "../composables/useQuiz";
 import { useSession } from "../composables/useSession";
 
+const emits = defineEmits<{
+  (e: "edit:quiz", quizId: number): void;
+}>();
+
 const { isAuthed } = useAuth();
 const { loadQuizzes, quizzes, loading } = useQuiz();
 const {
@@ -40,6 +44,10 @@ const handleClickQuiz = async (quizId: number) => {
     init(); // Refresh the list of active sessions after creating a new one
   }
 };
+
+const editQuiz = (quizId: number) => {
+  emits("edit:quiz", quizId);
+};
 </script>
 
 <template>
@@ -54,9 +62,12 @@ const handleClickQuiz = async (quizId: number) => {
           <strong>{{ quiz.title }}</strong>
           <div class="section-title">{{ quiz.status }}</div>
         </div>
-        <button @click="handleClickQuiz(quiz.id)">
-          {{ getQuizActionLabel(quiz.id) }}
-        </button>
+        <div>
+          <button @click="handleClickQuiz(quiz.id)" style="margin-right: 10px">
+            {{ getQuizActionLabel(quiz.id) }}
+          </button>
+          <button @click="editQuiz(quiz.id)" class="secondary">Edit</button>
+        </div>
       </div>
     </div>
   </div>

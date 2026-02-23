@@ -62,6 +62,11 @@ body {
   gap: 1rem;
 }
 
+.selectable-card {
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
 .grid {
   display: grid;
   gap: 1.2rem;
@@ -73,47 +78,6 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-input,
-select,
-textarea {
-  border: 1px solid #d9c8b4;
-  border-radius: 14px;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.95rem;
-  width: 100%;
-  background: #fdfaf6;
-}
-
-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 0.7rem 1.2rem;
-  font-weight: 600;
-  background: #101010;
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button.secondary {
-  background: #f0e6d8;
-  color: #141414;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgba(16, 16, 16, 0.2);
-}
 
 .list {
   display: grid;

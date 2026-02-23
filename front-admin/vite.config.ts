@@ -7,4 +7,12 @@ export default defineConfig({
     host: true,
     port: 5176,
   },
+  resolve: {
+    alias: {
+      "@": "/src",
+      "@types": "/src/types",
+      "@composables": "/src/composables",
+      "@components": "/src/components",
+    },
+  },
 });

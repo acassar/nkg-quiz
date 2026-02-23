@@ -48,10 +48,7 @@ export class QuizController {
   }
 
   @Post(":id/categories")
-  createCategory(
-    @Param("id") id: string,
-    @Body() body: { name: string }
-  ) {
+  createCategory(@Param("id") id: string, @Body() body: { name: string }) {
     return this.quizService.createCategory(Number(id), body.name);
   }
 
@@ -61,10 +58,7 @@ export class QuizController {
   }
 
   @Patch(":id/questions/:questionId")
-  updateQuestion(
-    @Param("questionId") questionId: string,
-    @Body() body: any
-  ) {
+  updateQuestion(@Param("questionId") questionId: string, @Body() body: any) {
     return this.quizService.updateQuestion(Number(questionId), body);
   }
 
