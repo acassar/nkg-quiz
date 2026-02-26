@@ -177,10 +177,10 @@ export class SessionService {
   }
 
   /**
-   * Start a session by code. If restart is true, it will restart the session if it's already running or ended. Otherwise, it will throw an error if the session is not in lobby status.
-   * @param code session code
-   * @param restart is a restart or not
-   * @returns session state and the first question
+   * Start a session by code
+   * @param code Session code
+   * @param restart If true, restart the session if already running or ended
+   * @returns Session state and the first question
    */
   private async _startSession(code: string, restart = false) {
     const session = await this.getSessionByCode(code);
