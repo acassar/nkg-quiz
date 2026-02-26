@@ -1,96 +1,57 @@
 import { ref } from "vue";
-import { useAuth } from "./useAuth";
 import { Session, SessionAction, SessionState } from "../types/Session.types";
+import { useSessionFetcher } from "./fetcher/session/useSessionFetcher";
 
-const activeSession = ref<Session | null>(null);
+const activeSession = ref<Session | undefined>(undefined);
 const activeSessions = ref<Session[]>([]);
-const sessionState = ref<SessionState | null>(null);
-const error = ref("");
+const sessionState = ref<SessionState | undefined>(undefined);
 
 export const useSession = () => {
-  const { apiFetch } = useAuth();
+  const {
+    getSessionState: getSessionStateFetcher,
+    performAction: performActionFetcher,
+    getActiveSessions: getActiveSessionsFetcher,
+    createSession: createSessionFetcher,
+  } = useSessionFetcher();
 
-  /*
-   * API
-   */
-  const createSession = async (quizId: number) => {
-    error.value = "";
-    try {
-      const data = await apiFetch("/api/sessions", {
-        method: "POST",
-        body: JSON.stringify({ quizId }),
-      });
-      activeSession.value = data.session as Session;
-      sessionState.value = data.state as SessionState;
-      return data;
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : "Failed to create session";
-      throw err;
+  const changeActiveSession = async (session: Session | null) => {
+    activeSession.value = session ?? undefined;
+    if (session) {
+      const sessionData = await getSessionStateFetcher.execute(session?.code);
+      sessionState.value = sessionData;
+    } else {
+      sessionState.value = undefined;
     }
   };
 
-  const getSessionState = async (code: string) => {
-    error.value = "";
-    try {
-      const data = await apiFetch(`/api/sessions/${code}/state`);
-      sessionState.value = data;
-      return data;
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : "Failed to fetch session state";
-      throw err;
-    }
+  const createSession = async (quizId: number) => {
+    const data = await createSessionFetcher.execute(quizId);
+    activeSession.value = data?.session;
+    sessionState.value = data?.state;
+    return data;
   };
 
   const getActiveSessions = async () => {
-    error.value = "";
-    try {
-      const data = await apiFetch(`/api/sessions/active`);
-      activeSessions.value = data;
-      return data;
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : "Failed to fetch active session";
-      throw err;
-    }
-  };
-
-  /*
-   * End API
-   */
-
-  const changeActiveSession = (session: Session | null) => {
-    activeSession.value = session;
-    if (session) {
-      getSessionState(session.code);
-    } else {
-      sessionState.value = null;
-    }
+    const data = await getActiveSessionsFetcher.execute();
+    activeSessions.value = data ?? [];
   };
 
   const performAction = async (action: SessionAction) => {
     if (!activeSession.value) return;
-    error.value = "";
-    try {
-      const data = await apiFetch(
-        `/api/sessions/${activeSession.value.code}/${action}`,
-        { method: "POST" },
-      );
-      sessionState.value = data.state as SessionState;
 
-      if (action === "archive") {
-        activeSession.value = null;
-        sessionState.value = null;
-        getActiveSessions();
-      }
+    const data = await performActionFetcher.execute(
+      activeSession.value.code,
+      action,
+    );
+    sessionState.value = data;
 
-      return data;
-    } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : `Failed to ${action} session`;
-      throw err;
+    if (action === "archive") {
+      activeSession.value = undefined;
+      sessionState.value = undefined;
+      getActiveSessions();
     }
+
+    return data;
   };
 
   return {
@@ -98,7 +59,6 @@ export const useSession = () => {
     activeSession,
     activeSessions,
     sessionState,
-    error,
     // Methods
     createSession,
     performAction,

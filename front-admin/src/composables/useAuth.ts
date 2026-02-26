@@ -3,9 +3,12 @@ import { computed, ref } from "vue";
 const token = ref(localStorage.getItem("nkg_token") || "");
 const error = ref("");
 
-const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
-const apiFetch = async (path: string, options: RequestInit = {}) => {
+const apiFetch = async (
+  path: string,
+  options: RequestInit = {},
+): Promise<Response> => {
   const headers = new Headers(options.headers || {});
   headers.set("Content-Type", "application/json");
   if (token.value) headers.set("Authorization", `Bearer ${token.value}`);
@@ -20,7 +23,7 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
     throw new Error(text || "Request failed");
   }
 
-  return response.json();
+  return response;
 };
 
 export const useAuth = () => {
@@ -29,7 +32,7 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     error.value = "";
     try {
-      const data = await apiFetch("/api/auth/login", {
+      const data = await apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
@@ -45,7 +48,7 @@ export const useAuth = () => {
   const register = async (email: string, password: string) => {
     error.value = "";
     try {
-      const data = await apiFetch("/api/auth/register", {
+      const data = await apiFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });

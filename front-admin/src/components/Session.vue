@@ -1,30 +1,26 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useQuiz } from "../composables/useQuiz";
 import { useSession } from "../composables/useSession";
-import { SessionAction, SessionState } from "../types/Session.types";
+import { SessionAction } from "../types/Session.types";
+import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 
-const {
-  performAction,
-  activeSession,
-  sessionState,
-  error: sessionError,
-} = useSession();
+const { performAction, activeSession, sessionState } = useSession();
 
-const { quizzes } = useQuiz();
+const { getQuizzes } = useQuizFetcher();
 
 const sessionQuiz = computed(() => {
   if (!activeSession.value) return null;
   return (
-    quizzes.value.find((q) => q.id === activeSession.value?.quizId) || null
+    getQuizzes.data.value?.find((q) => q.id === activeSession.value?.quizId) ||
+    null
   );
 });
 
 const sessionAction = async (action: SessionAction) => {
-  if (!activeSession.value) return;
-  const data = await performAction(action);
-  sessionState.value = data.state as SessionState;
+  await performAction(action);
 };
+
+getQuizzes.execute();
 </script>
 
 <template>
@@ -70,7 +66,6 @@ const sessionAction = async (action: SessionAction) => {
         </button>
       </div>
     </div>
-    <p v-if="sessionError">{{ sessionError }}</p>
   </div>
 </template>
 

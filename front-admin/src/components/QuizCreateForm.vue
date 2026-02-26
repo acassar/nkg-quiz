@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useQuiz } from "../composables/useQuiz";
+import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
+import { computed, ref } from "vue";
 
 const emits = defineEmits<{
   (e: "created:quiz", quizId: number): void;
 }>();
 
-const { createQuiz: createQuizApi } = useQuiz();
+const { createQuiz: createQuizFetcher } = useQuizFetcher();
 
 const quizForm = ref({
   title: "",
   status: "DRAFT" as "DRAFT" | "PUBLISHED",
 });
 
-const isLoading = ref(false);
 const error = ref("");
+
+const isLoading = computed(() => createQuizFetcher.isLoading.value);
 
 const createQuiz = async () => {
   if (!quizForm.value.title.trim()) {
@@ -22,21 +23,12 @@ const createQuiz = async () => {
     return;
   }
 
-  isLoading.value = true;
-  error.value = "";
+  const newQuiz = await createQuizFetcher.execute({
+    title: quizForm.value.title,
+    status: quizForm.value.status,
+  });
 
-  try {
-    const newQuiz = await createQuizApi({
-      title: quizForm.value.title,
-      status: quizForm.value.status,
-    });
-
-    emits("created:quiz", newQuiz.id);
-  } catch (err: any) {
-    error.value = err.message || "Failed to create quiz";
-  } finally {
-    isLoading.value = false;
-  }
+  if (newQuiz?.id) emits("created:quiz", newQuiz.id);
 };
 </script>
 
