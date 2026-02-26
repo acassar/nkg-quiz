@@ -1,3 +1,5 @@
+import { Session } from "./Session.types";
+
 export type Choice = {
   id: number;
   text: string;
@@ -24,4 +26,5 @@ export type Quiz = {
   status: "DRAFT" | "PUBLISHED";
   categories: Category[];
   questions: Question[];
+  sessions?: Session[];
 };

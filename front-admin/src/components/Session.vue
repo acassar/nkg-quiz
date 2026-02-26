@@ -1,33 +1,19 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/Session.types";
-import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 
 const { performAction, activeSession, sessionState } = useSession();
-
-const { getQuizzes } = useQuizFetcher();
-
-const sessionQuiz = computed(() => {
-  if (!activeSession.value) return null;
-  return (
-    getQuizzes.data.value?.find((q) => q.id === activeSession.value?.quizId) ||
-    null
-  );
-});
 
 const sessionAction = async (action: SessionAction) => {
   await performAction(action);
 };
-
-getQuizzes.execute();
 </script>
 
 <template>
   <div class="card">
     <div class="row">
       <div class="section-title">Active session :</div>
-      <span>{{ sessionQuiz?.title }}</span>
+      <span>TODO</span>
     </div>
     <p v-if="!activeSession">No active session yet.</p>
     <div v-else class="grid">

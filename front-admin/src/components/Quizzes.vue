@@ -4,6 +4,7 @@ import { useAuth } from "../composables/useAuth";
 import { useSession } from "../composables/useSession";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
 import { computed } from "vue";
+import { Quiz } from "@/types/Quiz.types";
 
 const emits = defineEmits<{
   (e: "edit:quiz", quizId: number): void;
@@ -13,39 +14,35 @@ const { isAuthed } = useAuth();
 const { getQuizzes } = useQuizFetcher();
 
 const { changeActiveSession } = useSession();
-const { getActiveSessions, createSession } = useSessionFetcher();
+const { createSession } = useSessionFetcher();
 
-const isLoading = computed(
-  () => getQuizzes.isLoading.value || getActiveSessions.isLoading.value,
-);
+const isLoading = computed(() => getQuizzes.isLoading.value);
 
 if (isAuthed.value) init();
 
 async function init() {
   try {
-    await Promise.all([getQuizzes.execute(), getActiveSessions.execute()]);
+    await Promise.all([getQuizzes.execute()]);
   } catch (err) {
     console.error("Error loading quizzes or sessions:", err);
   }
 }
 
-const getQuizActionLabel = (quizId: number) => {
-  if (getActiveSessions.data.value?.some((s) => s.quizId === quizId)) {
+const getQuizActionLabel = (quiz: Quiz) => {
+  if (quiz.sessions && quiz.sessions.length > 0) {
     return "View session";
   }
   return "Create session";
 };
 
-const handleClickQuiz = async (quizId: number) => {
-  if (getActiveSessions.data.value?.some((s) => s.quizId === quizId)) {
-    const session = getActiveSessions.data.value.find(
-      (s) => s.quizId === quizId,
-    );
+const handleClickQuiz = async (quiz: Quiz) => {
+  if (quiz.sessions && quiz.sessions.length > 0) {
+    const session = quiz.sessions[0]; // Using the most recent session if multiple exist
     if (session) {
       changeActiveSession(session);
     }
   } else {
-    await createSession.execute(quizId);
+    await createSession.execute(quiz.id);
     init(); // Refresh the list of active sessions after creating a new one
   }
 };
@@ -72,8 +69,8 @@ const editQuiz = (quizId: number) => {
           <div class="section-title">{{ quiz.status }}</div>
         </div>
         <div>
-          <button @click="handleClickQuiz(quiz.id)" style="margin-right: 10px">
-            {{ getQuizActionLabel(quiz.id) }}
+          <button @click="handleClickQuiz(quiz)" style="margin-right: 10px">
+            {{ getQuizActionLabel(quiz) }}
           </button>
           <button @click="editQuiz(quiz.id)" class="secondary">Edit</button>
         </div>

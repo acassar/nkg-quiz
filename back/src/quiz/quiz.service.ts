@@ -27,6 +27,10 @@ export class QuizService {
           include: { choices: true },
           orderBy: { orderIndex: "asc" },
         },
+        sessions: {
+          orderBy: { createdAt: "desc" },
+          where: { status: { not: "ARCHIVED" } },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
