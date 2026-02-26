@@ -1,9 +1,13 @@
 import { useAuth } from "@/composables/useAuth";
 
+export type FetcherResponse<T> = {
+  data: T;
+  status: number;
+};
 export async function apiFetch<T>(
   endpoint: string,
   options?: RequestInit,
-): Promise<{ data: T; status: number }> {
+): Promise<FetcherResponse<T>> {
   let response: Response | undefined;
   try {
     response = await useAuth().apiFetch(endpoint, options);
