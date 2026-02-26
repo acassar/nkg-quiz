@@ -14,6 +14,7 @@ export type SessionState = {
 export class SessionStateStore {
   private readonly redis?: Redis;
   private readonly memory = new Map<string, string>();
+  private readonly TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
   constructor(private readonly config: ConfigService) {
     const redisUrl = this.config.get<string>("REDIS_URL");
@@ -33,13 +34,30 @@ export class SessionStateStore {
     const payload = JSON.stringify(state);
 
     if (this.redis) {
-      await this.redis.set(key, payload);
+      await this.redis.set(key, payload, "EX", this.TTL_SECONDS);
     } else {
       this.memory.set(key, payload);
     }
 
     return state;
   }
+
+  // ==================== Cleanup ====================
+
+  /**
+   * Remove all cached data for a session
+   */
+  async cleanup(code: string): Promise<void> {
+    const stateKey = this.key(code);
+
+    if (this.redis) {
+      await this.redis.del(stateKey);
+    } else {
+      this.memory.delete(stateKey);
+    }
+  }
+
+  // ==================== Private Helpers ====================
 
   private key(code: string) {
     return `session:${code}:state`;
