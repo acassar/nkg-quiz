@@ -23,6 +23,11 @@ export class QuestionController {
     return this.questionService.get(Number(id));
   }
 
+  @Get("category/:categoryId")
+  listByCategory(@Param("categoryId") categoryId: string) {
+    return this.questionService.listByCategory(Number(categoryId));
+  }
+
   @Post("category/:categoryId")
   create(
     @Param("categoryId") categoryId: string,
