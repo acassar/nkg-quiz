@@ -10,13 +10,14 @@ import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
 import { SessionStateStore } from "./state-store";
 import { nanoid } from "nanoid";
-import { Session, SessionStatus } from "@prisma/client";
+import { Prisma, Session, SessionStatus } from "@prisma/client";
 import { SessionGateway } from "./session.gateway";
+import { ISessionService } from "./model/sessionService.model";
 
 //TODO make interfaces to create contracts between service and users of the service (controller and gateway).
 
 @Injectable()
-export class SessionService {
+export class SessionService implements ISessionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stateStore: SessionStateStore,
@@ -45,6 +46,12 @@ export class SessionService {
     });
   }
 
+  /**
+   * Create a session for a quiz. Fails if an active session already exists for the quiz.
+   * An active session is a session that is in LOBBY, RUNNING, REVEAL or ENDED status.
+   * The session starts in LOBBY status and must be started to move to RUNNING status.
+   * Initializes session state in the state store and returns the session and its state.
+   */
   async createSession(dto: CreateSessionDto) {
     const existingSession = await this.prisma.session.findFirst({
       where: {
@@ -96,6 +103,11 @@ export class SessionService {
     return { session, state };
   }
 
+  /**
+   * Get all active sessions for a user
+   * @param userId User ID
+   * @returns Array of active sessions
+   */
   async userActiveSessions(userId: number) {
     const sessions = await this.prisma.session.findMany({
       where: {
@@ -126,12 +138,17 @@ export class SessionService {
         },
       });
 
-      return { sessionCode: code, playerId: player.id };
+      return { playerId: player.id };
     } catch {
       throw new BadRequestException("Nickname already taken");
     }
   }
 
+  /**
+   * Retrieve session state from the state store. If not found, initialize it from the session data in the database.
+   * @param code session code
+   * @returns the session state
+   */
   async getState(code: string) {
     const session = await this.getSessionByCode(code);
     const state =
@@ -143,22 +160,11 @@ export class SessionService {
         updatedAt: new Date().toISOString(),
       }));
 
-    const currentQuestion =
-      state.currentQuestionIndex !== null
-        ? await this.getQuestionByIndex(
-            session.quizId,
-            state.currentQuestionIndex,
-          )
-        : null;
-
-    return {
-      ...state,
-      currentQuestion,
-    };
+    return { state };
   }
 
   /**
-   * Resets session state and answers for a restart. Used when restarting a session that is already running or ended.
+   * Resets session status to LOBBY and deletes answers for a restart. Used when restarting a session that is already running or ended.
    */
   private async handleRestartSession(session: Session) {
     await this.prisma.session.update({
@@ -201,6 +207,7 @@ export class SessionService {
         throw new BadRequestException("Session already started");
       }
     } else {
+      // Update session status and current question index in the database
       await this.prisma.session.update({
         where: { id: session.id },
         data: {
@@ -211,19 +218,27 @@ export class SessionService {
       });
     }
 
+    // Update session state in the state store
     const state = await this.stateStore.set({
       code: session.code,
-      status: SessionStatus.RUNNING,
+      status: restart ? SessionStatus.LOBBY : SessionStatus.RUNNING,
       currentQuestionIndex,
       updatedAt: new Date().toISOString(),
     });
 
+    // Broadcast session state
     this.gateway?.broadcast(code, "session:state", state);
-    this.gateway?.broadcast(code, "question:show", question);
 
     return { state, question };
   }
 
+  // ==================== Session Flow Handlers ====================
+
+  /**
+   * Move to the next question in the session. If no more questions are available, end the session.
+   * @param code session code
+   * @returns session state
+   */
   async nextQuestion(code: string) {
     const session = await this.getSessionByCode(code);
     const nextIndex = (session.currentQuestionIndex ?? -1) + 1;
@@ -249,13 +264,16 @@ export class SessionService {
     });
 
     this.gateway?.broadcast(code, "session:state", state);
-    if (question) {
-      this.gateway?.broadcast(code, "question:show", question);
-    }
 
-    return { state, question };
+    return { state };
   }
 
+  /**
+   * Reveal the answer for the current question by setting session status to REVEAL.
+   * Players can submit answers only when the session is in RUNNING status, so this effectively locks answer submission until the next question is shown.
+   * @param code session code
+   * @returns the session state
+   */
   async revealAnswer(code: string) {
     const session = await this.getSessionByCode(code);
     await this.prisma.session.update({
@@ -276,6 +294,11 @@ export class SessionService {
     return { state };
   }
 
+  /**
+   * End the session by setting status to ENDED. Players can no longer submit answers and the session is effectively closed.
+   * @param code session code
+   * @returns the session state
+   */
   async endSession(code: string) {
     const session = await this.getSessionByCode(code);
     await this.prisma.session.update({
@@ -295,6 +318,11 @@ export class SessionService {
     return { state };
   }
 
+  /**
+   * Submit an answer for the current question in the session.
+   * @param params the parameters for submitting an answer
+   * @returns the ID of the submitted answer
+   */
   async submitAnswer(params: {
     code: string;
     playerId: number;
@@ -302,6 +330,11 @@ export class SessionService {
     choiceId: number;
   }) {
     const session = await this.getSessionByCode(params.code);
+
+    const state = await this.stateStore.get(params.code);
+    if (!state || state.status !== SessionStatus.RUNNING) {
+      throw new BadRequestException("Session is not accepting answers");
+    }
 
     try {
       const answer = await this.prisma.sessionAnswer.create({
@@ -319,6 +352,8 @@ export class SessionService {
     }
   }
 
+  // ==================== Private Helpers ====================
+
   private async getSessionByCode(code: string) {
     const session = await this.prisma.session.findUnique({
       where: { code },
@@ -331,7 +366,10 @@ export class SessionService {
     return session;
   }
 
-  private async getQuestionByIndex(quizId: number, index: number) {
+  private async getQuestionByIndex(
+    quizId: number,
+    index: number,
+  ): Promise<Prisma.QuestionGetPayload<{ include: { choices: true } }> | null> {
     const question = await this.prisma.question.findFirst({
       where: { quizId, orderIndex: index },
       include: { choices: true },
@@ -341,16 +379,7 @@ export class SessionService {
       return null;
     }
 
-    return {
-      id: question.id,
-      prompt: question.prompt,
-      timeLimitSec: question.timeLimitSec,
-      points: question.points,
-      choices: question.choices.map((choice) => ({
-        id: choice.id,
-        text: choice.text,
-      })),
-    };
+    return question;
   }
 
   private async createSessionWithCode(quizId: number) {
