@@ -6,9 +6,11 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
+import { IQuizService } from "./domain/port/quiz.serive.port";
+import { categoriesWithRelations } from "./prisma/quizPrisma.object";
 
 @Injectable()
-export class QuizService {
+export class QuizService implements IQuizService {
   constructor(private readonly prisma: PrismaService) {}
 
   list(userId: number) {
@@ -16,20 +18,10 @@ export class QuizService {
       where: { createdById: userId },
       include: {
         categories: {
-          include: {
-            questions: {
-              include: { choices: true },
-              orderBy: { orderIndex: "asc" },
-            },
-          },
+          include: categoriesWithRelations,
         },
-        questions: {
-          include: { choices: true },
-          orderBy: { orderIndex: "asc" },
-        },
-        sessions: {
-          orderBy: { createdAt: "desc" },
-          where: { status: { not: "ARCHIVED" } },
+        _count: {
+          select: { sessions: true, questions: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -47,10 +39,6 @@ export class QuizService {
               orderBy: { orderIndex: "asc" },
             },
           },
-        },
-        questions: {
-          include: { choices: true },
-          orderBy: { orderIndex: "asc" },
         },
       },
     });
