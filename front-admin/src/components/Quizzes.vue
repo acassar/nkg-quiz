@@ -12,7 +12,7 @@ const emits = defineEmits<{
 }>();
 
 const { isAuthed } = useAuth();
-const { getQuizzes } = useQuizFetcher();
+const { getQuizzes, deleteQuiz: deleteQuizFetcher } = useQuizFetcher();
 const { set: updateQuizStore, clear: clearQuizzesStore } = useQuizStore();
 
 const { changeActiveSession } = useSession();
@@ -62,6 +62,22 @@ const handleClickQuiz = async (quiz: Quiz) => {
 const editQuiz = (quizId: number) => {
   emits("edit:quiz", quizId);
 };
+
+const deleteQuiz = async (quizId: number) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this quiz? This action cannot be undone.",
+  );
+  if (!confirmed) return;
+
+  await deleteQuizFetcher.execute(quizId.toString());
+  if (deleteQuizFetcher.error.value) {
+    console.error("Error deleting quiz:", deleteQuizFetcher.error.value);
+    alert("Failed to delete quiz. Please try again.");
+    return;
+  }
+  init(); // Refresh the list of quizzes after deletion
+  alert("Quiz deleted successfully");
+};
 </script>
 
 <template>
@@ -80,11 +96,12 @@ const editQuiz = (quizId: number) => {
           <strong>{{ quiz.title }}</strong>
           <div class="section-title">{{ quiz.status }}</div>
         </div>
-        <div>
-          <button @click="handleClickQuiz(quiz)" style="margin-right: 10px">
+        <div class="row">
+          <button @click="handleClickQuiz(quiz)">
             {{ getQuizActionLabel(quiz) }}
           </button>
           <button @click="editQuiz(quiz.id)" class="secondary">Edit</button>
+          <button @click="deleteQuiz(quiz.id)" class="secondary">Delete</button>
         </div>
       </div>
     </div>
