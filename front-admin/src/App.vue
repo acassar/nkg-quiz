@@ -1,9 +1,18 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import HeaderBar from "./components/HeaderBar.vue";
 import Login from "./components/Login.vue";
 import { useAuth } from "./composables/useAuth";
+import router from "./router";
 
 const { isAuthed } = useAuth();
+const isTransitioning = ref(false);
+
+router.afterEach((to, from) => {
+  const toDepth = to.path.split("/").length;
+  const fromDepth = from.path.split("/").length;
+  to.meta.transition = toDepth < fromDepth ? "slide-right" : "slide-left";
+});
 
 //TODO: handle auth state changes (e.g. token expiration) and redirect to login if needed
 </script>
@@ -15,9 +24,50 @@ const { isAuthed } = useAuth();
     <HeaderBar />
 
     <div v-if="isAuthed" class="columns">
-      <div class="grid">
-        <RouterView />
+      <div
+        class="grid route-container"
+        :class="{ transitioning: isTransitioning }"
+      >
+        <RouterView v-slot="{ Component, route }">
+          <Transition
+            :name="(route.meta.transition as string) || 'slide-left'"
+            @before-enter="isTransitioning = true"
+            @after-enter="isTransitioning = false"
+          >
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.2s ease;
+}
+.slide-left-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-left-leave-to,
+.slide-right-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-left-leave-active,
+.slide-right-leave-active {
+  position: absolute;
+  width: 100%;
+}
+.route-container {
+  position: relative;
+}
+.route-container.transitioning {
+  overflow: hidden;
+}
+</style>
