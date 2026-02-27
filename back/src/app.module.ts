@@ -2,8 +2,11 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthModule } from "./auth/auth.module";
+import { CategoryModule } from "./category/category.module";
+import { ChoiceModule } from "./choice/choice.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { QuestionModule } from "./question/question.module";
 import { QuizModule } from "./quiz/quiz.module";
 import { SessionModule } from "./session/session.module";
 
@@ -22,6 +25,9 @@ import { SessionModule } from "./session/session.module";
     PrismaModule,
     AuthModule,
     QuizModule,
+    CategoryModule,
+    QuestionModule,
+    ChoiceModule,
     SessionModule,
     HealthModule,
   ],

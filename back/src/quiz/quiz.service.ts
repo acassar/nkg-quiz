@@ -6,11 +6,10 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
-import { IQuizService } from "./domain/port/quiz.serive.port";
 import { categoriesWithRelations } from "./prisma/quizPrisma.object";
 
 @Injectable()
-export class QuizService implements IQuizService {
+export class QuizService {
   constructor(private readonly prisma: PrismaService) {}
 
   list(userId: number) {
@@ -56,32 +55,12 @@ export class QuizService implements IQuizService {
       throw new BadRequestException("Invalid user");
     }
 
-    // Allow creating quiz without questions initially
-    const quizData: any = {
-      title: dto.title,
-      status: dto.status,
-      createdById: userId,
-    };
-
-    if (dto.questions && dto.questions.length > 0) {
-      quizData.questions = {
-        create: dto.questions.map((question, index) => ({
-          prompt: question.prompt,
-          timeLimitSec: question.timeLimitSec,
-          points: question.points,
-          orderIndex: question.orderIndex ?? index,
-          choices: {
-            create: question.choices.map((choice) => ({
-              text: choice.text,
-              isCorrect: choice.isCorrect ?? false,
-            })),
-          },
-        })),
-      };
-    }
-
     return this.prisma.quiz.create({
-      data: quizData,
+      data: {
+        title: dto.title,
+        status: dto.status,
+        createdById: userId,
+      },
       include: {
         categories: {
           include: {
@@ -91,87 +70,7 @@ export class QuizService implements IQuizService {
             },
           },
         },
-        questions: {
-          include: { choices: true },
-          orderBy: { orderIndex: "asc" },
-        },
       },
-    });
-  }
-
-  async createCategory(quizId: number, name: string) {
-    const quiz = await this.get(quizId);
-    if (!quiz) {
-      throw new NotFoundException("Quiz not found");
-    }
-
-    const existing = await this.prisma.category.findFirst({
-      where: { quizId, name },
-    });
-
-    if (existing) {
-      throw new BadRequestException("Category already exists");
-    }
-
-    return this.prisma.category.create({
-      data: {
-        name,
-        quizId,
-      },
-      include: {
-        questions: {
-          include: { choices: true },
-          orderBy: { orderIndex: "asc" },
-        },
-      },
-    });
-  }
-
-  async deleteCategory(categoryId: number) {
-    const category = await this.prisma.category.findUnique({
-      where: { id: categoryId },
-    });
-
-    if (!category) {
-      throw new NotFoundException("Category not found");
-    }
-
-    return this.prisma.category.delete({
-      where: { id: categoryId },
-    });
-  }
-
-  async updateQuestion(questionId: number, updates: any) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
-    });
-
-    if (!question) {
-      throw new NotFoundException("Question not found");
-    }
-
-    return this.prisma.question.update({
-      where: { id: questionId },
-      data: {
-        prompt: updates.prompt ?? question.prompt,
-        timeLimitSec: updates.timeLimitSec ?? question.timeLimitSec,
-        points: updates.points ?? question.points,
-      },
-      include: { choices: true },
-    });
-  }
-
-  async deleteQuestion(questionId: number) {
-    const question = await this.prisma.question.findUnique({
-      where: { id: questionId },
-    });
-
-    if (!question) {
-      throw new NotFoundException("Question not found");
-    }
-
-    return this.prisma.question.delete({
-      where: { id: questionId },
     });
   }
 
