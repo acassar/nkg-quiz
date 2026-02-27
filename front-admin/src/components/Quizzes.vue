@@ -5,6 +5,7 @@ import { useSession } from "../composables/useSession";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
 import { computed } from "vue";
 import { Quiz } from "@/types/Quiz.types";
+import { useQuizStore } from "@/stores/quizStore";
 
 const emits = defineEmits<{
   (e: "edit:quiz", quizId: number): void;
@@ -12,6 +13,7 @@ const emits = defineEmits<{
 
 const { isAuthed } = useAuth();
 const { getQuizzes } = useQuizFetcher();
+const { set: updateQuizStore, clear: clearQuizzesStore } = useQuizStore();
 
 const { changeActiveSession } = useSession();
 const { createSession } = useSessionFetcher();
@@ -22,9 +24,19 @@ if (isAuthed.value) init();
 
 async function init() {
   try {
-    await Promise.all([getQuizzes.execute()]);
+    await Promise.all([initQuizzes()]);
   } catch (err) {
     console.error("Error loading quizzes or sessions:", err);
+  }
+}
+
+async function initQuizzes() {
+  await getQuizzes.execute();
+  if (getQuizzes.data.value) {
+    clearQuizzesStore(); // Clear the quiz store before setting new data
+    getQuizzes.data.value.forEach((quiz) => {
+      updateQuizStore(quiz);
+    });
   }
 }
 

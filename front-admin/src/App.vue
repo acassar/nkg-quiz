@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import HeaderBar from "./components/HeaderBar.vue";
 import Login from "./components/Login.vue";
-import PageHandler from "./components/pageHandler/PageHandler.vue";
 import { useAuth } from "./composables/useAuth";
 
 const { isAuthed } = useAuth();
@@ -17,7 +16,7 @@ const { isAuthed } = useAuth();
 
     <div v-if="isAuthed" class="columns">
       <div class="grid">
-        <PageHandler />
+        <RouterView />
       </div>
     </div>
   </div>
