@@ -4,7 +4,7 @@ import {
   Session,
   SessionAction,
   SessionState,
-} from "@/types/Session.types";
+} from "@/types/session/session.types";
 import { useFetcher } from "../useFetcher";
 
 export function useSessionFetcher() {

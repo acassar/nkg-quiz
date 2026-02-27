@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import QuestionCard from "@/components/question/QuestionCard.vue";
-import { Category, Question } from "@/types/Quiz.types";
+import { Category, Question } from "@/types/quiz/quiz.types";
 
 defineEmits<{
   (e: "click", question: Question): void;

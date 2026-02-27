@@ -1,5 +1,9 @@
 import { ref } from "vue";
-import { Session, SessionAction, SessionState } from "../types/Session.types";
+import {
+  Session,
+  SessionAction,
+  SessionState,
+} from "../types/session/session.types";
 import { useSessionFetcher } from "./fetcher/session/useSessionFetcher";
 
 const activeSession = ref<Session | undefined>(undefined);

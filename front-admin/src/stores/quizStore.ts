@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import { Quiz } from "@/types/Quiz.types";
+import { Quiz } from "@/types/quiz/quiz.types";
 import { Serializer } from "pinia-plugin-persistedstate";
 
 //TODO: make the persistence work and allow map persistence

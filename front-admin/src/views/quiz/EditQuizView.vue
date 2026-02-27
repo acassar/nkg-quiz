@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Quiz } from "../../types/Quiz.types";
+import { Quiz } from "../../types/quiz/quiz.types";
 import EditQuiz from "../../components/quiz/edit/EditQuiz.vue";
 import { useQuizStore } from "@/stores/quizStore";
 import { useRouter } from "vue-router";

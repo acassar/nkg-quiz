@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { ChoiceInput, QuestionInput } from "@/types/Question.types";
-import { Question } from "@/types/Quiz.types";
+import type { Question, QuestionInput } from "@/types/question/question.types";
 
 const emits = defineEmits<{
   (e: "submit", payload: QuestionInput): void;
@@ -33,7 +32,7 @@ const canSubmit = computed(
     hasAllChoiceText.value,
 );
 
-function getFormInitData() {
+function getFormInitData(): QuestionInput {
   return {
     prompt: props.question?.prompt ?? "",
     timeLimitSec: props.question?.timeLimitSec ?? null,
@@ -84,7 +83,7 @@ const submit = () => {
     prompt: form.value.prompt.trim(),
     timeLimitSec: normalizeNumber(form.value.timeLimitSec),
     points: normalizeNumber(form.value.points),
-    choices: form.value.choices.map((choice: ChoiceInput) => ({
+    choices: form.value.choices.map((choice) => ({
       text: choice.text.trim(),
       isCorrect: choice.isCorrect,
     })),

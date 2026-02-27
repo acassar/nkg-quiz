@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Category } from "@/types/Quiz.types";
+import { Category } from "@/types/quiz/quiz.types";
 
 defineEmits<{
   (e: "click", category: Category): void;

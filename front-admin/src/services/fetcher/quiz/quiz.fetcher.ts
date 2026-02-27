@@ -1,4 +1,4 @@
-import { Quiz } from "@/types/Quiz.types";
+import { Quiz } from "@/types/quiz/quiz.types";
 import { apiFetch } from "../fetcher";
 
 const quizEndpoint = "/quizzes";

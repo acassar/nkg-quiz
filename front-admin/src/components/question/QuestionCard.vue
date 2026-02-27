@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Question } from "@/types/Quiz.types";
+import { Question } from "@/types/quiz/quiz.types";
 
 defineEmits<{
   (e: "click", question: Question): void;

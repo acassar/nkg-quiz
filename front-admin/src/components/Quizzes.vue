@@ -4,7 +4,7 @@ import { useAuth } from "../composables/useAuth";
 import { useSession } from "../composables/useSession";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
 import { computed } from "vue";
-import { Quiz } from "@/types/Quiz.types";
+import { Quiz } from "@/types/quiz/quiz.types";
 import { useQuizStore } from "@/stores/quizStore";
 
 const emits = defineEmits<{

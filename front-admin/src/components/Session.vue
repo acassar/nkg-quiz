@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSession } from "../composables/useSession";
-import { SessionAction } from "../types/Session.types";
+import { SessionAction } from "../types/session/session.types";
 
 const { performAction, activeSession, sessionState } = useSession();
 

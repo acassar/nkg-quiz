@@ -2,8 +2,10 @@
 import { Ref, ref, watch } from "vue";
 import CategoryCard from "../../category/CategoryCard.vue";
 import CategoryQuestions from "./question/CategoryQuestions.vue";
-import { Category, Question, Quiz } from "@/types/Quiz.types";
 import QuestionForm from "./question/QuestionForm.vue";
+import { Question } from "@/types/question/question.types";
+import { Category } from "@/types/category/category.types";
+import { Quiz } from "@/types/quiz/quiz.types";
 
 const props = defineProps<{
   quiz: Quiz;
