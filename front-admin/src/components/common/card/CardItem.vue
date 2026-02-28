@@ -25,8 +25,7 @@ const props = defineProps<{
     <div class="card-content">
       <div
         @click.prevent="$emit('click')"
-        class="section-title"
-        :class="{ selected: props.selected }"
+        :class="[{ selected: props.selected }, 'section-title']"
       >
         {{ title }}
       </div>

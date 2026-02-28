@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { Question } from "@/types/quiz/quiz.types";
+import { Question } from "@/types/question/question.types";
+import CardItem, { CardItemAction } from "../common/card/CardItem.vue";
 
-defineEmits<{
+const emits = defineEmits<{
   (e: "click", question: Question): void;
+  (e: "delete", question: Question): void;
 }>();
 
 const props = defineProps<{
   question: Question;
   selected?: boolean;
 }>();
+
+const actions: CardItemAction[] = [
+  {
+    color: "red",
+    label: "🗑️",
+    onClick: () => emits("delete", props.question),
+    key: "delete",
+  },
+];
 </script>
 
 <template>
-  <div
-    class="card selectable-card"
-    @click="$emit('click', question)"
-    :class="{ selected: props.selected }"
-  >
-    <div class="question-text">{{ question.prompt }}</div>
-  </div>
+  <CardItem
+    :title="props.question.prompt"
+    :selected="props.selected"
+    selectedBgColor="#70a0f0"
+    bgColor="#b9c8f8"
+    :actions="actions"
+    @click="$emit('click', props.question)"
+  />
 </template>
 
-<style scoped>
-.card {
-  background-color: #b9c8f8;
-}
-
-.card:hover {
-  background-color: #70a0f0;
-}
-
-.card.selected {
-  background-color: #70a0f0;
-}
-</style>
+<style scoped></style>

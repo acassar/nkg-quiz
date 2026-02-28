@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import QuestionCard from "@/components/question/QuestionCard.vue";
-import { Category, Question } from "@/types/quiz/quiz.types";
+import { Category } from "@/types/category/category.types";
+import { Question } from "@/types/question/question.types";
 
 defineEmits<{
   (e: "click", question: Question): void;
+  (e: "delete", question: Question): void;
 }>();
 
 const props = defineProps<{
@@ -26,6 +28,7 @@ const props = defineProps<{
           :question="question"
           :selected="selectedQuestion?.id === question.id"
           @click="$emit('click', question)"
+          @delete="$emit('delete', question)"
         />
       </div>
     </div>

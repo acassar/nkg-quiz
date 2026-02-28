@@ -14,7 +14,7 @@ const props = defineProps<{
   quiz: Quiz;
 }>();
 
-const { createQuestion, updateQuestion } = useQuestionFetcher();
+const { createQuestion, updateQuestion, deleteQuestion } = useQuestionFetcher();
 const { deleteCategory } = useCategoryFetcher();
 
 const selectedCategory = ref<Category>();
@@ -119,6 +119,28 @@ const handleCategoryDelete = async (category: Category) => {
   }
 };
 
+const handleQuestionDelete = async (question: Question) => {
+  const category = props.quiz.categories.find(
+    (c) => c.id === question.categoryId,
+  );
+  if (!category) throw new Error("Category not found for question");
+
+  const result = window.confirm(
+    `Are you sure you want to delete question "${question.prompt}"?`,
+  );
+  if (!result) return;
+
+  const deleted = await deleteQuestion.execute(question.id.toString());
+  if (!deleted) throw new Error("Failed to delete question");
+
+  const index = category.questions.findIndex((q) => q.id === question.id);
+  if (index === -1) return;
+  category.questions.splice(index, 1);
+  if (selectedQuestion.value?.id === question.id) {
+    selectedQuestion.value = undefined;
+  }
+};
+
 const handleCategoryCreated = (category: Category) => {
   props.quiz.categories.push(category);
   editingCategory.value = undefined;
@@ -178,6 +200,7 @@ watch(selectedCategory, () => {
     :category="selectedCategory"
     :selected-question="selectedQuestion"
     @click="onQuestionClick"
+    @delete="handleQuestionDelete"
   />
 
   <!-- form -->
