@@ -34,9 +34,11 @@ const canSubmit = computed(
 
 function getFormInitData(): QuestionInput {
   return {
+    id: props.question?.id,
     prompt: props.question?.prompt ?? "",
     timeLimitSec: props.question?.timeLimitSec ?? null,
     points: props.question?.points ?? null,
+    categoryId: props.question?.categoryId ?? 0,
     choices: props.question?.choices ?? [
       { text: "", isCorrect: false },
       { text: "", isCorrect: false },
@@ -80,9 +82,11 @@ const submit = () => {
   }
 
   const payload: QuestionInput = {
+    id: form.value.id,
     prompt: form.value.prompt.trim(),
     timeLimitSec: normalizeNumber(form.value.timeLimitSec),
     points: normalizeNumber(form.value.points),
+    categoryId: form.value.categoryId,
     choices: form.value.choices.map((choice) => ({
       text: choice.text.trim(),
       isCorrect: choice.isCorrect,

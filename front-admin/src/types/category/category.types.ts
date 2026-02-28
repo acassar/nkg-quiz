@@ -9,6 +9,6 @@ export type Category = {
 
 export type CategoryInput = Omit<Category, "id" | "quizId" | "questions"> & {
   id?: number;
-  quizId?: number;
+  quizId: number;
   questions: QuestionInput[];
 };
