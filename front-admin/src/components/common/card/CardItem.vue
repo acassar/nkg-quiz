@@ -21,13 +21,13 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div
-    @click.prevent
-    class="card selectable-card"
-    :class="{ selected: props.selected }"
-  >
+  <div @click.prevent class="card selectable-card">
     <div class="card-content">
-      <div @click.prevent="$emit('click')" class="section-title">
+      <div
+        @click.prevent="$emit('click')"
+        class="section-title"
+        :class="{ selected: props.selected }"
+      >
         {{ title }}
       </div>
       <div
