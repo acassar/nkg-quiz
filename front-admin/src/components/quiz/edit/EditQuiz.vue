@@ -8,12 +8,14 @@ import { Category, CategoryInput } from "@/types/category/category.types";
 import { Quiz } from "@/types/quiz/quiz.types";
 import { useQuestionFetcher } from "@/composables/fetcher/question/useQuestionFetcher";
 import CategoryForm from "./category/CategoryForm.vue";
+import { useCategoryFetcher } from "@/composables/fetcher/category/useCategoryFetcher";
 
 const props = defineProps<{
   quiz: Quiz;
 }>();
 
 const { createQuestion, updateQuestion } = useQuestionFetcher();
+const { deleteCategory } = useCategoryFetcher();
 
 const selectedCategory = ref<Category>();
 const selectedQuestion = ref<Question>();
@@ -97,6 +99,26 @@ const handleClickCreateCategory = () => {
   }
 };
 
+const handleCategoryDelete = async (category: Category) => {
+  const result = window.confirm(
+    `Are you sure you want to delete category "${category.name}"? This will also delete all its questions.`,
+  );
+  if (result) {
+    const deleted = await deleteCategory.execute(category.id.toString());
+    if (deleted) {
+      const index = props.quiz.categories.findIndex(
+        (c) => c.id === category.id,
+      );
+      if (index !== -1) {
+        props.quiz.categories.splice(index, 1);
+      }
+    }
+    if (selectedCategory.value?.id === category.id) {
+      selectedCategory.value = undefined;
+    }
+  }
+};
+
 const handleCategoryCreated = (category: Category) => {
   props.quiz.categories.push(category);
   editingCategory.value = undefined;
@@ -144,6 +166,7 @@ watch(selectedCategory, () => {
       :category="category"
       :selected="selectedCategory?.id === category.id"
       @click="onCategoryClick(category)"
+      @delete="handleCategoryDelete(category)"
     />
 
     <button class="secondary" @click="handleClickCreateCategory">➕</button>

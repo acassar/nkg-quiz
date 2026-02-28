@@ -3,8 +3,10 @@ import { categoryFetcher } from "@/services/fetcher/category/category.fetcher.ts
 
 export function useCategoryFetcher() {
   const createCategory = useFetcher(categoryFetcher.createCategory);
+  const deleteCategory = useFetcher(categoryFetcher.deleteCategory);
 
   return {
     createCategory,
+    deleteCategory,
   };
 }
