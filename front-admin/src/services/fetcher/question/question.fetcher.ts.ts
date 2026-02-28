@@ -4,16 +4,16 @@ import { apiFetch } from "../fetcher";
 const questionEndpoint = "/questions";
 
 export const questionFetcher = {
-  getQuestions: async (categoryId: string) => {
+  getQuestions: async (categoryId: number) => {
     return apiFetch<Question[]>(`${questionEndpoint}?categoryId=${categoryId}`);
   },
   getQuestion: async (id: string) => {
     return apiFetch<Question>(`${questionEndpoint}/${id}`);
   },
-  createQuestion: async (questionData: QuestionInput) => {
-    return apiFetch<Question>(questionEndpoint, {
+  createQuestion: async (categoryId: number, questionData: QuestionInput) => {
+    return apiFetch<Question>(`${questionEndpoint}/category/${categoryId}`, {
       method: "POST",
-      body: JSON.stringify(questionData),
+      body: JSON.stringify({ ...questionData }),
     });
   },
   updateQuestion: async (id: string, questionData: QuestionInput) => {

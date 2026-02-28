@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import QuestionCard from "@/components/question/QuestionCard.vue";
 import { Category } from "@/types/category/category.types";
-import { Question } from "@/types/question/question.types";
+import { QuestionInput } from "@/types/question/question.types";
 
 defineEmits<{
-  (e: "click", question: Question): void;
-  (e: "delete", question: Question): void;
+  (e: "click", question: QuestionInput): void;
+  (e: "click:new"): void;
+  (e: "delete", question: QuestionInput): void;
 }>();
 
 const props = defineProps<{
   category: Category;
-  selectedQuestion?: Question;
+  selectedQuestion?: QuestionInput;
 }>();
 </script>
 
@@ -21,15 +22,18 @@ const props = defineProps<{
       <div v-if="category.questions.length === 0">
         No questions in this category
       </div>
-      <div v-else class="row question-list">
+
+      <div class="row question-list">
         <QuestionCard
-          v-for="question in category.questions"
-          :key="question.id"
+          v-for="(question, index) in category.questions"
+          :key="index"
           :question="question"
-          :selected="selectedQuestion?.id === question.id"
+          :selected="selectedQuestion === question"
           @click="$emit('click', question)"
           @delete="$emit('delete', question)"
         />
+
+        <button class="secondary" @click="$emit('click:new')">➕</button>
       </div>
     </div>
   </div>

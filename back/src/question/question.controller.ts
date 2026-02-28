@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
@@ -36,7 +36,7 @@ export class QuestionController {
     return this.questionService.create(Number(categoryId), dto);
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(@Param("id") id: string, @Body() dto: UpdateQuestionDto) {
     return this.questionService.update(Number(id), dto);
   }

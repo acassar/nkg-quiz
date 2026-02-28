@@ -81,6 +81,15 @@ export class QuestionService {
         timeLimitSec: dto.timeLimitSec,
         points: dto.points,
         orderIndex: dto.orderIndex,
+        choices: {
+          updateMany: dto.choices?.map((choice) => ({
+            where: { id: choice.id },
+            data: {
+              text: choice.text,
+              isCorrect: choice.isCorrect ?? false,
+            },
+          })),
+        },
       },
       include: { choices: true },
     });
@@ -97,6 +106,7 @@ export class QuestionService {
 
     return this.prisma.question.delete({
       where: { id },
+      include: { choices: true },
     });
   }
 }

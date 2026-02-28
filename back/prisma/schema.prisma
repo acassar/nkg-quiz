@@ -71,7 +71,7 @@ model Question {
 
 model Choice {
   id         Int      @id @default(autoincrement())
-  question   Question @relation(fields: [questionId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId Int
   text       String
   isCorrect  Boolean  @default(false)

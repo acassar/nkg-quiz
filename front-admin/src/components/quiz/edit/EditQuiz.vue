@@ -3,7 +3,7 @@ import { computed, Ref, ref, watch } from "vue";
 import CategoryCard from "../../category/CategoryCard.vue";
 import CategoryQuestions from "./question/CategoryQuestions.vue";
 import QuestionForm from "./question/QuestionForm.vue";
-import { Question } from "@/types/question/question.types";
+import { Question, QuestionInput } from "@/types/question/question.types";
 import { Category, CategoryInput } from "@/types/category/category.types";
 import { Quiz } from "@/types/quiz/quiz.types";
 import { useQuestionFetcher } from "@/composables/fetcher/question/useQuestionFetcher";
@@ -18,7 +18,7 @@ const { createQuestion, updateQuestion, deleteQuestion } = useQuestionFetcher();
 const { deleteCategory } = useCategoryFetcher();
 
 const selectedCategory = ref<Category>();
-const selectedQuestion = ref<Question>();
+const selectedQuestion = ref<QuestionInput>();
 const editingCategory = ref<CategoryInput>();
 const hasUnsavedChanges = defineModel<boolean>("hasUnsavedChanges"); //Allows to track if form has unsaved changes and prevent category/question switch without confirmation
 
@@ -28,17 +28,14 @@ const categories = computed(() => {
   return props.quiz.categories;
 });
 
-const selectOrDeselect = <T extends { id: number }>(
-  current: T | undefined,
-  newValue: T,
-) => {
-  if (current?.id === newValue.id) {
+const selectOrDeselect = <T,>(current: T | undefined, newValue: T) => {
+  if (current === newValue) {
     return undefined;
   }
   return newValue;
 };
 
-const handleUnsavedChanges = <T extends { id: number }>(
+const handleUnsavedChanges = <T,>(
   valueToChange: Ref<T | undefined>,
   newValue: T,
 ) => {
@@ -69,7 +66,7 @@ const onCategoryClick = (category: Category) => {
   }
 };
 
-const onQuestionClick = (question: Question) => {
+const onQuestionClick = (question: QuestionInput) => {
   if (!hasUnsavedChanges.value) {
     selectedQuestion.value = selectOrDeselect(selectedQuestion.value, question);
   } else {
@@ -119,11 +116,12 @@ const handleCategoryDelete = async (category: Category) => {
   }
 };
 
-const handleQuestionDelete = async (question: Question) => {
+const handleQuestionDelete = async (question: QuestionInput) => {
   const category = props.quiz.categories.find(
     (c) => c.id === question.categoryId,
   );
   if (!category) throw new Error("Category not found for question");
+  if (!question.id) throw new Error("Question not found");
 
   const result = window.confirm(
     `Are you sure you want to delete question "${question.prompt}"?`,
@@ -147,16 +145,58 @@ const handleCategoryCreated = (category: Category) => {
   selectedCategory.value = category;
 };
 
-const onQuestionFormSubmit = async (payload: any) => {
+const onQuestionFormSubmit = async (payload: QuestionInput) => {
+  let updatedQuestion: Question | undefined;
   if (payload.id) {
-    await updateQuestion.execute(payload.id.toString(), payload);
+    if (payload.choices.some((choice) => !choice.id))
+      throw Error("All choices must have an id for update");
+    updatedQuestion = await updateQuestion.execute(
+      payload.id.toString(),
+      payload,
+    );
   } else {
-    await createQuestion.execute({
-      ...payload,
-      categoryId: selectedCategory.value?.id,
-    });
+    if (selectedCategory.value == null) {
+      throw new Error("No category selected for new question");
+    }
+    updatedQuestion = await createQuestion.execute(
+      selectedCategory.value.id,
+      payload,
+    );
+  }
+
+  if (!updatedQuestion) {
+    throw new Error("Failed to save question");
+  }
+  const category = props.quiz.categories.find(
+    (c) => c.id === updatedQuestion!.categoryId,
+  );
+  if (!category) throw new Error("Category not found for updated question");
+  const index = category.questions.findIndex(
+    (q) => q.id === updatedQuestion!.id,
+  );
+  if (index === -1) {
+    category.questions.push(updatedQuestion);
+  } else {
+    category.questions.splice(index, 1, updatedQuestion);
   }
   hasUnsavedChanges.value = false;
+};
+
+const handleAddQuestion = (categoryId: number) => {
+  const category = props.quiz.categories.find((c) => c.id === categoryId);
+  if (!category) throw new Error("Category not found");
+
+  selectedQuestion.value = {
+    id: 0,
+    prompt: "",
+    timeLimitSec: null,
+    points: null,
+    categoryId: categoryId,
+    choices: [
+      { text: "", isCorrect: false },
+      { text: "", isCorrect: false },
+    ],
+  };
 };
 
 const onFormChanged = () => {
@@ -201,6 +241,7 @@ watch(selectedCategory, () => {
     :selected-question="selectedQuestion"
     @click="onQuestionClick"
     @delete="handleQuestionDelete"
+    @click:new="() => handleAddQuestion(selectedCategory!.id)"
   />
 
   <!-- form -->

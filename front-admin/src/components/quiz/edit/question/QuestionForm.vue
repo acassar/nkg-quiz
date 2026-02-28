@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { Question, QuestionInput } from "@/types/question/question.types";
+import type { QuestionInput } from "@/types/question/question.types";
 
 const emits = defineEmits<{
   (e: "submit", payload: QuestionInput): void;
@@ -9,7 +9,7 @@ const emits = defineEmits<{
 }>();
 
 const props = defineProps<{
-  question?: Question;
+  question?: QuestionInput;
 }>();
 
 const form = ref<QuestionInput>(getFormInitData());
@@ -88,6 +88,7 @@ const submit = () => {
     points: normalizeNumber(form.value.points),
     categoryId: form.value.categoryId,
     choices: form.value.choices.map((choice) => ({
+      id: choice.id,
       text: choice.text.trim(),
       isCorrect: choice.isCorrect,
     })),
