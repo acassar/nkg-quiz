@@ -1,8 +1,23 @@
 <script setup lang="ts">
+import { useQuizStore } from "@/stores/quizStore";
 import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/session/session.types";
+import { computed } from "vue";
 
 const { performAction, activeSession, sessionState } = useSession();
+const { getById } = useQuizStore();
+
+const quiz = computed(() => {
+  if (!activeSession.value) return undefined;
+  return getById(activeSession.value?.quizId);
+});
+
+const quizActiveQuestion = computed(() => {
+  if (!quiz.value || !sessionState.value?.currentQuestionIndex)
+    return undefined;
+  const questionIndex = sessionState.value?.currentQuestionIndex;
+  return quiz.value?.questions[questionIndex];
+});
 
 const sessionAction = async (action: SessionAction) => {
   await performAction(action);
@@ -13,12 +28,18 @@ const sessionAction = async (action: SessionAction) => {
   <div class="card">
     <div class="row">
       <div class="section-title">Active session :</div>
-      <span>TODO</span>
+      <span>{{ quiz?.title ?? "N/A" }}</span>
     </div>
     <p v-if="!activeSession">No active session yet.</p>
-    <div v-else class="grid">
-      <div class="code-status">
+    <div v-else>
+      <div class="infos-container">
         <div><strong>Code:</strong> {{ activeSession.code }}</div>
+        <div>
+          Active question
+          {{ quizActiveQuestion?.prompt ?? "N/A" }} ({{
+            sessionState?.currentQuestionIndex ?? "N/A"
+          }})
+        </div>
         <div>
           <strong>Status : </strong>
           <span id="session-status" :status="sessionState?.status">{{
@@ -56,7 +77,7 @@ const sessionAction = async (action: SessionAction) => {
 </template>
 
 <style scoped>
-.code-status {
+.infos-container {
   display: flex;
   gap: 1rem;
   margin: 1rem 0;

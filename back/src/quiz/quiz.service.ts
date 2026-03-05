@@ -7,6 +7,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
 import { categoriesWithRelations } from "./prisma/quizPrisma.object";
+import { SessionStatus } from "@prisma/client";
 
 @Injectable()
 export class QuizService {
@@ -18,6 +19,10 @@ export class QuizService {
       include: {
         categories: {
           include: categoriesWithRelations,
+        },
+        questions: true,
+        sessions: {
+          where: { NOT: { status: SessionStatus.ARCHIVED } },
         },
         _count: {
           select: { sessions: true, questions: true },

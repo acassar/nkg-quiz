@@ -241,7 +241,7 @@ export class SessionService implements ISessionService {
    */
   async nextQuestion(code: string) {
     const session = await this.getSessionByCode(code);
-    const nextIndex = (session.currentQuestionIndex ?? -1) + 1;
+    const nextIndex = (session.currentQuestionIndex ?? 0) + 1;
 
     const question = await this.getQuestionByIndex(session.quizId, nextIndex);
     if (!question) {
