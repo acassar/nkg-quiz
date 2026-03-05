@@ -3,7 +3,7 @@ import {
   CreateSessionResponse,
   Session,
   SessionAction,
-  SessionState,
+  SessionStateResponse,
 } from "@/types/session/session.types";
 import { useFetcher } from "../useFetcher";
 
@@ -11,15 +11,16 @@ export function useSessionFetcher() {
   const createSession = useFetcher<CreateSessionResponse, [number]>(
     sessionFetcher.createSession,
   );
-  const getSessionState = useFetcher<SessionState, [string]>(
+  const getSessionState = useFetcher<SessionStateResponse, [string]>(
     sessionFetcher.getSessionState,
   );
   const getActiveSessions = useFetcher<Session[], []>(
     sessionFetcher.getActiveSessions,
   );
-  const performAction = useFetcher<SessionState, [string, SessionAction]>(
-    sessionFetcher.performAction,
-  );
+  const performAction = useFetcher<
+    SessionStateResponse,
+    [string, SessionAction]
+  >(sessionFetcher.performAction);
 
   return {
     createSession,

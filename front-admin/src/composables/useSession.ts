@@ -22,7 +22,7 @@ export const useSession = () => {
     activeSession.value = session ?? undefined;
     if (session) {
       const sessionData = await getSessionStateFetcher.execute(session?.code);
-      sessionState.value = sessionData;
+      sessionState.value = sessionData?.state;
     } else {
       sessionState.value = undefined;
     }
@@ -47,7 +47,7 @@ export const useSession = () => {
       activeSession.value.code,
       action,
     );
-    sessionState.value = data;
+    sessionState.value = data?.state;
 
     if (action === "archive") {
       activeSession.value = undefined;

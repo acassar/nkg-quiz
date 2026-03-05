@@ -3,7 +3,7 @@ import {
   CreateSessionResponse,
   Session,
   SessionAction,
-  SessionState,
+  SessionStateResponse,
 } from "@/types/session/session.types";
 
 const sessionEndpoint = "/sessions";
@@ -13,7 +13,7 @@ export const sessionFetcher = {
     return apiFetch<Session[]>(`${sessionEndpoint}/active`);
   },
   getSessionState: async (id: string) => {
-    return apiFetch<SessionState>(`${sessionEndpoint}/${id}/state`);
+    return apiFetch<SessionStateResponse>(`${sessionEndpoint}/${id}/state`);
   },
   createSession: async (quizId: number) => {
     return apiFetch<CreateSessionResponse>(sessionEndpoint, {
@@ -22,8 +22,11 @@ export const sessionFetcher = {
     });
   },
   performAction: async (code: string, action: SessionAction) => {
-    return apiFetch<SessionState>(`${sessionEndpoint}/${code}/${action}`, {
-      method: "POST",
-    });
+    return apiFetch<SessionStateResponse>(
+      `${sessionEndpoint}/${code}/${action}`,
+      {
+        method: "POST",
+      },
+    );
   },
 };

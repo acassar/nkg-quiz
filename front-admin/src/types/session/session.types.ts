@@ -30,3 +30,7 @@ export type CreateSessionResponse = {
   session: Session;
   state: SessionState;
 };
+
+export type SessionStateResponse = {
+  state: SessionState;
+};
