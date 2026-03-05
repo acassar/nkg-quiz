@@ -11,8 +11,9 @@ node_modules
 # Build
 /dist
 /back/dist
-/front/dist
-/front/dist-ssr
+/front-*/dist
+/front-*/dist-ssr
+/front-*/*.tsbuildinfo
 
 # Env
 .env
