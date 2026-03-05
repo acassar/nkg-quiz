@@ -54,6 +54,10 @@ export class CategoryService {
       where: { quizId, name: dto.name },
     });
 
+    const categoryCount = await this.prisma.category.count({
+      where: { quizId },
+    });
+
     if (existing) {
       throw new BadRequestException("Category already exists");
     }
@@ -62,6 +66,7 @@ export class CategoryService {
       data: {
         name: dto.name,
         quizId,
+        orderIndex: categoryCount,
       },
       include: {
         questions: {

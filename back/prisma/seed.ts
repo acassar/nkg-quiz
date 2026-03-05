@@ -30,6 +30,7 @@ async function main() {
     data: {
       name: "Geography",
       quizId: quiz1.id,
+      orderIndex: 0,
     },
   });
 
@@ -37,6 +38,7 @@ async function main() {
     data: {
       name: "Mathematics",
       quizId: quiz1.id,
+      orderIndex: 1,
     },
   });
 
@@ -44,6 +46,7 @@ async function main() {
     data: {
       name: "Astronomy",
       quizId: quiz1.id,
+      orderIndex: 2,
     },
   });
 
@@ -120,6 +123,7 @@ async function main() {
     data: {
       name: "Chemistry",
       quizId: quiz2.id,
+      orderIndex: 0,
     },
   });
 
@@ -127,6 +131,7 @@ async function main() {
     data: {
       name: "Physics",
       quizId: quiz2.id,
+      orderIndex: 1,
     },
   });
 
@@ -134,6 +139,7 @@ async function main() {
     data: {
       name: "Biology",
       quizId: quiz2.id,
+      orderIndex: 2,
     },
   });
 
@@ -228,6 +234,7 @@ async function main() {
     data: {
       name: "Maritime History",
       quizId: quiz3.id,
+      orderIndex: 0,
     },
   });
 
@@ -235,6 +242,7 @@ async function main() {
     data: {
       name: "US History",
       quizId: quiz3.id,
+      orderIndex: 1,
     },
   });
 

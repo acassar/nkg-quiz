@@ -48,6 +48,7 @@ model Category {
   name   String
   quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
   quizId Int
+  orderIndex Int
 
   questions Question[]
 
