@@ -31,9 +31,22 @@ export class SessionGateway {
       throw new WsException("Missing session code");
     }
 
+    // Quitter toutes les rooms existantes de session
+    const rooms = Array.from(client.rooms);
+    rooms.forEach((room) => {
+      if (room.startsWith("session:")) {
+        client.leave(room);
+      }
+    });
+
     client.join(this.room(body.code));
     const { state } = await this.sessionService.getState(body.code);
-    client.emit("session:state", state);
+    if (state) {
+      client.emit("session:state", state);
+      client.emit("session:joined");
+    } else {
+      client.emit("session:not-found");
+    }
 
     return { ok: true };
   }
@@ -52,9 +65,13 @@ export class SessionGateway {
     return { ok: true };
   }
 
-  @SubscribeMessage("screen:show-question") 
+  @SubscribeMessage("screen:show-question")
   async showQuestion(
-    @MessageBody() body: { code: string; question: Prisma.QuestionGetPayload<{ include: { choices: true } }> },
+    @MessageBody()
+    body: {
+      code: string;
+      question: Prisma.QuestionGetPayload<{ include: { choices: true } }>;
+    },
   ) {
     if (!body?.code || !body?.question) {
       throw new WsException("Missing session code or question");
@@ -67,9 +84,7 @@ export class SessionGateway {
   }
 
   @SubscribeMessage("screen:reveal-answer")
-  async revealAnswer(
-    @MessageBody() body: { code: string },
-  ) {
+  async revealAnswer(@MessageBody() body: { code: string }) {
     if (!body?.code) {
       throw new WsException("Missing session code");
     }
@@ -89,7 +104,9 @@ export class SessionGateway {
     }
 
     // Diffuser la fin de session
-    this.server.to(this.room(body.code)).emit("session:end", body.finalState || {});
+    this.server
+      .to(this.room(body.code))
+      .emit("session:end", body.finalState || {});
 
     return { ok: true };
   }
