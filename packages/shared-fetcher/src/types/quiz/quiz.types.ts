@@ -7,6 +7,6 @@ export type Quiz = {
   title: string;
   status: "DRAFT" | "PUBLISHED";
   categories: Category[];
-  questions: Question[];
+  questions?: Question[];
   sessions?: Session[];
 };

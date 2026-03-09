@@ -171,9 +171,21 @@ export class SessionService implements ISessionService {
     return this.prisma.quiz.findUnique({
       where: { id: session.quizId },
       include: {
-        questions: {
+        categories: {
           orderBy: { orderIndex: "asc" },
-          include: { choices: true },
+          include: {
+            questions: {
+              orderBy: { orderIndex: "asc" },
+              include: { choices: { select: { text: true, id: true } } },
+            },
+          },
+        },
+        questions: {
+          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
+          include: {
+            category: true,
+            choices: { select: { text: true, id: true } },
+          },
         },
       },
     });

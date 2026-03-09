@@ -12,11 +12,29 @@ const { getQuiz } = useSessionFetcher();
 const sessionCode = ref("");
 const status = ref("disconnected");
 const state = ref<SessionState | null>(null);
-const question = ref<Question | null>(null);
 const answersCount = ref(0);
 let socket: Socket | null = null;
 
 const isConnected = computed(() => status.value === "connected");
+
+const questions = computed<Question[]>(() => {
+  if (!state.value || !getQuiz.data.value) return [];
+  const quiz = getQuiz.data.value;
+
+  return quiz.categories.flatMap((category) => category.questions);
+});
+
+const question = computed<Question | null>(() => {
+  if (
+    state.value?.currentQuestionIndex === null ||
+    state.value?.currentQuestionIndex === undefined
+  )
+    return null;
+  const currentQuestion =
+    getQuiz.data.value?.questions?.[state.value.currentQuestionIndex];
+
+  return currentQuestion || null;
+});
 
 onUnmounted(() => {
   if (socket) socket.disconnect();
