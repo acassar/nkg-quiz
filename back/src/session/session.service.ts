@@ -163,6 +163,22 @@ export class SessionService implements ISessionService {
     return { state };
   }
 
+  async getQuiz(code: string) {
+    const session = await this.getSessionByCode(code);
+
+    if (!session) throw new NotFoundException("Session not found");
+
+    return this.prisma.quiz.findUnique({
+      where: { id: session.quizId },
+      include: {
+        questions: {
+          orderBy: { orderIndex: "asc" },
+          include: { choices: true },
+        },
+      },
+    });
+  }
+
   /**
    * Resets session status to LOBBY and deletes answers for a restart. Used when restarting a session that is already running or ended.
    */

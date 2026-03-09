@@ -40,6 +40,11 @@ export class SessionController {
     return this.sessionService.getState(code);
   }
 
+  @Get(":code/quiz")
+  getQuiz(@Param("code") code: string) {
+    return this.sessionService.getQuiz(code);
+  }
+
   @UseGuards(AuthGuard)
   @Post(":code/start")
   start(@Param("code") code: string) {
