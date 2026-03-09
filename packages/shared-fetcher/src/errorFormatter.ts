@@ -1,4 +1,4 @@
-import type { FetcherError } from "./types";
+import type { FetcherError } from "./fetcher/types";
 
 const formatErrorMessage = (message: unknown): string => {
   if (Array.isArray(message)) {

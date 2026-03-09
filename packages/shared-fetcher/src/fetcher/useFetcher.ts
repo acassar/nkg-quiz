@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import { formatApiError } from "./errorFormatter";
+import { formatApiError } from "../errorFormatter";
 import type { FetcherResponse, FetcherError } from "./types";
 
 export function useFetcher<Response, Args extends unknown[] = []>(
