@@ -1,0 +1,30 @@
+{
+  "name": "@nkg-quiz/shared-fetcher",
+  "version": "1.0.0",
+  "description": "Shared HTTP fetcher utilities for nkg-quiz applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "fetcher",
+    "http",
+    "vue",
+    "composables"
+  ],
+  "author": "nkg-quiz",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vue": "^3.3.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "files": [
+    "dist/"
+  ]
+}
