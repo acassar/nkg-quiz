@@ -1,0 +1,990 @@
+{
+  "user": {
+    "email": "test@example.com",
+    "password": "password123"
+  },
+  "quizzes": [
+    {
+      "title": "Quiz Culture Générale",
+      "status": "PUBLISHED",
+      "categories": [
+        {
+          "name": "Géographie",
+          "orderIndex": 0,
+          "questions": [
+            {
+              "prompt": "Quelle est la capitale de la France ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Londres", "isCorrect": false },
+                { "text": "Paris", "isCorrect": true },
+                { "text": "Berlin", "isCorrect": false },
+                { "text": "Madrid", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel est le plus long fleuve du monde ?",
+              "timeLimitSec": 30,
+              "points": 150,
+              "choices": [
+                { "text": "Le Nil", "isCorrect": true },
+                { "text": "L'Amazone", "isCorrect": false },
+                { "text": "Le Mississippi", "isCorrect": false },
+                { "text": "Le Yangtze", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Dans quel pays se trouve le Machu Picchu ?",
+              "timeLimitSec": 25,
+              "points": 120,
+              "choices": [
+                { "text": "Bolivie", "isCorrect": false },
+                { "text": "Chili", "isCorrect": false },
+                { "text": "Pérou", "isCorrect": true },
+                { "text": "Colombie", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle est la plus grande île de la Méditerranée ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Corse", "isCorrect": false },
+                { "text": "Sardaigne", "isCorrect": false },
+                { "text": "Sicile", "isCorrect": true },
+                { "text": "Chypre", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle chaîne de montagnes sépare l'Europe de l'Asie ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "L'Oural", "isCorrect": true },
+                { "text": "Le Caucase", "isCorrect": false },
+                { "text": "Les Alpes", "isCorrect": false },
+                { "text": "Les Carpates", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Histoire",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "prompt": "En quelle année a eu lieu la Révolution française ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "1789", "isCorrect": true },
+                { "text": "1792", "isCorrect": false },
+                { "text": "1799", "isCorrect": false },
+                { "text": "1804", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui était le premier empereur romain ?",
+              "timeLimitSec": 25,
+              "points": 120,
+              "choices": [
+                { "text": "Jules César", "isCorrect": false },
+                { "text": "Auguste", "isCorrect": true },
+                { "text": "Néron", "isCorrect": false },
+                { "text": "Caligula", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle guerre s'est déroulée de 1914 à 1918 ?",
+              "timeLimitSec": 20,
+              "points": 80,
+              "choices": [
+                { "text": "La Guerre de Sécession", "isCorrect": false },
+                { "text": "La Première Guerre mondiale", "isCorrect": true },
+                { "text": "La Guerre de Sept Ans", "isCorrect": false },
+                { "text": "La Guerre froide", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "1967", "isCorrect": false },
+                { "text": "1969", "isCorrect": true },
+                { "text": "1971", "isCorrect": false },
+                { "text": "1973", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui a écrit 'Le Manifeste du Parti communiste' ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "Lénine", "isCorrect": false },
+                { "text": "Marx et Engels", "isCorrect": true },
+                { "text": "Staline", "isCorrect": false },
+                { "text": "Mao Zedong", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle civilisation a construit le Colisée ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Les Grecs", "isCorrect": false },
+                { "text": "Les Romains", "isCorrect": true },
+                { "text": "Les Égyptiens", "isCorrect": false },
+                { "text": "Les Babyloniens", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "En quelle année a eu lieu la chute du mur de Berlin ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "1987", "isCorrect": false },
+                { "text": "1989", "isCorrect": true },
+                { "text": "1991", "isCorrect": false },
+                { "text": "1993", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sciences",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "prompt": "Quel est le symbole chimique de l'or ?",
+              "timeLimitSec": 20,
+              "points": 75,
+              "choices": [
+                { "text": "Gd", "isCorrect": false },
+                { "text": "Go", "isCorrect": false },
+                { "text": "Au", "isCorrect": true },
+                { "text": "Ag", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle est la vitesse de la lumière dans le vide ?",
+              "timeLimitSec": 35,
+              "points": 120,
+              "choices": [
+                { "text": "299 792 458 m/s", "isCorrect": true },
+                { "text": "150 000 000 m/s", "isCorrect": false },
+                { "text": "500 000 000 m/s", "isCorrect": false },
+                { "text": "100 000 000 m/s", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Combien d'os a un adulte humain ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "186", "isCorrect": false },
+                { "text": "206", "isCorrect": true },
+                { "text": "250", "isCorrect": false },
+                { "text": "150", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle est la plus petite unité de la matière ?",
+              "timeLimitSec": 30,
+              "points": 90,
+              "choices": [
+                { "text": "Molécule", "isCorrect": false },
+                { "text": "Atome", "isCorrect": true },
+                { "text": "Cellule", "isCorrect": false },
+                { "text": "Électron", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle planète est la plus proche du Soleil ?",
+              "timeLimitSec": 20,
+              "points": 80,
+              "choices": [
+                { "text": "Vénus", "isCorrect": false },
+                { "text": "Mars", "isCorrect": false },
+                { "text": "Mercure", "isCorrect": true },
+                { "text": "Terre", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel gaz représente environ 78% de l'atmosphère terrestre ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "Oxygène", "isCorrect": false },
+                { "text": "Azote", "isCorrect": true },
+                { "text": "Dioxyde de carbone", "isCorrect": false },
+                { "text": "Argon", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "À quelle température l'eau bout-elle au niveau de la mer ?",
+              "timeLimitSec": 20,
+              "points": 70,
+              "choices": [
+                { "text": "90°C", "isCorrect": false },
+                { "text": "100°C", "isCorrect": true },
+                { "text": "110°C", "isCorrect": false },
+                { "text": "120°C", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Combien de chambres a le cœur humain ?",
+              "timeLimitSec": 25,
+              "points": 80,
+              "choices": [
+                { "text": "2", "isCorrect": false },
+                { "text": "3", "isCorrect": false },
+                { "text": "4", "isCorrect": true },
+                { "text": "5", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Art et Littérature",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "prompt": "Qui a peint la Joconde ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "Michel-Ange", "isCorrect": false },
+                { "text": "Léonard de Vinci", "isCorrect": true },
+                { "text": "Raphaël", "isCorrect": false },
+                { "text": "Donatello", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui a écrit 'Les Misérables' ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                { "text": "Émile Zola", "isCorrect": false },
+                { "text": "Victor Hugo", "isCorrect": true },
+                { "text": "Alexandre Dumas", "isCorrect": false },
+                { "text": "Gustave Flaubert", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Dans quelle ville se trouve le musée du Louvre ?",
+              "timeLimitSec": 20,
+              "points": 80,
+              "choices": [
+                { "text": "Londres", "isCorrect": false },
+                { "text": "Rome", "isCorrect": false },
+                { "text": "Paris", "isCorrect": true },
+                { "text": "Madrid", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel compositeur a écrit 'La 9e Symphonie' ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Mozart", "isCorrect": false },
+                { "text": "Bach", "isCorrect": false },
+                { "text": "Beethoven", "isCorrect": true },
+                { "text": "Chopin", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui a sculpté le David ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Léonard de Vinci", "isCorrect": false },
+                { "text": "Michel-Ange", "isCorrect": true },
+                { "text": "Rodin", "isCorrect": false },
+                { "text": "Bernini", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel mouvement artistique Pablo Picasso a-t-il cofondé ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "L'Impressionnisme", "isCorrect": false },
+                { "text": "Le Cubisme", "isCorrect": true },
+                { "text": "Le Surréalisme", "isCorrect": false },
+                { "text": "L'Expressionnisme", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sports",
+          "orderIndex": 4,
+          "questions": [
+            {
+              "prompt": "Combien de joueurs y a-t-il dans une équipe de football (soccer) ?",
+              "timeLimitSec": 20,
+              "points": 70,
+              "choices": [
+                { "text": "10", "isCorrect": false },
+                { "text": "11", "isCorrect": true },
+                { "text": "12", "isCorrect": false },
+                { "text": "13", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Dans quelle ville se sont déroulés les Jeux Olympiques d'été 2024 ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "Tokyo", "isCorrect": false },
+                { "text": "Los Angeles", "isCorrect": false },
+                { "text": "Paris", "isCorrect": true },
+                { "text": "Brisbane", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel sport pratique-t-on à Wimbledon ?",
+              "timeLimitSec": 20,
+              "points": 80,
+              "choices": [
+                { "text": "Golf", "isCorrect": false },
+                { "text": "Cricket", "isCorrect": false },
+                { "text": "Tennis", "isCorrect": true },
+                { "text": "Polo", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Combien de points vaut un panier à trois points au basketball ?",
+              "timeLimitSec": 15,
+              "points": 60,
+              "choices": [
+                { "text": "2", "isCorrect": false },
+                { "text": "3", "isCorrect": true },
+                { "text": "4", "isCorrect": false },
+                { "text": "5", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel pays a gagné la Coupe du Monde de football 2022 ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "France", "isCorrect": false },
+                { "text": "Brésil", "isCorrect": false },
+                { "text": "Argentine", "isCorrect": true },
+                { "text": "Allemagne", "isCorrect": false }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Quiz Sciences Avancées",
+      "status": "PUBLISHED",
+      "categories": [
+        {
+          "name": "Physique Quantique",
+          "orderIndex": 0,
+          "questions": [
+            {
+              "prompt": "Qui a développé la théorie de la relativité restreinte ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Newton", "isCorrect": false },
+                { "text": "Einstein", "isCorrect": true },
+                { "text": "Bohr", "isCorrect": false },
+                { "text": "Heisenberg", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Biologie Moléculaire",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "prompt": "Qu'est-ce que l'ADN ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Acide désoxyribonucléique", "isCorrect": true },
+                { "text": "Acide ribonucléique", "isCorrect": false },
+                { "text": "Adénosine triphosphate", "isCorrect": false },
+                { "text": "Acide aminé", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Combien de chromosomes a l'être humain ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "44", "isCorrect": false },
+                { "text": "46", "isCorrect": true },
+                { "text": "48", "isCorrect": false },
+                { "text": "50", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Chimie Organique",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "prompt": "Quelle est la formule chimique du méthane ?",
+              "timeLimitSec": 25,
+              "points": 80,
+              "choices": [
+                { "text": "CH4", "isCorrect": true },
+                { "text": "C2H6", "isCorrect": false },
+                { "text": "C3H8", "isCorrect": false },
+                { "text": "C4H10", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel est le nombre d'Avogadro ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "6.022 × 10²³", "isCorrect": true },
+                { "text": "3.14159", "isCorrect": false },
+                { "text": "2.718", "isCorrect": false },
+                { "text": "9.81", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel type de liaison existe entre deux atomes de carbone dans l'éthène ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                { "text": "Liaison simple", "isCorrect": false },
+                { "text": "Liaison double", "isCorrect": true },
+                { "text": "Liaison triple", "isCorrect": false },
+                { "text": "Liaison ionique", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Astronomie",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "prompt": "Quelle est la plus grande planète du système solaire ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "Saturne", "isCorrect": false },
+                { "text": "Jupiter", "isCorrect": true },
+                { "text": "Neptune", "isCorrect": false },
+                { "text": "Uranus", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Combien de lunes a Mars ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                { "text": "1", "isCorrect": false },
+                { "text": "2", "isCorrect": true },
+                { "text": "3", "isCorrect": false },
+                { "text": "4", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle est la distance approximative entre la Terre et le Soleil ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "100 millions de km", "isCorrect": false },
+                { "text": "150 millions de km", "isCorrect": true },
+                { "text": "200 millions de km", "isCorrect": false },
+                { "text": "250 millions de km", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel phénomène provoque les marées sur Terre ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                {
+                  "text": "L'attraction gravitationnelle de la Lune",
+                  "isCorrect": true
+                },
+                { "text": "La rotation de la Terre", "isCorrect": false },
+                { "text": "Le vent solaire", "isCorrect": false },
+                { "text": "Les champs magnétiques", "isCorrect": false }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Quiz Technologie et Informatique",
+      "status": "PUBLISHED",
+      "categories": [
+        {
+          "name": "Programmation",
+          "orderIndex": 0,
+          "questions": [
+            {
+              "prompt": "Quel langage est principalement utilisé pour le développement web front-end ?",
+              "timeLimitSec": 25,
+              "points": 80,
+              "choices": [
+                { "text": "Python", "isCorrect": false },
+                { "text": "JavaScript", "isCorrect": true },
+                { "text": "C++", "isCorrect": false },
+                { "text": "Java", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie HTML ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "HyperText Markup Language", "isCorrect": true },
+                { "text": "Home Tool Markup Language", "isCorrect": false },
+                {
+                  "text": "Hyperlinks and Text Markup Language",
+                  "isCorrect": false
+                },
+                { "text": "High Tech Modern Language", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel est le symbole utilisé pour les commentaires en JavaScript ?",
+              "timeLimitSec": 20,
+              "points": 70,
+              "choices": [
+                { "text": "<!-- -->", "isCorrect": false },
+                { "text": "/* */", "isCorrect": false },
+                { "text": "//", "isCorrect": true },
+                { "text": "# ", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qu'est-ce que CSS ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Cascading Style Sheets", "isCorrect": true },
+                { "text": "Creative Style System", "isCorrect": false },
+                { "text": "Computer Style Service", "isCorrect": false },
+                { "text": "Colorful Style Syntax", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel protocole est utilisé pour les pages web sécurisées ?",
+              "timeLimitSec": 25,
+              "points": 100,
+              "choices": [
+                { "text": "HTTP", "isCorrect": false },
+                { "text": "HTTPS", "isCorrect": true },
+                { "text": "FTP", "isCorrect": false },
+                { "text": "SMTP", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie API ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                {
+                  "text": "Application Programming Interface",
+                  "isCorrect": true
+                },
+                { "text": "Automated Program Integration", "isCorrect": false },
+                {
+                  "text": "Advanced Programming Instructions",
+                  "isCorrect": false
+                },
+                {
+                  "text": "Application Process Integration",
+                  "isCorrect": false
+                }
+              ]
+            },
+            {
+              "prompt": "Quel est le port par défaut pour HTTP ?",
+              "timeLimitSec": 30,
+              "points": 110,
+              "choices": [
+                { "text": "21", "isCorrect": false },
+                { "text": "22", "isCorrect": false },
+                { "text": "80", "isCorrect": true },
+                { "text": "443", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qu'est-ce qu'un algorithme ?",
+              "timeLimitSec": 35,
+              "points": 100,
+              "choices": [
+                { "text": "Un langage de programmation", "isCorrect": false },
+                {
+                  "text": "Une suite d'instructions pour résoudre un problème",
+                  "isCorrect": true
+                },
+                { "text": "Un type de base de données", "isCorrect": false },
+                { "text": "Un protocole de communication", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie SQL ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Structured Query Language", "isCorrect": true },
+                { "text": "Simple Query Language", "isCorrect": false },
+                { "text": "Standard Query Logic", "isCorrect": false },
+                { "text": "System Query Library", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Dans quelle base est exprimé le système binaire ?",
+              "timeLimitSec": 20,
+              "points": 80,
+              "choices": [
+                { "text": "Base 8", "isCorrect": false },
+                { "text": "Base 10", "isCorrect": false },
+                { "text": "Base 2", "isCorrect": true },
+                { "text": "Base 16", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Systèmes d'exploitation",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "prompt": "Quel est le noyau utilisé par Linux ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                { "text": "Kernel Linux", "isCorrect": true },
+                { "text": "Windows NT", "isCorrect": false },
+                { "text": "Darwin", "isCorrect": false },
+                { "text": "BSD", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui a créé le système d'exploitation Linux ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Bill Gates", "isCorrect": false },
+                { "text": "Steve Jobs", "isCorrect": false },
+                { "text": "Linus Torvalds", "isCorrect": true },
+                { "text": "Richard Stallman", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie GUI ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Graphical User Interface", "isCorrect": true },
+                { "text": "General User Integration", "isCorrect": false },
+                { "text": "Global Unified Interface", "isCorrect": false },
+                { "text": "Graphic Universal Input", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel raccourci clavier permet généralement de copier du texte ?",
+              "timeLimitSec": 15,
+              "points": 60,
+              "choices": [
+                { "text": "Ctrl+V", "isCorrect": false },
+                { "text": "Ctrl+C", "isCorrect": true },
+                { "text": "Ctrl+X", "isCorrect": false },
+                { "text": "Ctrl+Z", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie RAM ?",
+              "timeLimitSec": 25,
+              "points": 80,
+              "choices": [
+                { "text": "Random Access Memory", "isCorrect": true },
+                { "text": "Read Access Memory", "isCorrect": false },
+                { "text": "Rapid Application Memory", "isCorrect": false },
+                { "text": "Reserved Application Module", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Réseaux",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "prompt": "Que signifie IP dans adresse IP ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Internet Protocol", "isCorrect": true },
+                { "text": "Internal Process", "isCorrect": false },
+                { "text": "Information Package", "isCorrect": false },
+                { "text": "Interactive Program", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel est le port par défaut pour HTTPS ?",
+              "timeLimitSec": 30,
+              "points": 110,
+              "choices": [
+                { "text": "80", "isCorrect": false },
+                { "text": "443", "isCorrect": true },
+                { "text": "21", "isCorrect": false },
+                { "text": "22", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie DNS ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Domain Name System", "isCorrect": true },
+                { "text": "Data Network Service", "isCorrect": false },
+                { "text": "Digital Network Standard", "isCorrect": false },
+                { "text": "Dynamic Name Server", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle est la plage d'adresses IP privées de classe C ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "192.168.0.0 - 192.168.255.255", "isCorrect": true },
+                { "text": "10.0.0.0 - 10.255.255.255", "isCorrect": false },
+                { "text": "172.16.0.0 - 172.31.255.255", "isCorrect": false },
+                { "text": "127.0.0.0 - 127.255.255.255", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Intelligence Artificielle",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "prompt": "Qu'est-ce que l'apprentissage automatique (Machine Learning) ?",
+              "timeLimitSec": 35,
+              "points": 120,
+              "choices": [
+                {
+                  "text": "Un type de programmation manuelle",
+                  "isCorrect": false
+                },
+                {
+                  "text": "Une méthode pour que les machines apprennent sans être explicitement programmées",
+                  "isCorrect": true
+                },
+                { "text": "Un langage de programmation", "isCorrect": false },
+                { "text": "Un système d'exploitation", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie IA ?",
+              "timeLimitSec": 20,
+              "points": 70,
+              "choices": [
+                { "text": "Intelligence Artificielle", "isCorrect": true },
+                { "text": "Information Automatique", "isCorrect": false },
+                { "text": "Interface Avancée", "isCorrect": false },
+                { "text": "Instruction Autonome", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel test mesure l'intelligence d'une machine ?",
+              "timeLimitSec": 30,
+              "points": 110,
+              "choices": [
+                { "text": "Test de Turing", "isCorrect": true },
+                { "text": "Test d'Einstein", "isCorrect": false },
+                { "text": "Test de Newton", "isCorrect": false },
+                { "text": "Test de Babbage", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sécurité Informatique",
+          "orderIndex": 4,
+          "questions": [
+            {
+              "prompt": "Qu'est-ce qu'un pare-feu (firewall) ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                {
+                  "text": "Un système de protection contre les incendies",
+                  "isCorrect": false
+                },
+                {
+                  "text": "Un système de sécurité réseau qui contrôle le trafic entrant et sortant",
+                  "isCorrect": true
+                },
+                { "text": "Un antivirus", "isCorrect": false },
+                { "text": "Un type de routeur", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Que signifie VPN ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "Virtual Private Network", "isCorrect": true },
+                { "text": "Very Private Network", "isCorrect": false },
+                { "text": "Variable Public Network", "isCorrect": false },
+                { "text": "Verified Personal Network", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qu'est-ce que le phishing ?",
+              "timeLimitSec": 30,
+              "points": 110,
+              "choices": [
+                { "text": "Un sport aquatique", "isCorrect": false },
+                {
+                  "text": "Une technique d'escroquerie pour obtenir des informations personnelles",
+                  "isCorrect": true
+                },
+                { "text": "Un type de virus informatique", "isCorrect": false },
+                { "text": "Un protocole de communication", "isCorrect": false }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Quiz Histoire et Géographie Mondiale",
+      "status": "DRAFT",
+      "categories": [
+        {
+          "name": "Antiquité",
+          "orderIndex": 0,
+          "questions": [
+            {
+              "prompt": "En quelle année a coulé le Titanic ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "1911", "isCorrect": false },
+                { "text": "1912", "isCorrect": true },
+                { "text": "1913", "isCorrect": false },
+                { "text": "1910", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quel empire était dirigé par Alexandre le Grand ?",
+              "timeLimitSec": 30,
+              "points": 120,
+              "choices": [
+                { "text": "L'Empire romain", "isCorrect": false },
+                { "text": "L'Empire macédonien", "isCorrect": true },
+                { "text": "L'Empire perse", "isCorrect": false },
+                { "text": "L'Empire byzantin", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Quelle merveille du monde antique se trouvait à Alexandrie ?",
+              "timeLimitSec": 35,
+              "points": 150,
+              "choices": [
+                { "text": "Le Phare d'Alexandrie", "isCorrect": true },
+                {
+                  "text": "Les Jardins suspendus de Babylone",
+                  "isCorrect": false
+                },
+                { "text": "Le Colosse de Rhodes", "isCorrect": false },
+                { "text": "Le Mausolée d'Halicarnasse", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Moyen Âge",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "prompt": "Qui était le premier président des États-Unis ?",
+              "timeLimitSec": 30,
+              "points": 100,
+              "choices": [
+                { "text": "Thomas Jefferson", "isCorrect": false },
+                { "text": "George Washington", "isCorrect": true },
+                { "text": "Benjamin Franklin", "isCorrect": false },
+                { "text": "John Adams", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "En quelle année a commencé la Première Croisade ?",
+              "timeLimitSec": 35,
+              "points": 140,
+              "choices": [
+                { "text": "1095", "isCorrect": true },
+                { "text": "1066", "isCorrect": false },
+                { "text": "1099", "isCorrect": false },
+                { "text": "1087", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Renaissance",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "prompt": "Qui a inventé l'imprimerie moderne ?",
+              "timeLimitSec": 30,
+              "points": 110,
+              "choices": [
+                { "text": "Léonard de Vinci", "isCorrect": false },
+                { "text": "Johannes Gutenberg", "isCorrect": true },
+                { "text": "Galilée", "isCorrect": false },
+                { "text": "Copernic", "isCorrect": false }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Époque moderne",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "prompt": "En quelle année a eu lieu la Révolution française ?",
+              "timeLimitSec": 25,
+              "points": 90,
+              "choices": [
+                { "text": "1789", "isCorrect": true },
+                { "text": "1792", "isCorrect": false },
+                { "text": "1799", "isCorrect": false },
+                { "text": "1804", "isCorrect": false }
+              ]
+            },
+            {
+              "prompt": "Qui a découvert l'Amérique en 1492 ?",
+              "timeLimitSec": 25,
+              "points": 80,
+              "choices": [
+                { "text": "Vasco de Gama", "isCorrect": false },
+                { "text": "Christophe Colomb", "isCorrect": true },
+                { "text": "Magellan", "isCorrect": false },
+                { "text": "Amerigo Vespucci", "isCorrect": false }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
