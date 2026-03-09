@@ -1,26 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import { io, Socket } from "socket.io-client";
-
-type Choice = { id: number; text: string };
-type Question = {
-  id: number;
-  prompt: string;
-  timeLimitSec?: number | null;
-  points?: number | null;
-  choices: Choice[];
-};
-
-type SessionState = {
-  code: string;
-  status: string;
-  currentQuestionIndex: number | null;
-  updatedAt: string;
-  currentQuestion?: Question | null;
-};
+import { Question, SessionState } from "@nkg-quiz/shared-fetcher";
+import { useSessionFetcher } from "./composables/useSessionFetcher";
 
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const wsBase = import.meta.env.VITE_WS_URL || apiBase;
+
+const { getQuiz } = useSessionFetcher();
 
 const sessionCode = ref("");
 const status = ref("disconnected");
@@ -30,6 +17,15 @@ const answersCount = ref(0);
 let socket: Socket | null = null;
 
 const isConnected = computed(() => status.value === "connected");
+
+onUnmounted(() => {
+  if (socket) socket.disconnect();
+});
+
+// Nettoyer aussi lors des changements de page/refresh
+window.addEventListener("beforeunload", () => {
+  if (socket) socket.disconnect();
+});
 
 const connect = () => {
   if (!sessionCode.value) return;
@@ -43,13 +39,22 @@ const connect = () => {
     socket?.emit("join-session", { code: sessionCode.value.trim() });
   });
 
+  socket.on("session:not-found", () => {
+    status.value = "session not found";
+    socket?.disconnect();
+  });
+
+  socket.on("session:joined", () => {
+    status.value = "connected";
+    fetchQuiz();
+  });
+
   socket.on("disconnect", () => {
     status.value = "disconnected";
   });
 
   socket.on("session:state", (payload: SessionState) => {
     state.value = payload;
-    question.value = payload.currentQuestion ?? null;
   });
 
   socket.on("question:show", (payload: Question) => {
@@ -68,6 +73,12 @@ const connect = () => {
   socket.on("connect_error", () => {
     status.value = "error";
   });
+};
+
+const fetchQuiz = async () => {
+  if (!sessionCode.value) return;
+  const quiz = await getQuiz.execute(sessionCode.value);
+  console.log(quiz);
 };
 </script>
 
