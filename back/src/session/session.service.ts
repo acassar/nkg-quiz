@@ -198,7 +198,7 @@ export class SessionService implements ISessionService {
     await this.prisma.session.update({
       where: { id: session.id },
       data: {
-        status: SessionStatus.LOBBY,
+        status: SessionStatus.RUNNING,
         currentQuestionIndex: null,
         startedAt: new Date(),
         answers: {
@@ -249,7 +249,7 @@ export class SessionService implements ISessionService {
     // Update session state in the state store
     const state = await this.stateStore.set({
       code: session.code,
-      status: restart ? SessionStatus.LOBBY : SessionStatus.RUNNING,
+      status: SessionStatus.RUNNING,
       currentQuestionIndex,
       updatedAt: new Date().toISOString(),
     });
@@ -397,17 +397,25 @@ export class SessionService implements ISessionService {
   private async getQuestionByIndex(
     quizId: number,
     index: number,
-  ): Promise<Prisma.QuestionGetPayload<{ include: { choices: true } }> | null> {
-    const question = await this.prisma.question.findFirst({
-      where: { quizId, orderIndex: index },
-      include: { choices: true },
+  ): Promise<Prisma.QuestionGetPayload<{
+    include: { choices: { select: { text: true; id: true } } };
+  }> | null> {
+    const quiz = await this.prisma.quiz.findFirst({
+      where: { id: quizId },
+      include: {
+        questions: {
+          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
+          include: {
+            category: true,
+            choices: { select: { text: true, id: true } },
+          },
+        },
+      },
     });
 
-    if (!question) {
-      return null;
-    }
+    const question = quiz?.questions[index];
 
-    return question;
+    return question ?? null;
   }
 
   private async createSessionWithCode(quizId: number) {

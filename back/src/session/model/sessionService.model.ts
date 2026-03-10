@@ -5,7 +5,9 @@ import { JoinSessionDto } from "../dto/join-session.dto";
 
 type StartSessionReturn = {
   state: SessionState;
-  question: Prisma.QuestionGetPayload<{ include: { choices: true } }>;
+  question: Prisma.QuestionGetPayload<{
+    include: { choices: { select: { text: true; id: true } } };
+  }>;
 };
 
 export interface ISessionService {
