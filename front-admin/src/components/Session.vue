@@ -13,7 +13,11 @@ const quiz = computed(() => {
 });
 
 const quizActiveQuestion = computed(() => {
-  if (!quiz.value || !sessionState.value?.currentQuestionIndex)
+  if (
+    !quiz.value ||
+    sessionState.value?.currentQuestionIndex === null ||
+    sessionState.value?.currentQuestionIndex === undefined
+  )
     return undefined;
   const questionIndex = sessionState.value?.currentQuestionIndex;
   return quiz.value?.questions[questionIndex];
