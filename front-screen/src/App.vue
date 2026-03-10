@@ -75,17 +75,12 @@ const connect = () => {
     state.value = payload;
   });
 
-  socket.on("question:show", (payload: Question) => {
-    question.value = payload;
-    answersCount.value = 0;
-  });
-
   socket.on("answer:received", () => {
     answersCount.value += 1;
   });
 
-  socket.on("session:end", () => {
-    question.value = null;
+  socket.on("session:end", (payload: SessionState) => {
+    state.value = payload;
   });
 
   socket.on("connect_error", () => {
