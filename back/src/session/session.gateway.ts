@@ -6,7 +6,7 @@ import {
   WebSocketServer,
   WsException,
 } from "@nestjs/websockets";
-import { forwardRef, Inject } from "@nestjs/common";
+import { forwardRef, Inject, NotFoundException } from "@nestjs/common";
 import { Server, Socket } from "socket.io";
 import { SessionService } from "./session.service";
 import { SessionState } from "./state-store";
@@ -39,13 +39,16 @@ export class SessionGateway {
       }
     });
 
-    client.join(this.room(body.code));
-    const { state } = await this.sessionService.getState(body.code);
-    if (state) {
-      client.emit("session:state", state);
-      client.emit("session:joined");
-    } else {
-      client.emit("session:not-found");
+    try {
+      const { state } = await this.sessionService.getState(body.code);
+      if (state) {
+        client.join(this.room(body.code));
+        client.emit("session:state", state);
+        client.emit("session:joined");
+      } else throw new NotFoundException("Session not found");
+    } catch (error) {
+      if (error instanceof NotFoundException) client.emit("session:not-found");
+      else throw new WsException("Internal server error");
     }
 
     return { ok: true };
