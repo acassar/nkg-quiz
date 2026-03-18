@@ -21,6 +21,11 @@ body {
   min-height: 100vh;
 }
 
+.error {
+  color: #d9534f;
+  font-size: 0.9rem;
+}
+
 .player {
   display: grid;
   gap: 1.8rem;
