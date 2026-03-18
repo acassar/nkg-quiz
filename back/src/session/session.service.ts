@@ -130,30 +130,43 @@ export class SessionService implements ISessionService {
   async joinSession(code: string, dto: JoinSessionDto) {
     const session = await this.getSessionByCode(code);
 
-    try {
-      let player: Prisma.SessionPlayerGetPayload<{}> | null = null;
-      if (dto.playerId) {
-        player = await this.prisma.sessionPlayer.findFirst({
-          where: {
-            id: parseInt(dto.playerId),
-            sessionId: session.id,
-          },
+    let player: Prisma.SessionPlayerGetPayload<{}> | null = null;
+    if (dto.playerId) {
+      // If playerId is provided, try to find the player in the session. This allows rejoining with the same player ID if the connection is lost.
+      // For the moment, nickname correlation is not enforced when rejoining with playerId, but it could be added as an extra check later.
+      player = await this.prisma.sessionPlayer.findFirst({
+        where: {
+          id: parseInt(dto.playerId),
+          sessionId: session.id,
+        },
+      });
+
+      if (!player) throw new NotFoundException("Player not found");
+
+      // If the player is found and the nickname is different, update the nickname. This allows players to change their nickname when rejoining if needed.
+      if (player.nickname !== dto.nickname) {
+        await this.prisma.sessionPlayer.update({
+          where: { id: player.id },
+          data: { nickname: dto.nickname },
         });
-        if (!player) throw new NotFoundException("Player not found");
-      } else {
+      }
+    } else {
+      try {
+        // If no playerId is provided, create a new player with the provided nickname. This allows new players to join the session.
         player = await this.prisma.sessionPlayer.create({
           data: {
             sessionId: session.id,
             nickname: dto.nickname,
           },
         });
-        if (!player) throw new BadRequestException("Failed to create player");
-      }
 
-      return { playerId: player.id };
-    } catch {
-      throw new BadRequestException("Nickname already taken");
+        if (!player) throw new BadRequestException("Failed to create player");
+      } catch {
+        throw new BadRequestException("Nickname already taken");
+      }
     }
+
+    return { playerId: player.id };
   }
 
   /**
