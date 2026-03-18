@@ -131,12 +131,24 @@ export class SessionService implements ISessionService {
     const session = await this.getSessionByCode(code);
 
     try {
-      const player = await this.prisma.sessionPlayer.create({
-        data: {
-          sessionId: session.id,
-          nickname: dto.nickname,
-        },
-      });
+      let player: Prisma.SessionPlayerGetPayload<{}> | null = null;
+      if (dto.playerId) {
+        player = await this.prisma.sessionPlayer.findFirst({
+          where: {
+            id: parseInt(dto.playerId),
+            sessionId: session.id,
+          },
+        });
+        if (!player) throw new NotFoundException("Player not found");
+      } else {
+        player = await this.prisma.sessionPlayer.create({
+          data: {
+            sessionId: session.id,
+            nickname: dto.nickname,
+          },
+        });
+        if (!player) throw new BadRequestException("Failed to create player");
+      }
 
       return { playerId: player.id };
     } catch {
