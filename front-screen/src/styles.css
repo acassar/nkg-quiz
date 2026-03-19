@@ -22,7 +22,8 @@ body {
 }
 
 .screen {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
   padding: 2.5rem 6vw 4rem;
 }

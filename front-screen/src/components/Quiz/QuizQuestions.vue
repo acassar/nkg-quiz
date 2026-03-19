@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useSessionState } from "../../composables/useSessionState";
+import { Question } from "@nkg-quiz/shared-fetcher";
 
-const { currentQuestion, status } = useSessionState();
-
-const answersCount = ref(0);
-const isConnected = computed(() => status.value === "connected");
-const sessionNotFound = computed(() => status.value === "session not found");
+const props = defineProps<{
+  currentQuestion: Question | undefined;
+  answersCount: number;
+}>();
 </script>
 
 <template>
@@ -30,16 +28,6 @@ const sessionNotFound = computed(() => status.value === "session not found");
         {{ choice.text }}
       </div>
     </div>
-  </section>
-
-  <section v-else class="empty">
-    <p v-if="sessionNotFound">
-      Session not found. Please check the session code and try again.
-    </p>
-    <p v-else-if="!isConnected">
-      Connect to a session to display questions here.
-    </p>
-    <p v-else>No active question yet.</p>
   </section>
 </template>
 
