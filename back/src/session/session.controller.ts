@@ -57,7 +57,6 @@ export class SessionController {
     return this.sessionService.restartSession(code);
   }
 
-  @UseGuards(AuthGuard)
   @Post(":code/next")
   next(@Param("code") code: string) {
     return this.sessionService.nextQuestion(code);
