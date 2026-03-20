@@ -46,7 +46,37 @@ const submitAnswer = async (choiceId: number) => {
 </template>
 
 <style scoped>
+.question {
+  display: grid;
+  gap: 1rem;
+}
+
+.question h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+}
+
 .choice-text {
   color: black;
+}
+
+.choices {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.choice {
+  border: 2px solid transparent;
+  background: #f3f7ff;
+  border-radius: 16px;
+  padding: 0.9rem 1.1rem;
+  font-weight: 600;
+  text-align: left;
+  width: 100%;
+}
+
+.choice.selected {
+  border-color: #0b1f2a;
+  background: #e1ecff;
 }
 </style>
