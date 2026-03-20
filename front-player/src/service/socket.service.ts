@@ -24,9 +24,12 @@ const onSessionNotFound = () => {
   useSessionState().setStatus("session not found");
 };
 
-const onSessionJoined = () => {
+const onSessionJoined = (payload: SessionState) => {
   console.log("Joined session");
-  useSessionState().setStatus("connected");
+  useSessionState().updateState(payload);
+  useSessionState().setStatus(
+    payload.status === "ENDED" ? "ended" : "connected",
+  );
 };
 
 const onSessionStateUpdate = (payload: SessionState) => {

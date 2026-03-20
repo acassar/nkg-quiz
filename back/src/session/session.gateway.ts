@@ -43,8 +43,7 @@ export class SessionGateway {
       const { state } = await this.sessionService.getState(body.code);
       if (state) {
         client.join(this.room(body.code));
-        client.emit("session:state", state);
-        client.emit("session:joined");
+        client.emit("session:joined", state);
       } else throw new NotFoundException("Session not found");
     } catch (error) {
       if (error instanceof NotFoundException) client.emit("session:not-found");
