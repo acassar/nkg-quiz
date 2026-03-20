@@ -3,12 +3,20 @@ import { ref } from "vue";
 import { Player } from "../types/player.types";
 import SearchSessionByCode from "./SearchSessionByCode.vue";
 import SessionJoin from "./SessionJoin.vue";
+import { useSessionFetcher } from "../composable/useSessionFetcher";
+
+const { getState } = useSessionFetcher();
 
 const sessionCode = ref();
 const status = ref<"sessionCode" | "nickname">("sessionCode");
 const retrievedPlayer = ref<Player>();
 
-const handleRetrievedPlayerForSession = (player: Player | undefined) => {
+const handleRetrievedPlayerForSession = async (player: Player | undefined) => {
+  if (!sessionCode.value) return;
+  // Check session state before proceeding to nickname input
+  await getState.execute(sessionCode.value);
+  if (getState.error.value) return;
+
   retrievedPlayer.value = player;
   status.value = "nickname";
 };
@@ -28,6 +36,7 @@ const handleRetrievedPlayerForSession = (player: Player | undefined) => {
         v-model="sessionCode"
         @submit="handleRetrievedPlayerForSession"
       ></SearchSessionByCode>
+      <span class="error">{{ getState.error.value?.message }}</span>
       <SessionJoin
         v-if="sessionCode && status === 'nickname'"
         :sessionCode="sessionCode"

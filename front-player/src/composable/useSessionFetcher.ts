@@ -1,13 +1,12 @@
-import { Quiz, useFetcher } from "@nkg-quiz/shared-fetcher";
+import { useFetcher } from "@nkg-quiz/shared-fetcher";
 import { sessionFetcher } from "../service/session.fetcher";
 
 export function useSessionFetcher() {
-  const joinSession = useFetcher<
-    { playerId: string },
-    [string, string, string?]
-  >(sessionFetcher.joinSession);
+  const joinSession = useFetcher(sessionFetcher.joinSession);
 
-  const getQuiz = useFetcher<Quiz, [string]>(sessionFetcher.getQuiz);
+  const getQuiz = useFetcher(sessionFetcher.getQuiz);
 
-  return { joinSession, getQuiz };
+  const getState = useFetcher(sessionFetcher.getState);
+
+  return { joinSession, getQuiz, getState };
 }
