@@ -17,6 +17,7 @@ export class QuizService {
     return this.prisma.quiz.findMany({
       where: { createdById: userId },
       include: {
+        options: true,
         categories: {
           include: categoriesWithRelations,
         },
@@ -36,6 +37,7 @@ export class QuizService {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id },
       include: {
+        options: true,
         categories: {
           include: {
             questions: {
@@ -65,8 +67,12 @@ export class QuizService {
         title: dto.title,
         status: dto.status,
         createdById: userId,
+        ...(dto.options && {
+          options: { create: dto.options },
+        }),
       },
       include: {
+        options: true,
         categories: {
           include: {
             questions: {
@@ -90,6 +96,14 @@ export class QuizService {
       data: {
         title: dto.title ?? existing.title,
         status: dto.status ?? existing.status,
+        ...(dto.options && {
+          options: {
+            upsert: {
+              create: dto.options,
+              update: dto.options,
+            },
+          },
+        }),
       },
     });
   }

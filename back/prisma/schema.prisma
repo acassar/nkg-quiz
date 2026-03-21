@@ -30,17 +30,26 @@ model User {
 }
 
 model Quiz {
-  id         Int        @id @default(autoincrement())
-  title      String
-  status     QuizStatus @default(DRAFT)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  createdBy  User      @relation(fields: [createdById], references: [id])
+  id          Int        @id @default(autoincrement())
+  title       String
+  status      QuizStatus @default(DRAFT)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  createdBy   User       @relation(fields: [createdById], references: [id])
   createdById Int
 
+  options    QuizOptions?
   categories Category[]
-  questions Question[]
-  sessions  Session[]
+  questions  Question[]
+  sessions   Session[]
+}
+
+model QuizOptions {
+  id            Int     @id @default(autoincrement())
+  quiz          Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId        Int     @unique
+  autoRestart   Boolean @default(false)
+  revealAnswers Boolean @default(false)
 }
 
 model Category {
