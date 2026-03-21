@@ -1,4 +1,4 @@
-import { Question, Quiz, SessionState } from "@nkg-quiz/shared-fetcher";
+import { Question, Quiz, SessionState } from "@nkg-quiz/shared-types";
 import { computed, ref } from "vue";
 
 type SessionStatus =

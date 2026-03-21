@@ -1,4 +1,5 @@
-import { Quiz, SessionState, useFetcher } from "@nkg-quiz/shared-fetcher";
+import { useFetcher } from "@nkg-quiz/shared-fetcher";
+import { Quiz, SessionState } from "@nkg-quiz/shared-types";
 import { sessionFetcher } from "../services/sessionFetcher";
 
 export const useSessionFetcher = () => {

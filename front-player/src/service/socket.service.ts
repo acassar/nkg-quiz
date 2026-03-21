@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { useSessionState } from "../composable/useSessionState";
-import { SessionState } from "@nkg-quiz/shared-fetcher";
+import { SessionState } from "@nkg-quiz/shared-types";
 
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const wsBase = import.meta.env.VITE_WS_URL || apiBase;

@@ -1,4 +1,5 @@
-import { apiFetch, Quiz, SessionState } from "@nkg-quiz/shared-fetcher";
+import { apiFetch } from "@nkg-quiz/shared-fetcher";
+import { Quiz, SessionState } from "@nkg-quiz/shared-types";
 
 const sessionEndpoint = "/sessions";
 

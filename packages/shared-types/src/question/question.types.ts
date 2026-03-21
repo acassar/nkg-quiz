@@ -10,7 +10,7 @@ export type Question = {
 };
 
 export type QuestionInput = Omit<Question, "id" | "categoryId" | "choices"> & {
-  id: number | undefined;
+  id?: number;
   categoryId: number;
   choices: ChoiceInput[];
 };

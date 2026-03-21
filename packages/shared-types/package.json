@@ -1,0 +1,25 @@
+{
+  "name": "@nkg-quiz/shared-types",
+  "version": "0.1.0",
+  "description": "Shared TypeScript types for NKG Quiz application",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "quiz"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
