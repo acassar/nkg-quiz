@@ -1,99 +1,79 @@
-import { io, Socket } from "socket.io-client";
+import {
+  createSocketIoClient,
+  C2S_EVENTS,
+  S2C_EVENTS,
+  SOCKET_LIFECYCLE_EVENTS,
+} from "@nkg-quiz/shared-socket";
 import { useSessionState } from "../composable/useSessionState";
-import { SessionState } from "@nkg-quiz/shared-types";
+import type { SessionState } from "@nkg-quiz/shared-types";
 
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const wsBase = import.meta.env.VITE_WS_URL || apiBase;
-let socket: Socket | null = null;
 
-const onConnect = () => {
+const socketClient = createSocketIoClient({
+  url: wsBase,
+  autoJoinSessionOnConnect: true,
+});
+
+socketClient.register(SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
   console.log("Connected to socket server");
-  const sessionCode = useSessionState().sessionCode.value;
-  if (sessionCode) {
-    socket?.emit("join-session", { code: sessionCode.trim() });
-  }
-};
+});
 
-const onDisconnect = () => {
+socketClient.register(SOCKET_LIFECYCLE_EVENTS.DISCONNECT, () => {
   console.log("Disconnected from socket server");
   useSessionState().setStatus("disconnected");
-};
+});
 
-const onSessionNotFound = () => {
-  console.log("Session not found");
-  useSessionState().setStatus("session not found");
-};
-
-const onSessionJoined = (payload: SessionState) => {
-  console.log("Joined session");
-  useSessionState().updateState(payload);
-  useSessionState().setStatus(
-    payload.status === "ENDED" ? "ended" : "connected",
-  );
-};
-
-const onSessionStateUpdate = (payload: SessionState) => {
-  useSessionState().updateState(payload);
-  useSessionState().setStatus(
-    payload.status === "ENDED" ? "ended" : "connected",
-  );
-};
-
-const onConnectError = () => {
+socketClient.register(SOCKET_LIFECYCLE_EVENTS.CONNECT_ERROR, () => {
   console.error("Socket connection error");
   useSessionState().setStatus("error");
-};
+});
 
-const setupSocketListeners = () => {
-  if (!socket) return;
+socketClient.register(S2C_EVENTS.SESSION_NOT_FOUND, () => {
+  console.log("Session not found");
+  useSessionState().setStatus("session not found");
+});
 
-  socket.on("connect", onConnect);
-  socket.on("session:not-found", onSessionNotFound);
-  socket.on("session:joined", onSessionJoined);
-  socket.on("disconnect", onDisconnect);
-  socket.on("session:state", onSessionStateUpdate);
-  socket.on("session:end", onSessionStateUpdate);
-  socket.on("connect_error", onConnectError);
-};
+socketClient.register(S2C_EVENTS.SESSION_JOINED, (payload) => {
+  console.log("Joined session");
+  useSessionState().updateState(payload as SessionState);
+  useSessionState().setStatus(
+    payload.status === "ENDED" ? "ended" : "connected",
+  );
+});
 
-const removeSocketListeners = () => {
-  if (!socket) return;
-  socket.removeAllListeners();
-};
+socketClient.register(S2C_EVENTS.SESSION_STATE, (payload) => {
+  useSessionState().updateState(payload as SessionState);
+  useSessionState().setStatus(
+    payload.status === "ENDED" ? "ended" : "connected",
+  );
+});
+
+socketClient.register(S2C_EVENTS.SESSION_END, (payload) => {
+  useSessionState().updateState(payload as SessionState);
+  useSessionState().setStatus("ended");
+});
 
 export const connectSocket = (sessionCode: string) => {
   if (!sessionCode) return;
 
   // Avoid reconnecting if already connected to the same session
   if (
-    socket?.connected &&
+    socketClient.isConnected() &&
     useSessionState().sessionCode.value === sessionCode
   ) {
     return;
   }
 
-  // Clean up the old connection if it exists
-  if (socket) {
-    removeSocketListeners();
-    socket.disconnect();
-  }
-
   useSessionState().sessionCode.value = sessionCode;
-
   useSessionState().setStatus("joining");
 
-  // Create a new connection
-  socket = io(wsBase, { transports: ["websocket"] });
-  setupSocketListeners();
+  socketClient.connect(sessionCode);
 };
 
 export const disconnectSocket = () => {
-  if (socket) {
-    removeSocketListeners();
-    socket.disconnect();
-    socket = null;
-    useSessionState().sessionCode.value = undefined;
-  }
+  socketClient.disconnect();
+  useSessionState().sessionCode.value = undefined;
   useSessionState().setStatus("disconnected");
 };
 
@@ -103,11 +83,11 @@ export const sendAnswer = (props: {
   choiceId: number;
   sessionCode: string;
 }) => {
-  if (!socket || !socket.connected) {
+  if (!socketClient.isConnected()) {
     console.error("Cannot submit answer: not connected to socket server");
     return;
   }
-  socket.emit("submit-answer", {
+  socketClient.emit(C2S_EVENTS.PLAYER_ANSWER, {
     code: props.sessionCode,
     playerId: props.playerId,
     questionId: props.questionId,
@@ -117,5 +97,5 @@ export const sendAnswer = (props: {
 
 // Clean up on page change/refresh
 window.addEventListener("beforeunload", () => {
-  if (socket) socket.disconnect();
+  socketClient.disconnect();
 });
