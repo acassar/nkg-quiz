@@ -1,16 +1,36 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useSessionState } from "../../composables/useSessionState";
 import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 
-const { currentQuestion, status, sessionCode } = useSessionState();
+const { currentQuestion, status, sessionCode, restartCountdownSec, setRestartCountdown } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
 
 const answersCount = ref(0); //TODO: make the answers count retrieved from the session state api
 const isConnected = computed(() => status.value === "connected");
 const sessionNotFound = computed(() => status.value === "session not found");
+const displayCountdown = ref<number | null>(null);
+
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+watch(restartCountdownSec, (sec) => {
+  if (countdownInterval) clearInterval(countdownInterval);
+  if (sec === null) {
+    displayCountdown.value = null;
+    return;
+  }
+  displayCountdown.value = sec;
+  countdownInterval = setInterval(() => {
+    if (displayCountdown.value === null || displayCountdown.value <= 0) {
+      clearInterval(countdownInterval!);
+      setRestartCountdown(null);
+      return;
+    }
+    displayCountdown.value--;
+  }, 1000);
+});
 
 const handleTimesUp = () => {
   if (!sessionCode.value) return;
@@ -19,6 +39,10 @@ const handleTimesUp = () => {
 </script>
 
 <template>
+  <div v-if="displayCountdown !== null" class="restart-overlay">
+    <p>Le quiz reprend dans {{ displayCountdown }}s...</p>
+  </div>
+
   <CounterComponent
     v-if="currentQuestion?.timeLimitSec"
     :timeLimit="currentQuestion.timeLimitSec"
@@ -43,4 +67,21 @@ const handleTimesUp = () => {
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+.restart-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 100;
+}
+
+.restart-overlay p {
+  color: white;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 700;
+  text-align: center;
+}
+</style>

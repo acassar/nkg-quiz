@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useSessionState } from "../composable/useSessionState";
 import { sendAnswer } from "../service/socket.service";
 import { usePlayer } from "../composable/usePlayer";
 
-const { sessionCode, currentQuestion: question, status } = useSessionState();
+const { sessionCode, currentQuestion: question, status, savePlayerAnswer, getPlayerAnswer } = useSessionState();
 const { currentPlayerId: playerId } = usePlayer();
 
 const selectedChoice = ref<number | null>(null);
 
+// Restore previously selected choice when question changes (e.g. after auto-restart)
+watch(() => question.value?.id, (questionId) => {
+  selectedChoice.value = questionId != null ? getPlayerAnswer(questionId) : null;
+}, { immediate: true });
+
 const submitAnswer = async (choiceId: number) => {
   if (!question.value || !playerId.value || !sessionCode.value) return;
   selectedChoice.value = choiceId;
+  savePlayerAnswer(question.value.id, choiceId);
 
   sendAnswer({
     questionId: question.value.id,

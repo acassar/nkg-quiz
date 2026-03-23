@@ -45,10 +45,15 @@ socketClient.register(S2C_EVENTS.ANSWER_RECEIVED, () => {
 
 socketClient.register(S2C_EVENTS.SESSION_STATE, (payload) => {
   useSessionState().updateState(payload as SessionState);
+  useSessionState().setRestartCountdown(null);
 });
 
 socketClient.register(S2C_EVENTS.SESSION_END, (payload) => {
   useSessionState().updateState(payload as SessionState);
+});
+
+socketClient.register(S2C_EVENTS.SESSION_RESTARTING, (payload) => {
+  useSessionState().setRestartCountdown(payload.countdownSec);
 });
 
 export const connectSocket = (sessionCode: string) => {

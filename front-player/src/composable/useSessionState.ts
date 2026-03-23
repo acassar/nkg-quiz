@@ -1,5 +1,5 @@
 import { Question, Quiz, SessionState } from "@nkg-quiz/shared-types";
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { disconnectSocket } from "../service/socket.service";
 
 type SessionStatus =
@@ -14,6 +14,8 @@ const sessionState = ref<SessionState>();
 const status = ref<SessionStatus>("disconnected");
 const sessionCode = ref<string>();
 const sessionQuiz = ref<Quiz>();
+/** Stores the player's answer per question (questionId → choiceId). Persists across restarts. */
+const playerAnswers = reactive(new Map<number, number>());
 export function useSessionState() {
   const questions = computed<Question[]>(() => {
     if (!sessionState.value || !sessionQuiz.value) return [];
@@ -55,6 +57,14 @@ export function useSessionState() {
     disconnectSocket();
   }
 
+  function savePlayerAnswer(questionId: number, choiceId: number) {
+    playerAnswers.set(questionId, choiceId);
+  }
+
+  function getPlayerAnswer(questionId: number): number | null {
+    return playerAnswers.get(questionId) ?? null;
+  }
+
   return {
     status,
     sessionCode,
@@ -64,5 +74,7 @@ export function useSessionState() {
     setSessionCode,
     setSessionQuiz,
     leaveSession,
+    savePlayerAnswer,
+    getPlayerAnswer,
   };
 }

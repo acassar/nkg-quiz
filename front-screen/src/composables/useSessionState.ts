@@ -14,6 +14,7 @@ const sessionQuiz = ref<Quiz>();
 const answersCount = ref(0);
 const status = ref<SessionStatus>("disconnected");
 const sessionCode = ref<string>();
+const restartCountdownSec = ref<number | null>(null);
 
 export function useSessionState() {
   function updateState(newState: SessionState) {
@@ -54,16 +55,22 @@ export function useSessionState() {
     return currentQuestion || null;
   });
 
+  function setRestartCountdown(sec: number | null) {
+    restartCountdownSec.value = sec;
+  }
+
   return {
     state,
     currentQuestion,
     answersCount,
     status,
     sessionCode,
+    restartCountdownSec,
     setStatus,
     setSessionQuiz,
     updateState,
     incrementAnswersCount,
     resetAnswersCount,
+    setRestartCountdown,
   };
 }

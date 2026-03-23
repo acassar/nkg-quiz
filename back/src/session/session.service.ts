@@ -298,6 +298,13 @@ export class SessionService implements ISessionService {
 
     const question = await this.getQuestionByIndex(session.quizId, nextIndex);
     if (!question) {
+      const quiz = await this.prisma.quiz.findUnique({
+        where: { id: session.quizId },
+        include: { options: true },
+      });
+      if (quiz?.options?.autoRestart) {
+        return this.scheduleAutoRestart(code);
+      }
       return this.endSession(code);
     }
 
@@ -372,6 +379,40 @@ export class SessionService implements ISessionService {
   }
 
   /**
+   * End the session and schedule an automatic restart after a countdown.
+   * Broadcasts session:restarting so clients can display a countdown.
+   */
+  private async scheduleAutoRestart(code: string) {
+    const session = await this.getSessionByCode(code);
+
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: { status: SessionStatus.ENDED, endedAt: new Date() },
+    });
+
+    const state = await this.stateStore.set({
+      code,
+      status: SessionStatus.ENDED,
+      currentQuestionIndex: null,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const COUNTDOWN_SEC = 60;
+    this.gateway?.broadcast(code, "session:restarting", { countdownSec: COUNTDOWN_SEC });
+    this.gateway?.broadcast(code, "session:end", state);
+
+    setTimeout(async () => {
+      try {
+        await this._startSession(code, true);
+      } catch (e) {
+        console.error("[auto-restart] Failed to restart session", code, e);
+      }
+    }, COUNTDOWN_SEC * 1000);
+
+    return { state };
+  }
+
+  /**
    * Submit an answer for the current question in the session.
    * @param params the parameters for submitting an answer
    * @returns the ID of the submitted answer
@@ -389,20 +430,24 @@ export class SessionService implements ISessionService {
       throw new BadRequestException("Session is not accepting answers");
     }
 
-    try {
-      const answer = await this.prisma.sessionAnswer.create({
-        data: {
+    const answer = await this.prisma.sessionAnswer.upsert({
+      where: {
+        sessionId_playerId_questionId: {
           sessionId: session.id,
           playerId: params.playerId,
           questionId: params.questionId,
-          choiceId: params.choiceId,
         },
-      });
+      },
+      update: { choiceId: params.choiceId, answeredAt: new Date() },
+      create: {
+        sessionId: session.id,
+        playerId: params.playerId,
+        questionId: params.questionId,
+        choiceId: params.choiceId,
+      },
+    });
 
-      return { answerId: answer.id };
-    } catch {
-      throw new BadRequestException("Answer already submitted");
-    }
+    return { answerId: answer.id };
   }
 
   // ==================== Private Helpers ====================
