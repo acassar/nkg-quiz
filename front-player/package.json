@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@nkg-quiz/shared-fetcher": "file:../packages/shared-fetcher",
+    "@nkg-quiz/shared-socket": "file:../packages/shared-socket",
     "@nkg-quiz/shared-types": "file:../packages/shared-types",
-    "socket.io-client": "^4.7.5",
     "vue": "^3.5.28"
   },
   "devDependencies": {

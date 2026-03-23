@@ -11,6 +11,11 @@ import { Server, Socket } from "socket.io";
 import { SessionService } from "./session.service";
 import { SessionState } from "./state-store";
 import { Prisma } from "@prisma/client";
+import {
+  C2S_EVENTS,
+  S2C_EVENTS,
+  ClientToServerEventPayloads,
+} from "@nkg-quiz/shared-socket-types";
 
 @WebSocketGateway({ cors: { origin: true, credentials: true } })
 export class SessionGateway {
@@ -22,9 +27,9 @@ export class SessionGateway {
     private readonly sessionService: SessionService,
   ) {}
 
-  @SubscribeMessage("join-session")
+  @SubscribeMessage(C2S_EVENTS.JOIN_SESSION)
   async joinSession(
-    @MessageBody() body: { code: string },
+    @MessageBody() body: ClientToServerEventPayloads[typeof C2S_EVENTS.JOIN_SESSION],
     @ConnectedSocket() client: Socket,
   ) {
     if (!body?.code) {
@@ -43,17 +48,17 @@ export class SessionGateway {
       const { state } = await this.sessionService.getState(body.code);
       if (state) {
         client.join(this.room(body.code));
-        client.emit("session:joined", state);
+        client.emit(S2C_EVENTS.SESSION_JOINED, state);
       } else throw new NotFoundException("Session not found");
     } catch (error) {
-      if (error instanceof NotFoundException) client.emit("session:not-found");
+      if (error instanceof NotFoundException) client.emit(S2C_EVENTS.SESSION_NOT_FOUND);
       else throw new WsException("Internal server error");
     }
 
     return { ok: true };
   }
 
-  @SubscribeMessage("screen:update-state")
+  @SubscribeMessage(C2S_EVENTS.SCREEN_UPDATE_STATE)
   async updateState(
     @MessageBody() body: { code: string; state: SessionState },
   ) {
@@ -62,12 +67,12 @@ export class SessionGateway {
     }
 
     // Diffuser le nouvel état à tous les clients connectés
-    this.server.to(this.room(body.code)).emit("session:state", body.state);
+    this.server.to(this.room(body.code)).emit(S2C_EVENTS.SESSION_STATE, body.state);
 
     return { ok: true };
   }
 
-  @SubscribeMessage("screen:show-question")
+  @SubscribeMessage(C2S_EVENTS.SCREEN_SHOW_QUESTION)
   async showQuestion(
     @MessageBody()
     body: {
@@ -80,24 +85,26 @@ export class SessionGateway {
     }
 
     // Diffuser la nouvelle question à tous les clients
-    this.server.to(this.room(body.code)).emit("question:show", body.question);
+    this.server.to(this.room(body.code)).emit(S2C_EVENTS.QUESTION_SHOW, body.question);
 
     return { ok: true };
   }
 
-  @SubscribeMessage("screen:reveal-answer")
-  async revealAnswer(@MessageBody() body: { code: string }) {
+  @SubscribeMessage(C2S_EVENTS.SCREEN_REVEAL_ANSWER)
+  async revealAnswer(
+    @MessageBody() body: ClientToServerEventPayloads[typeof C2S_EVENTS.SCREEN_REVEAL_ANSWER],
+  ) {
     if (!body?.code) {
       throw new WsException("Missing session code");
     }
 
     // Diffuser la révélation de la réponse
-    this.server.to(this.room(body.code)).emit("answer:reveal", { ok: true });
+    this.server.to(this.room(body.code)).emit(S2C_EVENTS.ANSWER_REVEAL, { ok: true });
 
     return { ok: true };
   }
 
-  @SubscribeMessage("screen:end-session")
+  @SubscribeMessage(C2S_EVENTS.SCREEN_END_SESSION)
   async endSession(
     @MessageBody() body: { code: string; finalState?: SessionState },
   ) {
@@ -108,25 +115,20 @@ export class SessionGateway {
     // Diffuser la fin de session
     this.server
       .to(this.room(body.code))
-      .emit("session:end", body.finalState || {});
+      .emit(S2C_EVENTS.SESSION_END, body.finalState || {});
 
     return { ok: true };
   }
 
-  @SubscribeMessage("player:answer")
+  @SubscribeMessage(C2S_EVENTS.PLAYER_ANSWER)
   async answer(
     @MessageBody()
-    body: {
-      code: string;
-      playerId: number;
-      questionId: number;
-      choiceId: number;
-    },
+    body: ClientToServerEventPayloads[typeof C2S_EVENTS.PLAYER_ANSWER],
   ) {
     const result = await this.sessionService.submitAnswer(body);
     this.server
       .to(this.room(body.code))
-      .emit("answer:received", { playerId: body.playerId });
+      .emit(S2C_EVENTS.ANSWER_RECEIVED, { playerId: body.playerId });
     return result;
   }
 

@@ -1,0 +1,26 @@
+{
+  "name": "@nkg-quiz/shared-socket",
+  "version": "0.1.0",
+  "description": "Shared socket.io client and event definitions for NKG Quiz",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": ["socket.io", "websocket", "quiz"],
+  "author": "nkg-quiz",
+  "license": "MIT",
+  "dependencies": {
+    "@nkg-quiz/shared-socket-types": "file:../shared-socket-types",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

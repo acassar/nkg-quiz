@@ -17,11 +17,18 @@ node_modules
 /packages/*/dist
 /packages/*/*.tsbuildinfo
 
+# TypeScript compiled output colocated with sources (tsc without outDir)
+front-*/src/**/*.js
+front-*/src/**/*.js.map
+front-*/vite.config.js
+front-*/vite.config.js.map
+
 # Env
 .env
 .env.*
 
 # Editor
+.claude/
 .vscode/*
 !.vscode/extensions.json
 .idea
