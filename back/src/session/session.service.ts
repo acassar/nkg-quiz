@@ -13,6 +13,7 @@ import { nanoid } from "nanoid";
 import { Prisma, Session, SessionStatus } from "@prisma/client";
 import { SessionGateway } from "./session.gateway";
 import { ISessionService } from "./model/sessionService.model";
+import { S2C_EVENTS } from "@nkg-quiz/shared-socket-types";
 
 //TODO make interfaces to create contracts between service and users of the service (controller and gateway).
 
@@ -219,18 +220,16 @@ export class SessionService implements ISessionService {
   /**
    * Resets session status to LOBBY and deletes answers for a restart. Used when restarting a session that is already running or ended.
    */
-  private async handleRestartSession(session: Session) {
+  private async handleRestartSession(session: Session, keepAnswers = false) {
     await this.prisma.session.update({
       where: { id: session.id },
       data: {
         status: SessionStatus.RUNNING,
         currentQuestionIndex: null,
         startedAt: new Date(),
-        answers: {
-          deleteMany: {
-            sessionId: session.id,
-          },
-        },
+        ...(keepAnswers
+          ? {}
+          : { answers: { deleteMany: { sessionId: session.id } } }),
       },
     });
   }
@@ -241,7 +240,11 @@ export class SessionService implements ISessionService {
    * @param restart If true, restart the session if already running or ended
    * @returns Session state and the first question
    */
-  private async _startSession(code: string, restart = false) {
+  private async _startSession(
+    code: string,
+    restart = false,
+    keepAnswers = false,
+  ) {
     const session = await this.getSessionByCode(code);
     const currentQuestionIndex = 0;
     const question = await this.getQuestionByIndex(
@@ -255,7 +258,7 @@ export class SessionService implements ISessionService {
 
     if (session.status !== SessionStatus.LOBBY) {
       if (restart) {
-        await this.handleRestartSession(session);
+        await this.handleRestartSession(session, keepAnswers);
       } else {
         throw new BadRequestException("Session already started");
       }
@@ -280,7 +283,7 @@ export class SessionService implements ISessionService {
     });
 
     // Broadcast session state
-    this.gateway?.broadcast(code, "session:state", state);
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
 
     return { state, question };
   }
@@ -323,7 +326,7 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, "session:state", state);
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
 
     return { state };
   }
@@ -348,8 +351,8 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, "session:state", state);
-    this.gateway?.broadcast(code, "answer:reveal", { ok: true });
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    this.gateway?.broadcast(code, S2C_EVENTS.ANSWER_REVEAL, { ok: true });
 
     return { state };
   }
@@ -373,7 +376,7 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, "session:end", state);
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_END, state);
 
     return { state };
   }
@@ -398,12 +401,14 @@ export class SessionService implements ISessionService {
     });
 
     const COUNTDOWN_SEC = 60;
-    this.gateway?.broadcast(code, "session:restarting", { countdownSec: COUNTDOWN_SEC });
-    this.gateway?.broadcast(code, "session:end", state);
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_END, state);
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_RESTARTING, {
+      countdownSec: COUNTDOWN_SEC,
+    });
 
     setTimeout(async () => {
       try {
-        await this._startSession(code, true);
+        await this._startSession(code, true, true);
       } catch (e) {
         console.error("[auto-restart] Failed to restart session", code, e);
       }
