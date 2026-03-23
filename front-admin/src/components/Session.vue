@@ -2,6 +2,7 @@
 import { useQuizStore } from "@/stores/quizStore";
 import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/session/session.types";
+import { answersCount } from "../services/socket.service";
 import { computed } from "vue";
 
 const { performAction, activeSession, sessionState } = useSession();
@@ -49,6 +50,9 @@ const sessionAction = async (action: SessionAction) => {
           <span id="session-status" :status="sessionState?.status">{{
             sessionState?.status
           }}</span>
+        </div>
+        <div>
+          <strong>Réponses : </strong>{{ answersCount }}
         </div>
       </div>
       <div class="row">
