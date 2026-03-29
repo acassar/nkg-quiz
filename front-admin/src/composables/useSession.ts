@@ -1,24 +1,17 @@
-import { ref } from "vue";
 import {
   Session,
   SessionAction,
-  SessionState,
 } from "../types/session/session.types";
 import { useSessionFetcher } from "./fetcher/session/useSessionFetcher";
 import {
   connectAdminSocket,
   disconnectAdminSocket,
-  setAdminSessionStateSetter,
 } from "../services/socket.service";
-
-const activeSession = ref<Session | undefined>(undefined);
-const activeSessions = ref<Session[]>([]);
-const sessionState = ref<SessionState | undefined>(undefined);
-
-// Wire up the socket service so it can write into sessionState
-setAdminSessionStateSetter((state: SessionState) => {
-  sessionState.value = state;
-});
+import {
+  activeSession,
+  activeSessions,
+  sessionState,
+} from "../state/session.state";
 
 export const useSession = () => {
   const {
