@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import HeaderComponent from "./components/header/HeaderComponent.vue";
-import QuizHandler from "./components/Quiz/QuizHandler.vue";
+import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <div class="screen">
-    <HeaderComponent />
-
-    <QuizHandler />
-  </div>
+  <RouterView />
 </template>
