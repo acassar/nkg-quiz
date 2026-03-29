@@ -34,7 +34,7 @@ async function initQuizzes() {
   await getQuizzes.execute();
   if (getQuizzes.data.value) {
     clearQuizzesStore(); // Clear the quiz store before setting new data
-    getQuizzes.data.value.forEach((quiz) => {
+    getQuizzes.data.value.forEach((quiz: Quiz) => {
       updateQuizStore(quiz);
     });
   }

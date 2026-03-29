@@ -56,7 +56,6 @@ export type ServerToClientEventPayloads = AssertAllS2CEventsCovered<{
   [S2C_EVENTS.ANSWER_RECEIVED]: { playerId: number };
   [S2C_EVENTS.QUESTION_SHOW]: Question;
   [S2C_EVENTS.ANSWER_REVEAL]: { ok: true };
-  [S2C_EVENTS.SESSION_RESTARTING]: { countdownSec: number };
 }>;
 
 export type LifecycleEventPayloads = AssertAllLifecycleEventsCovered<{
