@@ -5,36 +5,41 @@ import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 
-const { currentQuestion, status, sessionCode, restartRemainingMs } = useSessionState();
+const { state, currentQuestion, status, sessionCode } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
 
 const answersCount = ref(0); //TODO: make the answers count retrieved from the session state api
 const isConnected = computed(() => status.value === "connected");
 const sessionNotFound = computed(() => status.value === "session not found");
-const displayCountdown = ref<number | null>(null);
 
-let countdownInterval: ReturnType<typeof setInterval> | null = null;
+const now = ref(Date.now()); // Only updated when restarting
+let clockInterval: ReturnType<typeof setInterval> | null = null;
 
-watch(restartRemainingMs, (ms) => {
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (ms === null) {
-    displayCountdown.value = null;
-    return;
-  }
-  displayCountdown.value = Math.ceil(ms / 1000);
-  countdownInterval = setInterval(() => {
-    const remaining = restartRemainingMs.value;
-    if (remaining === null || remaining <= 0) {
-      clearInterval(countdownInterval!);
-      displayCountdown.value = null;
-      return;
-    }
-    displayCountdown.value = Math.ceil(remaining / 1000);
-  }, 500);
+watch(
+  () => state.value?.restartAt,
+  (restartAt) => {
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = restartAt
+      ? setInterval(() => {
+          now.value = Date.now();
+          if (clockInterval && new Date(restartAt).getTime() <= now.value) {
+            clearInterval(clockInterval);
+            clockInterval = null;
+          }
+        }, 500)
+      : null;
+  },
+  { immediate: true },
+);
+
+const displayCountdown = computed(() => {
+  if (!state.value?.restartAt) return null;
+  const remaining = new Date(state.value.restartAt).getTime() - now.value;
+  return remaining > 0 ? Math.ceil(remaining / 1000) : null;
 });
 
 onUnmounted(() => {
-  if (countdownInterval) clearInterval(countdownInterval);
+  if (clockInterval) clearInterval(clockInterval);
 });
 
 const handleTimesUp = () => {

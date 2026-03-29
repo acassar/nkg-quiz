@@ -54,20 +54,12 @@ export function useSessionState() {
     return currentQuestion || null;
   });
 
-  /** Remaining seconds until restart, derived from state.restartAt. null when not restarting. */
-  const restartRemainingMs = computed<number | null>(() => {
-    if (state.value?.status !== "RESTARTING" || !state.value.restartAt)
-      return null;
-    return Math.max(0, new Date(state.value.restartAt).getTime() - Date.now());
-  });
-
   return {
     state,
     currentQuestion,
     answersCount,
     status,
     sessionCode,
-    restartRemainingMs,
     setStatus,
     setSessionQuiz,
     updateState,
