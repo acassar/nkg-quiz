@@ -1,88 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-
-// ---------------------------------------------------------------------------
-// Route params & query options
-// ---------------------------------------------------------------------------
+import { useSessionFetcher } from "../composables/useSessionFetcher";
+import type { PlayerResult } from "../types/results.types";
 
 const route = useRoute();
 const code = computed(() => route.params.code as string);
 
 const showScore = computed(() => {
   const q = route.query.showScore;
-  if (q === "false" || q === "0") return false;
-  return true; // default: true
+  return q !== "false" && q !== "0";
 });
 
 const topOnly = computed(() => {
   const q = route.query.topOnly;
-  if (q === "true" || q === "1") return true;
-  return false; // default: false
+  return q === "true" || q === "1";
 });
 
-// ---------------------------------------------------------------------------
-// Result types (prepared for future API integration)
-// ---------------------------------------------------------------------------
+const { getResults } = useSessionFetcher();
 
-interface PlayerResult {
-  playerId: number;
-  nickname: string;
-  score: number;
-  rank: number;
-}
+const isLoading = computed(() => getResults.isLoading.value);
+const error = computed(() => getResults.error.value);
+const results = computed<PlayerResult[]>(
+  () => getResults.data.value?.results ?? [],
+);
 
-// ---------------------------------------------------------------------------
-// State
-// ---------------------------------------------------------------------------
+const fetchResults = () => getResults.execute(code.value);
 
-const isLoading = ref(true);
-const error = ref<string | null>(null);
-const results = ref<PlayerResult[]>([]);
-const apiAvailable = ref(false);
-
-// ---------------------------------------------------------------------------
-// Fetch results
-// ---------------------------------------------------------------------------
-// The back-end does not yet expose a results/leaderboard endpoint.
-// When it does, replace the placeholder below with the actual fetch call.
-// Expected endpoint: GET /api/sessions/:code/results
-// Expected response: { results: PlayerResult[] }
-// ---------------------------------------------------------------------------
-
-async function fetchResults() {
-  isLoading.value = true;
-  error.value = null;
-
-  try {
-    // TODO: replace with actual API call once the endpoint exists
-    // const response = await apiFetch<{ results: PlayerResult[] }>(
-    //   `/sessions/${code.value}/results`
-    // );
-    // results.value = response.data.results;
-    // apiAvailable.value = true;
-
-    // For now, signal that the endpoint is not available
-    apiAvailable.value = false;
-    results.value = [];
-  } catch (e) {
-    error.value =
-      e instanceof Error ? e.message : "Une erreur inattendue est survenue.";
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Computed helpers
-// ---------------------------------------------------------------------------
-
-const displayedResults = computed(() => {
-  if (topOnly.value) {
-    return results.value.slice(0, 3);
-  }
-  return results.value;
-});
+const displayedResults = computed(() =>
+  topOnly.value ? results.value.slice(0, 3) : results.value,
+);
 
 const podiumPlaces = computed(() => {
   const top3 = results.value.slice(0, 3);
@@ -127,47 +74,15 @@ onMounted(() => {
       <button class="retry-btn" @click="fetchResults">Reessayer</button>
     </div>
 
-    <!-- API not available yet -->
-    <div v-else-if="!apiAvailable" class="results-card results-card--center">
-      <div class="unavailable-icon">
-        <svg
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#6d5a45"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4" />
-          <path d="M12 16h.01" />
-        </svg>
-      </div>
-      <h2 class="unavailable-title">Resultats non disponibles</h2>
-      <p class="unavailable-text">
-        L'endpoint de resultats pour la session
-        <strong>{{ code }}</strong> n'est pas encore disponible.
-        Les scores seront affiches ici une fois l'API implementee.
-      </p>
-    </div>
-
     <!-- Results: empty -->
-    <section
-      v-else-if="results.length === 0"
-      class="empty"
-    >
+    <section v-else-if="results.length === 0" class="empty">
       <p>Aucun resultat pour cette session.</p>
     </section>
 
     <!-- Results: podium + list -->
     <template v-else>
       <!-- Podium (top 3) -->
-      <div
-        v-if="results.length >= 2"
-        class="podium"
-      >
+      <div v-if="results.length >= 2" class="podium">
         <div
           v-for="(player, idx) in podiumPlaces"
           :key="player.playerId"
@@ -288,7 +203,9 @@ onMounted(() => {
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .retry-btn:hover {

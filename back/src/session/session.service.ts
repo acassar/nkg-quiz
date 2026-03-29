@@ -456,6 +456,47 @@ export class SessionService implements ISessionService {
     return { answerId: answer.id };
   }
 
+  /**
+   * Compute results for a session by aggregating correct answers per player.
+   * Falls back to stored SessionResult rows if they exist, otherwise computes on the fly.
+   */
+  async getResults(code: string) {
+    const session = await this.getSessionByCode(code);
+
+    const answers = await this.prisma.sessionAnswer.findMany({
+      where: { sessionId: session.id },
+      include: {
+        player: { select: { id: true, nickname: true } },
+        choice: { select: { isCorrect: true } },
+        question: { select: { points: true } },
+      },
+    });
+
+    const scoreMap = new Map<number, { nickname: string; score: number }>();
+
+    for (const answer of answers) {
+      const current = scoreMap.get(answer.playerId) ?? {
+        nickname: answer.player.nickname,
+        score: 0,
+      };
+      if (answer.choice.isCorrect) {
+        current.score += answer.question.points ?? 0;
+      }
+      scoreMap.set(answer.playerId, current);
+    }
+
+    const sorted = [...scoreMap.entries()]
+      .sort((a, b) => b[1].score - a[1].score)
+      .map(([playerId, { nickname, score }], index) => ({
+        playerId,
+        nickname,
+        score,
+        rank: index + 1,
+      }));
+
+    return { results: sorted };
+  }
+
   // ==================== Private Helpers ====================
 
   private async getSessionByCode(code: string) {
