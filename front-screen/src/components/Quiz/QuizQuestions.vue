@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Question } from "@nkg-quiz/shared-fetcher";
+import type { Question } from "@nkg-quiz/shared-types";
 
 const props = defineProps<{
   currentQuestion: Question | undefined;
