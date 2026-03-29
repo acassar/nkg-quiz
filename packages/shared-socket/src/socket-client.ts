@@ -1,5 +1,9 @@
 import { io } from "socket.io-client";
-import { C2S_EVENTS, S2C_EVENTS, SOCKET_LIFECYCLE_EVENTS } from "@nkg-quiz/shared-socket-types";
+import {
+  C2S_EVENTS,
+  S2C_EVENTS,
+  SOCKET_LIFECYCLE_EVENTS,
+} from "@nkg-quiz/shared-socket-types";
 import type {
   ClientToServerEvent,
   ClientToServerEventPayloads,
@@ -28,7 +32,10 @@ const REGISTERABLE_EVENTS: RegisterableEvent[] = [
 export class SharedSocketClient {
   private socket: SocketConnection | null = null;
   private sessionCode?: string;
-  private readonly listeners = new Map<string, Set<(payload: unknown) => void>>();
+  private readonly listeners = new Map<
+    string,
+    Set<(payload: unknown) => void>
+  >();
   private readonly autoJoinSessionOnConnect: boolean;
 
   constructor(private readonly options: SocketClientOptions) {
@@ -115,10 +122,15 @@ export class SharedSocketClient {
   }
 }
 
-export function createSocketIoClient(options: SocketIoClientOptions): SharedSocketClient {
+export function createSocketIoClient(
+  options: SocketIoClientOptions,
+): SharedSocketClient {
   return new SharedSocketClient({
     ...options,
     connector: (url, connectOptions) =>
-      io(url, { transports: ["websocket"], ...connectOptions }) as unknown as SocketConnection,
+      io(url, {
+        transports: ["websocket"],
+        ...connectOptions,
+      }) as unknown as SocketConnection,
   });
 }

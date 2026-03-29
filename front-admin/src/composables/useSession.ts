@@ -1,14 +1,17 @@
-import { ref } from "vue";
 import {
   Session,
   SessionAction,
-  SessionState,
 } from "../types/session/session.types";
 import { useSessionFetcher } from "./fetcher/session/useSessionFetcher";
-
-const activeSession = ref<Session | undefined>(undefined);
-const activeSessions = ref<Session[]>([]);
-const sessionState = ref<SessionState | undefined>(undefined);
+import {
+  connectAdminSocket,
+  disconnectAdminSocket,
+} from "../services/socket.service";
+import {
+  activeSession,
+  activeSessions,
+  sessionState,
+} from "../state/session.state";
 
 export const useSession = () => {
   const {
@@ -23,8 +26,10 @@ export const useSession = () => {
     if (session) {
       const sessionData = await getSessionStateFetcher.execute(session?.code);
       sessionState.value = sessionData?.state;
+      connectAdminSocket(session.code);
     } else {
       sessionState.value = undefined;
+      disconnectAdminSocket();
     }
   };
 
@@ -32,6 +37,9 @@ export const useSession = () => {
     const data = await createSessionFetcher.execute(quizId);
     activeSession.value = data?.session;
     sessionState.value = data?.state;
+    if (data?.session) {
+      connectAdminSocket(data.session.code);
+    }
     return data;
   };
 
@@ -50,6 +58,7 @@ export const useSession = () => {
     sessionState.value = data?.state;
 
     if (action === "archive") {
+      disconnectAdminSocket();
       activeSession.value = undefined;
       sessionState.value = undefined;
       getActiveSessions();
