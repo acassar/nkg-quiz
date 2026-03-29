@@ -19,6 +19,7 @@ watch(
   () => state.value?.restartAt,
   (restartAt) => {
     if (clockInterval) clearInterval(clockInterval);
+    if (restartAt) now.value = Date.now();
     clockInterval = restartAt
       ? setInterval(() => {
           now.value = Date.now();
