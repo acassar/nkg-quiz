@@ -65,7 +65,7 @@ export const connectSocket = (sessionCode: string) => {
     return;
   }
 
-  useSessionState().sessionCode.value = sessionCode;
+  useSessionState().setSessionCode(sessionCode);
   useSessionState().setStatus("joining");
 
   socketClient.connect(sessionCode);

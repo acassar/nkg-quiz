@@ -14,8 +14,31 @@ const sessionState = ref<SessionState>();
 const status = ref<SessionStatus>("disconnected");
 const sessionCode = ref<string>();
 const sessionQuiz = ref<Quiz>();
-/** Stores the player's answer per question (questionId → choiceId). Persists across restarts. */
+/** Stores the player's answer per question (questionId → choiceId). Persisted in localStorage. */
 const playerAnswers = reactive(new Map<number, number>());
+
+function answersStorageKey(code: string) {
+  return `playerAnswers_${code}`;
+}
+
+function loadAnswersFromStorage(code: string) {
+  const raw = localStorage.getItem(answersStorageKey(code));
+  if (!raw) return;
+  try {
+    const parsed: [number, number][] = JSON.parse(raw);
+    playerAnswers.clear();
+    for (const [qId, cId] of parsed) playerAnswers.set(qId, cId);
+  } catch {
+    // ignore malformed data
+  }
+}
+
+function persistAnswers(code: string) {
+  localStorage.setItem(
+    answersStorageKey(code),
+    JSON.stringify([...playerAnswers.entries()]),
+  );
+}
 export function useSessionState() {
   const questions = computed<Question[]>(() => {
     if (!sessionState.value || !sessionQuiz.value) return [];
@@ -45,6 +68,7 @@ export function useSessionState() {
 
   function setSessionCode(code: string) {
     sessionCode.value = code;
+    loadAnswersFromStorage(code);
   }
 
   function setSessionQuiz(quiz: Quiz) {
@@ -59,6 +83,7 @@ export function useSessionState() {
 
   function savePlayerAnswer(questionId: number, choiceId: number) {
     playerAnswers.set(questionId, choiceId);
+    if (sessionCode.value) persistAnswers(sessionCode.value);
   }
 
   function getPlayerAnswer(questionId: number): number | null {
