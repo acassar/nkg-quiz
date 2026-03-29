@@ -14,7 +14,6 @@ const sessionQuiz = ref<Quiz>();
 const answersCount = ref(0);
 const status = ref<SessionStatus>("disconnected");
 const sessionCode = ref<string>();
-const restartCountdownSec = ref<number | null>(null);
 
 export function useSessionState() {
   function updateState(newState: SessionState) {
@@ -55,9 +54,12 @@ export function useSessionState() {
     return currentQuestion || null;
   });
 
-  function setRestartCountdown(sec: number | null) {
-    restartCountdownSec.value = sec;
-  }
+  /** Remaining seconds until restart, derived from state.restartAt. null when not restarting. */
+  const restartRemainingMs = computed<number | null>(() => {
+    if (state.value?.status !== "RESTARTING" || !state.value.restartAt)
+      return null;
+    return Math.max(0, new Date(state.value.restartAt).getTime() - Date.now());
+  });
 
   return {
     state,
@@ -65,12 +67,11 @@ export function useSessionState() {
     answersCount,
     status,
     sessionCode,
-    restartCountdownSec,
+    restartRemainingMs,
     setStatus,
     setSessionQuiz,
     updateState,
     incrementAnswersCount,
     resetAnswersCount,
-    setRestartCountdown,
   };
 }

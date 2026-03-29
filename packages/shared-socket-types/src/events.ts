@@ -17,7 +17,6 @@ export const S2C_EVENTS = {
   ANSWER_RECEIVED: "answer:received",
   QUESTION_SHOW: "question:show",
   ANSWER_REVEAL: "answer:reveal",
-  SESSION_RESTARTING: "session:restarting",
 } as const;
 
 // ─── Socket.io lifecycle events ───────────────────────────────────────────────

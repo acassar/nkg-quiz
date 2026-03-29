@@ -3,6 +3,7 @@ export type SESSION_STATUS =
   | "RUNNING"
   | "REVEAL"
   | "ENDED"
+  | "RESTARTING"
   | "ARCHIVED";
 
 export type Session = {
@@ -16,6 +17,7 @@ export type SessionState = {
   code: string;
   status: SESSION_STATUS;
   currentQuestionIndex: number | null;
+  restartAt?: string | null;
 };
 
 export type SessionAction =

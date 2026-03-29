@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { useSessionState } from "../../composables/useSessionState";
 import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 
-const { currentQuestion, status, sessionCode, restartCountdownSec, setRestartCountdown } = useSessionState();
+const { currentQuestion, status, sessionCode, restartRemainingMs } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
 
 const answersCount = ref(0); //TODO: make the answers count retrieved from the session state api
@@ -15,21 +15,26 @@ const displayCountdown = ref<number | null>(null);
 
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
-watch(restartCountdownSec, (sec) => {
+watch(restartRemainingMs, (ms) => {
   if (countdownInterval) clearInterval(countdownInterval);
-  if (sec === null) {
+  if (ms === null) {
     displayCountdown.value = null;
     return;
   }
-  displayCountdown.value = sec;
+  displayCountdown.value = Math.ceil(ms / 1000);
   countdownInterval = setInterval(() => {
-    if (displayCountdown.value === null || displayCountdown.value <= 0) {
+    const remaining = restartRemainingMs.value;
+    if (remaining === null || remaining <= 0) {
       clearInterval(countdownInterval!);
-      setRestartCountdown(null);
+      displayCountdown.value = null;
       return;
     }
-    displayCountdown.value--;
-  }, 1000);
+    displayCountdown.value = Math.ceil(remaining / 1000);
+  }, 500);
+});
+
+onUnmounted(() => {
+  if (countdownInterval) clearInterval(countdownInterval);
 });
 
 const handleTimesUp = () => {

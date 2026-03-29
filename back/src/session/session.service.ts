@@ -382,29 +382,30 @@ export class SessionService implements ISessionService {
   }
 
   /**
-   * End the session and schedule an automatic restart after a countdown.
-   * Broadcasts session:restarting so clients can display a countdown.
+   * Set session to RESTARTING status and schedule an automatic restart after a countdown.
+   * Clients that join mid-countdown receive the RESTARTING state and can derive the remaining
+   * time from `restartAt` without needing a separate event.
    */
   private async scheduleAutoRestart(code: string) {
     const session = await this.getSessionByCode(code);
 
+    const COUNTDOWN_SEC = 60;
+    const restartAt = new Date(Date.now() + COUNTDOWN_SEC * 1000).toISOString();
+
     await this.prisma.session.update({
       where: { id: session.id },
-      data: { status: SessionStatus.ENDED, endedAt: new Date() },
+      data: { status: SessionStatus.RESTARTING },
     });
 
     const state = await this.stateStore.set({
       code,
-      status: SessionStatus.ENDED,
+      status: SessionStatus.RESTARTING,
       currentQuestionIndex: null,
+      restartAt,
       updatedAt: new Date().toISOString(),
     });
 
-    const COUNTDOWN_SEC = 60;
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_END, state);
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_RESTARTING, {
-      countdownSec: COUNTDOWN_SEC,
-    });
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
 
     setTimeout(async () => {
       try {
