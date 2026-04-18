@@ -26,7 +26,7 @@ type AssertAllLifecycleEventsCovered<
 // ─── Payload maps ─────────────────────────────────────────────────────────────
 
 export type ClientToServerEventPayloads = AssertAllC2SEventsCovered<{
-  [C2S_EVENTS.JOIN_SESSION]: { code: string };
+  [C2S_EVENTS.JOIN_SESSION]: { code: string; playerId?: number };
   [C2S_EVENTS.PLAYER_ANSWER]: {
     code: string;
     playerId: number;
@@ -49,7 +49,7 @@ export type ClientToServerEventPayloads = AssertAllC2SEventsCovered<{
 }>;
 
 export type ServerToClientEventPayloads = AssertAllS2CEventsCovered<{
-  [S2C_EVENTS.SESSION_JOINED]: SessionState;
+  [S2C_EVENTS.SESSION_JOINED]: SessionState & { playerAnswers: Record<number, number> };
   [S2C_EVENTS.SESSION_NOT_FOUND]: void;
   [S2C_EVENTS.SESSION_STATE]: SessionState;
   [S2C_EVENTS.SESSION_END]: SessionState | Record<string, unknown>;

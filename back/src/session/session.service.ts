@@ -31,7 +31,21 @@ export class SessionService implements ISessionService {
   }
 
   async restartSession(code: string) {
-    return this._startSession(code, true);
+    const session = await this.getSessionByCode(code);
+
+    await this.prisma.sessionAnswer.deleteMany({
+      where: { sessionId: session.id },
+    });
+
+    const restartingState = await this.stateStore.set({
+      code,
+      status: SessionStatus.RESTARTING,
+      currentQuestionIndex: null,
+      updatedAt: new Date().toISOString(),
+    });
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, restartingState);
+
+    return this._startSession(code, true, true);
   }
 
   async archiveSession(code: string) {
@@ -454,6 +468,18 @@ export class SessionService implements ISessionService {
     });
 
     return { answerId: answer.id };
+  }
+
+  async getPlayerAnswers(
+    sessionCode: string,
+    playerId: number,
+  ): Promise<Record<number, number>> {
+    const session = await this.getSessionByCode(sessionCode);
+    const answers = await this.prisma.sessionAnswer.findMany({
+      where: { sessionId: session.id, playerId },
+      select: { questionId: true, choiceId: true },
+    });
+    return Object.fromEntries(answers.map((a) => [a.questionId, a.choiceId]));
   }
 
   /**

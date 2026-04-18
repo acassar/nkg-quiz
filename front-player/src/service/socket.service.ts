@@ -5,6 +5,7 @@ import {
   SOCKET_LIFECYCLE_EVENTS,
 } from "@nkg-quiz/shared-socket";
 import { useSessionState } from "../composable/useSessionState";
+import { usePlayer } from "../composable/usePlayer";
 import type { SessionState } from "@nkg-quiz/shared-types";
 
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -36,17 +37,19 @@ socketClient.register(S2C_EVENTS.SESSION_NOT_FOUND, () => {
 
 socketClient.register(S2C_EVENTS.SESSION_JOINED, (payload) => {
   console.log("Joined session");
-  useSessionState().updateState(payload as SessionState);
-  useSessionState().setStatus(
-    payload.status === "ENDED" ? "ended" : "connected",
-  );
+  const { playerAnswers, ...state } = payload as SessionState & { playerAnswers: Record<string, number> };
+  useSessionState().updateState(state as SessionState);
+  useSessionState().setPlayerAnswers(playerAnswers ?? {});
+  useSessionState().setStatus(state.status === "ENDED" ? "ended" : "connected");
 });
 
 socketClient.register(S2C_EVENTS.SESSION_STATE, (payload) => {
-  useSessionState().updateState(payload as SessionState);
-  useSessionState().setStatus(
-    payload.status === "ENDED" ? "ended" : "connected",
-  );
+  const state = payload as SessionState;
+  if (state.status === "RESTARTING") {
+    socketClient.rejoin();
+  }
+  useSessionState().updateState(state);
+  useSessionState().setStatus(state.status === "ENDED" ? "ended" : "connected");
 });
 
 socketClient.register(S2C_EVENTS.SESSION_END, (payload) => {
@@ -68,6 +71,8 @@ export const connectSocket = (sessionCode: string) => {
   useSessionState().setSessionCode(sessionCode);
   useSessionState().setStatus("joining");
 
+  const player = usePlayer().getPlayerForSession(sessionCode);
+  socketClient.setPlayerId(player?.id ? parseInt(player.id) : undefined);
   socketClient.connect(sessionCode);
 };
 

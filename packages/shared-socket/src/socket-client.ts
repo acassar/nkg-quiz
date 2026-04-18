@@ -31,6 +31,7 @@ const REGISTERABLE_EVENTS: RegisterableEvent[] = [
 export class SharedSocketClient {
   private socket: SocketConnection | null = null;
   private sessionCode?: string;
+  private playerId?: number;
   private readonly listeners = new Map<
     string,
     Set<(payload: unknown) => void>
@@ -72,6 +73,16 @@ export class SharedSocketClient {
     this.sessionCode = sessionCode?.trim() || undefined;
   }
 
+  setPlayerId(playerId?: number): void {
+    this.playerId = playerId;
+  }
+
+  rejoin(): void {
+    if (this.socket?.connected && this.sessionCode) {
+      this.emit(C2S_EVENTS.JOIN_SESSION, { code: this.sessionCode, playerId: this.playerId });
+    }
+  }
+
   register<E extends RegisterableEvent>(
     event: E,
     callback: (payload: RegisterableEventPayloads[E]) => void,
@@ -105,7 +116,7 @@ export class SharedSocketClient {
           this.autoJoinSessionOnConnect &&
           this.sessionCode
         ) {
-          this.emit(C2S_EVENTS.JOIN_SESSION, { code: this.sessionCode });
+          this.emit(C2S_EVENTS.JOIN_SESSION, { code: this.sessionCode, playerId: this.playerId });
         }
         this.notify(event, args[0]);
       });

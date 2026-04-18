@@ -48,7 +48,10 @@ export class SessionGateway {
       const { state } = await this.sessionService.getState(body.code);
       if (state) {
         client.join(this.room(body.code));
-        client.emit(S2C_EVENTS.SESSION_JOINED, state);
+        const playerAnswers = body.playerId
+          ? await this.sessionService.getPlayerAnswers(body.code, body.playerId)
+          : {};
+        client.emit(S2C_EVENTS.SESSION_JOINED, { ...state, playerAnswers });
       } else throw new NotFoundException("Session not found");
     } catch (error) {
       if (error instanceof NotFoundException) client.emit(S2C_EVENTS.SESSION_NOT_FOUND);
