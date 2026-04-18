@@ -12,7 +12,7 @@ type StartSessionReturn = {
 
 export interface ISessionService {
   startSession(code: string): Promise<StartSessionReturn>;
-  restartSession(code: string): Promise<StartSessionReturn>;
+  restartSession(code: string): Promise<{ state: SessionState }>;
   archiveSession(code: string): Promise<Session>;
   createSession(
     dto: CreateSessionDto,

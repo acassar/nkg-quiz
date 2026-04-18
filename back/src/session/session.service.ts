@@ -32,20 +32,10 @@ export class SessionService implements ISessionService {
 
   async restartSession(code: string) {
     const session = await this.getSessionByCode(code);
-
     await this.prisma.sessionAnswer.deleteMany({
       where: { sessionId: session.id },
     });
-
-    const restartingState = await this.stateStore.set({
-      code,
-      status: SessionStatus.RESTARTING,
-      currentQuestionIndex: null,
-      updatedAt: new Date().toISOString(),
-    });
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, restartingState);
-
-    return this._startSession(code, true, true);
+    return this.scheduleAutoRestart(code);
   }
 
   async archiveSession(code: string) {
@@ -403,7 +393,7 @@ export class SessionService implements ISessionService {
   private async scheduleAutoRestart(code: string) {
     const session = await this.getSessionByCode(code);
 
-    const COUNTDOWN_SEC = 60;
+    const COUNTDOWN_SEC = 10;
     const restartAt = new Date(Date.now() + COUNTDOWN_SEC * 1000).toISOString();
 
     await this.prisma.session.update({
