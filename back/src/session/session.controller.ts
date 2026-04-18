@@ -58,8 +58,8 @@ export class SessionController {
 
   @UseGuards(AuthGuard)
   @Post(":code/restart")
-  restart(@Param("code") code: string) {
-    return this.sessionService.restartSession(code);
+  restart(@Param("code") code: string, @Body() body: { keepAnswers?: boolean }) {
+    return this.sessionService.restartSession(code, body?.keepAnswers ?? false);
   }
 
   @Post(":code/next")

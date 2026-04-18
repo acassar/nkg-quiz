@@ -48,12 +48,13 @@ export const useSession = () => {
     activeSessions.value = data ?? [];
   };
 
-  const performAction = async (action: SessionAction) => {
+  const performAction = async (action: SessionAction, body?: Record<string, unknown>) => {
     if (!activeSession.value) return;
 
     const data = await performActionFetcher.execute(
       activeSession.value.code,
       action,
+      body,
     );
     sessionState.value = data?.state;
 

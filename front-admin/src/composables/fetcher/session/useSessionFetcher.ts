@@ -19,7 +19,7 @@ export function useSessionFetcher() {
   );
   const performAction = useFetcher<
     SessionStateResponse,
-    [string, SessionAction]
+    [string, SessionAction, Record<string, unknown>?]
   >(sessionFetcher.performAction);
 
   return {

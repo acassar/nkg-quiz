@@ -24,8 +24,8 @@ const quizActiveQuestion = computed(() => {
   return quiz.value?.questions[questionIndex];
 });
 
-const sessionAction = async (action: SessionAction) => {
-  await performAction(action);
+const sessionAction = async (action: SessionAction, body?: Record<string, unknown>) => {
+  await performAction(action, body);
 };
 </script>
 
@@ -62,12 +62,10 @@ const sessionAction = async (action: SessionAction) => {
         >
           Start
         </button>
-        <button
-          v-else-if="sessionState?.status !== 'ARCHIVED'"
-          @click="sessionAction('restart')"
-        >
-          Restart
-        </button>
+        <template v-else-if="sessionState?.status !== 'ARCHIVED'">
+          <button @click="sessionAction('restart')">Restart</button>
+          <button class="secondary" @click="sessionAction('restart', { keepAnswers: true })">Restart (keep answers)</button>
+        </template>
 
         <button @click="sessionAction('next')">Next</button>
         <button @click="sessionAction('reveal')">Reveal</button>

@@ -30,11 +30,11 @@ export class SessionService implements ISessionService {
     return this._startSession(code);
   }
 
-  async restartSession(code: string) {
-    const session = await this.getSessionByCode(code);
-    await this.prisma.sessionAnswer.deleteMany({
-      where: { sessionId: session.id },
-    });
+  async restartSession(code: string, keepAnswers = false) {
+    if (!keepAnswers) {
+      const session = await this.getSessionByCode(code);
+      await this.prisma.sessionAnswer.deleteMany({ where: { sessionId: session.id } });
+    }
     return this.scheduleAutoRestart(code);
   }
 

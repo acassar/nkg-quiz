@@ -21,11 +21,12 @@ export const sessionFetcher = {
       body: JSON.stringify({ quizId }),
     });
   },
-  performAction: async (code: string, action: SessionAction) => {
+  performAction: async (code: string, action: SessionAction, body?: Record<string, unknown>) => {
     return apiFetch<SessionStateResponse>(
       `${sessionEndpoint}/${code}/${action}`,
       {
         method: "POST",
+        ...(body ? { body: JSON.stringify(body) } : {}),
       },
     );
   },
