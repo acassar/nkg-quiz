@@ -7,6 +7,7 @@ export type Question = {
   timeLimitSec: number | null;
   points: number | null;
   choices: Choice[];
+  answersCount?: number;
 };
 
 export type QuestionInput = Omit<Question, "id" | "categoryId" | "choices"> & {

@@ -29,7 +29,8 @@ export class SessionGateway {
 
   @SubscribeMessage(C2S_EVENTS.JOIN_SESSION)
   async joinSession(
-    @MessageBody() body: ClientToServerEventPayloads[typeof C2S_EVENTS.JOIN_SESSION],
+    @MessageBody()
+    body: ClientToServerEventPayloads[typeof C2S_EVENTS.JOIN_SESSION],
     @ConnectedSocket() client: Socket,
   ) {
     if (!body?.code) {
@@ -54,7 +55,8 @@ export class SessionGateway {
         client.emit(S2C_EVENTS.SESSION_JOINED, { ...state, playerAnswers });
       } else throw new NotFoundException("Session not found");
     } catch (error) {
-      if (error instanceof NotFoundException) client.emit(S2C_EVENTS.SESSION_NOT_FOUND);
+      if (error instanceof NotFoundException)
+        client.emit(S2C_EVENTS.SESSION_NOT_FOUND);
       else throw new WsException("Internal server error");
     }
 
@@ -70,7 +72,9 @@ export class SessionGateway {
     }
 
     // Diffuser le nouvel état à tous les clients connectés
-    this.server.to(this.room(body.code)).emit(S2C_EVENTS.SESSION_STATE, body.state);
+    this.server
+      .to(this.room(body.code))
+      .emit(S2C_EVENTS.SESSION_STATE, body.state);
 
     return { ok: true };
   }
@@ -88,21 +92,26 @@ export class SessionGateway {
     }
 
     // Diffuser la nouvelle question à tous les clients
-    this.server.to(this.room(body.code)).emit(S2C_EVENTS.QUESTION_SHOW, body.question);
+    this.server
+      .to(this.room(body.code))
+      .emit(S2C_EVENTS.QUESTION_SHOW, body.question);
 
     return { ok: true };
   }
 
   @SubscribeMessage(C2S_EVENTS.SCREEN_REVEAL_ANSWER)
   async revealAnswer(
-    @MessageBody() body: ClientToServerEventPayloads[typeof C2S_EVENTS.SCREEN_REVEAL_ANSWER],
+    @MessageBody()
+    body: ClientToServerEventPayloads[typeof C2S_EVENTS.SCREEN_REVEAL_ANSWER],
   ) {
     if (!body?.code) {
       throw new WsException("Missing session code");
     }
 
     // Diffuser la révélation de la réponse
-    this.server.to(this.room(body.code)).emit(S2C_EVENTS.ANSWER_REVEAL, { ok: true });
+    this.server
+      .to(this.room(body.code))
+      .emit(S2C_EVENTS.ANSWER_REVEAL, { ok: true });
 
     return { ok: true };
   }
@@ -132,6 +141,9 @@ export class SessionGateway {
     this.server
       .to(this.room(body.code))
       .emit(S2C_EVENTS.ANSWER_RECEIVED, { playerId: body.playerId });
+
+    this.sessionService.handleBroadcastLiveStats(body.code);
+
     return result;
   }
 

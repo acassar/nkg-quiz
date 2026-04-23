@@ -51,6 +51,12 @@ export class SessionController {
   }
 
   @UseGuards(AuthGuard)
+  @Get(":code/live-stats")
+  getLiveStats(@Param("code") code: string) {
+    return this.sessionService.getLiveStats(code);
+  }
+
+  @UseGuards(AuthGuard)
   @Post(":code/start")
   start(@Param("code") code: string) {
     return this.sessionService.startSession(code);

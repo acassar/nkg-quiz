@@ -36,3 +36,5 @@ export type CreateSessionResponse = {
 export type SessionStateResponse = {
   state: SessionState;
 };
+
+export type { LiveStatsPlayer, LiveStats } from "@nkg-quiz/shared-types";

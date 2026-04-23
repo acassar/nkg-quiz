@@ -4,6 +4,9 @@ import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/session/session.types";
 import { answersCount } from "../services/socket.service";
 import { computed } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const { performAction, activeSession, sessionState } = useSession();
 const { getById } = useQuizStore();
@@ -56,6 +59,12 @@ const sessionAction = async (action: SessionAction, body?: Record<string, unknow
         </div>
       </div>
       <div class="row">
+        <button
+          class="secondary"
+          @click="router.push({ name: 'SessionStats', params: { code: activeSession.code } })"
+        >
+          Stats
+        </button>
         <button
           v-if="sessionState?.status === 'LOBBY'"
           @click="sessionAction('start')"

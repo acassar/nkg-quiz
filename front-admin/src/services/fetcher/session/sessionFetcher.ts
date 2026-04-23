@@ -1,6 +1,7 @@
 import { apiFetch } from "../fetcher";
 import {
   CreateSessionResponse,
+  LiveStats,
   Session,
   SessionAction,
   SessionStateResponse,
@@ -21,7 +22,11 @@ export const sessionFetcher = {
       body: JSON.stringify({ quizId }),
     });
   },
-  performAction: async (code: string, action: SessionAction, body?: Record<string, unknown>) => {
+  performAction: async (
+    code: string,
+    action: SessionAction,
+    body?: Record<string, unknown>,
+  ) => {
     return apiFetch<SessionStateResponse>(
       `${sessionEndpoint}/${code}/${action}`,
       {
@@ -29,5 +34,8 @@ export const sessionFetcher = {
         ...(body ? { body: JSON.stringify(body) } : {}),
       },
     );
+  },
+  getLiveStats: async (code: string) => {
+    return apiFetch<LiveStats>(`${sessionEndpoint}/${code}/live-stats`);
   },
 };

@@ -1,3 +1,5 @@
+import { Question } from "../question/question.types";
+
 export type SESSION_STATUS =
   | "LOBBY"
   | "RUNNING"
@@ -35,4 +37,22 @@ export type CreateSessionResponse = {
 
 export type SessionStateResponse = {
   state: SessionState;
+};
+
+export type LiveStatsPlayer = {
+  playerId: number;
+  nickname: string;
+  totalAnswers: number;
+  score: number;
+  answeredCurrentQuestion: boolean;
+  rank: number;
+};
+
+export type LiveStats = {
+  code: string;
+  status: SESSION_STATUS;
+  currentQuestionIndex: number | null;
+  currentQuestion: Question | null;
+  totalPlayers: number;
+  players: LiveStatsPlayer[];
 };

@@ -1,4 +1,4 @@
-import type { Question, SessionState } from "@nkg-quiz/shared-types";
+import type { LiveStats, Question, SessionState } from "@nkg-quiz/shared-types";
 import type {
   C2S_EVENTS,
   S2C_EVENTS,
@@ -49,13 +49,16 @@ export type ClientToServerEventPayloads = AssertAllC2SEventsCovered<{
 }>;
 
 export type ServerToClientEventPayloads = AssertAllS2CEventsCovered<{
-  [S2C_EVENTS.SESSION_JOINED]: SessionState & { playerAnswers: Record<number, number> };
+  [S2C_EVENTS.SESSION_JOINED]: SessionState & {
+    playerAnswers: Record<number, number>;
+  };
   [S2C_EVENTS.SESSION_NOT_FOUND]: void;
   [S2C_EVENTS.SESSION_STATE]: SessionState;
   [S2C_EVENTS.SESSION_END]: SessionState | Record<string, unknown>;
   [S2C_EVENTS.ANSWER_RECEIVED]: { playerId: number };
   [S2C_EVENTS.QUESTION_SHOW]: Question;
   [S2C_EVENTS.ANSWER_REVEAL]: { ok: true };
+  [S2C_EVENTS.LIVE_STATS]: LiveStats;
 }>;
 
 export type LifecycleEventPayloads = AssertAllLifecycleEventsCovered<{

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../pages/Home.vue";
 import EditQuizView from "../views/quiz/EditQuizView.vue";
+import SessionStatsView from "../pages/SessionStatsView.vue";
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     name: "EditQuiz",
     component: EditQuizView,
     props: (route: any) => ({ quizId: parseInt(route.params.id) }),
+  },
+  {
+    path: "/session/:code/stats",
+    name: "SessionStats",
+    component: SessionStatsView,
   },
 ];
 

@@ -8,9 +8,9 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
-import { SessionStateStore } from "./state-store";
+import { SessionState, SessionStateStore } from "./state-store";
 import { nanoid } from "nanoid";
-import { Prisma, Session, SessionStatus } from "@prisma/client";
+import { Prisma, Question, Session, SessionStatus } from "@prisma/client";
 import { SessionGateway } from "./session.gateway";
 import { ISessionService } from "./model/sessionService.model";
 import { S2C_EVENTS } from "@nkg-quiz/shared-socket-types";
@@ -33,7 +33,9 @@ export class SessionService implements ISessionService {
   async restartSession(code: string, keepAnswers = false) {
     if (!keepAnswers) {
       const session = await this.getSessionByCode(code);
-      await this.prisma.sessionAnswer.deleteMany({ where: { sessionId: session.id } });
+      await this.prisma.sessionAnswer.deleteMany({
+        where: { sessionId: session.id },
+      });
     }
     return this.scheduleAutoRestart(code);
   }
@@ -287,9 +289,22 @@ export class SessionService implements ISessionService {
     });
 
     // Broadcast session state
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    await this.handleBroadcastSessionState(code, state);
 
     return { state, question };
+  }
+
+  async handleBroadcastSessionState(code: string, state: SessionState) {
+    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    await this.handleBroadcastLiveStats(code);
+  }
+
+  async handleBroadcastLiveStats(code: string) {
+    this.gateway?.broadcast(
+      code,
+      S2C_EVENTS.LIVE_STATS,
+      await this.getLiveStats(code),
+    );
   }
 
   // ==================== Session Flow Handlers ====================
@@ -330,7 +345,7 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    await this.handleBroadcastSessionState(code, state);
 
     return { state };
   }
@@ -355,7 +370,7 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    await this.handleBroadcastSessionState(code, state);
     this.gateway?.broadcast(code, S2C_EVENTS.ANSWER_REVEAL, { ok: true });
 
     return { state };
@@ -409,7 +424,7 @@ export class SessionService implements ISessionService {
       updatedAt: new Date().toISOString(),
     });
 
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
+    await this.handleBroadcastSessionState(code, state);
 
     setTimeout(async () => {
       try {
@@ -457,6 +472,12 @@ export class SessionService implements ISessionService {
       },
     });
 
+    this.getLiveStats(params.code)
+      .then((stats) =>
+        this.gateway?.broadcast(params.code, S2C_EVENTS.LIVE_STATS, stats),
+      )
+      .catch(() => undefined);
+
     return { answerId: answer.id };
   }
 
@@ -476,6 +497,85 @@ export class SessionService implements ISessionService {
    * Compute results for a session by aggregating correct answers per player.
    * Falls back to stored SessionResult rows if they exist, otherwise computes on the fly.
    */
+  async getLiveStats(code: string) {
+    const session = await this.getSessionByCode(code);
+    const state = await this.stateStore.get(code);
+
+    const players = await this.prisma.sessionPlayer.findMany({
+      where: { sessionId: session.id, isActive: true },
+      orderBy: { joinedAt: "asc" },
+    });
+
+    const allAnswers = await this.prisma.sessionAnswer.findMany({
+      where: { sessionId: session.id },
+      include: {
+        question: { select: { points: true } },
+        choice: { select: { isCorrect: true } },
+      },
+    });
+
+    let currentQuestion:
+      | (Partial<Question> & { category: string; answersCount: number })
+      | null = null;
+
+    const currentIndex = state?.currentQuestionIndex;
+    if (currentIndex !== null && currentIndex !== undefined) {
+      const quiz = await this.prisma.quiz.findUnique({
+        where: { id: session.quizId },
+        include: {
+          questions: {
+            orderBy: [
+              { category: { orderIndex: "asc" } },
+              { orderIndex: "asc" },
+            ],
+            include: { category: { select: { name: true } } },
+          },
+        },
+      });
+      const q = quiz?.questions[currentIndex];
+      if (q) {
+        currentQuestion = {
+          id: q.id,
+          prompt: q.prompt,
+          category: q.category.name,
+          points: q.points,
+          answersCount: allAnswers.filter((a) => a.questionId === q.id).length,
+        };
+      }
+    }
+
+    const playerStats = players.map((player) => {
+      const playerAnswers = allAnswers.filter((a) => a.playerId === player.id);
+      const score = playerAnswers
+        .filter((a) => a.choice.isCorrect)
+        .reduce((sum, a) => sum + (a.question.points ?? 0), 0);
+      const answeredCurrentQuestion = currentQuestion
+        ? playerAnswers.some((a) => a.questionId === currentQuestion!.id)
+        : false;
+
+      return {
+        playerId: player.id,
+        nickname: player.nickname,
+        totalAnswers: playerAnswers.length,
+        score,
+        answeredCurrentQuestion,
+      };
+    });
+
+    const sorted = playerStats
+      .sort((a, b) => b.score - a.score)
+      .map((p, i) => ({ ...p, rank: i + 1 }));
+
+    return {
+      code: session.code,
+      status: state?.status ?? session.status,
+      currentQuestionIndex: state?.currentQuestionIndex ?? null,
+      currentQuestion,
+      totalPlayers: players.length,
+      players: sorted,
+    };
+  }
+
   async getResults(code: string) {
     const session = await this.getSessionByCode(code);
 

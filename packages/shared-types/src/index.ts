@@ -6,6 +6,8 @@ export type {
   Session,
   SessionAction,
   SessionStateResponse,
+  LiveStatsPlayer,
+  LiveStats,
 } from "./session/session.types";
 
 // Question types
