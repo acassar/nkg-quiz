@@ -2,6 +2,7 @@
 import { socketClient, connectAdminSocket } from "@/services/socket.service";
 import { S2C_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
+import CurrentQuestion from "@/components/stats/CurrentQuestion.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { LiveStats } from "@/types/session/session.types";
@@ -29,9 +30,21 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <button @click="router.back()">← Retour</button>
-    <h1>Stats — {{ code }}</h1>
-    {{ data }}
+  <div class="stats-page">
+    <div class="row">
+      <button @click="router.back()">← Retour</button>
+      <h1 style="margin: 0; font-size: 1.1rem;">Stats — <code>{{ code }}</code></h1>
+    </div>
+    <CurrentQuestion :stats="data" />
   </div>
 </template>
+
+<style scoped>
+.stats-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+</style>
