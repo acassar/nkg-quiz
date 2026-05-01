@@ -5,8 +5,8 @@ import router from "./router";
 import "./base.css";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import { setupFetcher } from "./services/fetcher/fetcherConfig";
+import { i18n } from "./i18n";
 
-// Configure the shared fetcher
 setupFetcher();
 
 const app = createApp(App);
@@ -16,4 +16,5 @@ pinia.use(piniaPluginPersistedstate);
 
 app.use(pinia);
 app.use(router);
+app.use(i18n);
 app.mount("#app");

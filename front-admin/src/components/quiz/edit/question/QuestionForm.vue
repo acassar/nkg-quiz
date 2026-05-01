@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import type { QuestionInput } from "@/types/question/question.types";
 import ChoiceRow from "./ChoiceRow.vue";
 
@@ -11,6 +12,7 @@ const emits = defineEmits<{
 
 const props = defineProps<{ question?: QuestionInput }>();
 
+const { t } = useI18n();
 const form = ref<QuestionInput>(getFormInitData());
 const error = ref("");
 const isHydrating = ref(false);
@@ -49,10 +51,10 @@ const normalizeNumber = (value: number | null) => (Number.isNaN(value) ? null : 
 const submit = () => {
   error.value = "";
   if (!canSubmit.value) {
-    if (!form.value.prompt.trim()) { error.value = "Le prompt est requis."; return; }
-    if (!hasAllChoiceText.value) { error.value = "Toutes les réponses doivent avoir du texte."; return; }
-    if (!hasCorrectChoice.value) { error.value = "Au moins une réponse correcte requise."; return; }
-    error.value = "Au moins deux réponses requises.";
+    if (!form.value.prompt.trim()) { error.value = t("question.form.errorPrompt"); return; }
+    if (!hasAllChoiceText.value) { error.value = t("question.form.errorChoiceText"); return; }
+    if (!hasCorrectChoice.value) { error.value = t("question.form.errorCorrectChoice"); return; }
+    error.value = t("question.form.errorMinChoices");
     return;
   }
   emits("submit", {
@@ -79,27 +81,29 @@ watch(form, () => { if (!isHydrating.value) emits("form-changed"); }, { deep: tr
 
 <template>
   <div class="card grid">
-    <div class="section-title">{{ isNew ? "Nouvelle question" : "Modifier la question" }}</div>
+    <div class="section-title">
+      {{ isNew ? t("question.form.titleNew") : t("question.form.titleEdit") }}
+    </div>
 
     <div v-if="error" class="error-message">{{ error }}</div>
 
     <div class="field">
-      <label>Prompt</label>
-      <textarea v-model.trim="form.prompt" placeholder="Énoncé de la question" />
+      <label>{{ t("question.form.promptLabel") }}</label>
+      <textarea v-model.trim="form.prompt" :placeholder="t('question.form.promptPlaceholder')" />
     </div>
 
     <div class="row">
       <div class="field">
-        <label>Limite de temps (sec)</label>
+        <label>{{ t("question.form.timeLimitLabel") }}</label>
         <input v-model.number="form.timeLimitSec" type="number" min="1" />
       </div>
       <div class="field">
-        <label>Points</label>
+        <label>{{ t("question.form.pointsLabel") }}</label>
         <input v-model.number="form.points" type="number" min="0" />
       </div>
     </div>
 
-    <div class="section-title">Réponses</div>
+    <div class="section-title">{{ t("question.form.choicesTitle") }}</div>
     <div class="list">
       <ChoiceRow
         v-for="(choice, index) in form.choices"
@@ -112,9 +116,9 @@ watch(form, () => { if (!isHydrating.value) emits("form-changed"); }, { deep: tr
     </div>
 
     <div class="row">
-      <button class="secondary" type="button" @click="addChoice">+ Ajouter une réponse</button>
-      <button type="button" :disabled="!canSubmit" @click="submit">Sauvegarder</button>
-      <button class="secondary" type="button" @click="emits('cancel')">Annuler</button>
+      <button class="secondary" type="button" @click="addChoice">{{ t("question.form.addChoice") }}</button>
+      <button type="button" :disabled="!canSubmit" @click="submit">{{ t("question.form.save") }}</button>
+      <button class="secondary" type="button" @click="emits('cancel')">{{ t("question.form.cancel") }}</button>
     </div>
   </div>
 </template>

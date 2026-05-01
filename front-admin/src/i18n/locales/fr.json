@@ -1,0 +1,119 @@
+{
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Mot de passe",
+    "submitLogin": "Se connecter",
+    "submitRegister": "S'inscrire",
+    "logout": "Déconnexion"
+  },
+  "nav": {
+    "brand": "NKG Backoffice",
+    "badge": "Contrôle de session",
+    "switchLocale": "EN"
+  },
+  "quiz": {
+    "listTitle": "Quiz",
+    "refresh": "Actualiser",
+    "noQuizzes": "Aucun quiz pour le moment.",
+    "status": {
+      "DRAFT": "Brouillon",
+      "PUBLISHED": "Publié"
+    },
+    "actions": {
+      "createSession": "Créer une session",
+      "viewSession": "Voir la session",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "deleteConfirm": "Supprimer ce quiz ? Cette action est irréversible.",
+    "deleteSuccess": "Quiz supprimé avec succès.",
+    "deleteError": "Échec de la suppression. Veuillez réessayer.",
+    "create": {
+      "sectionTitle": "Créer un quiz",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Titre du quiz",
+      "titleRequired": "Le titre est requis",
+      "statusLabel": "Statut",
+      "submit": "Créer",
+      "submitting": "Création…"
+    },
+    "edit": {
+      "notFound": "Quiz introuvable",
+      "back": "← Retour",
+      "titlePlaceholder": "Titre du quiz",
+      "save": "Sauvegarder"
+    }
+  },
+  "category": {
+    "sectionTitle": "Catégories",
+    "none": "Aucune catégorie assignée",
+    "add": "+ Catégorie",
+    "questions": "Questions — {name}",
+    "questionsNone": "Aucune question dans cette catégorie",
+    "addQuestion": "+ Question",
+    "deleteConfirm": "Supprimer la catégorie « {name} » ? Toutes ses questions seront supprimées.",
+    "discardNewConfirm": "Vous créez une nouvelle catégorie. L'abandonner et changer ?",
+    "form": {
+      "sectionTitle": "Nouvelle catégorie",
+      "namePlaceholder": "Nom de la catégorie",
+      "submit": "Créer",
+      "cancel": "Annuler"
+    }
+  },
+  "question": {
+    "deleteConfirm": "Supprimer la question « {prompt} » ?",
+    "unsavedConfirm": "Vous avez des modifications non sauvegardées. Les ignorer et continuer ?",
+    "form": {
+      "titleNew": "Nouvelle question",
+      "titleEdit": "Modifier la question",
+      "promptLabel": "Prompt",
+      "promptPlaceholder": "Énoncé de la question",
+      "timeLimitLabel": "Limite de temps (sec)",
+      "pointsLabel": "Points",
+      "choicesTitle": "Réponses",
+      "addChoice": "+ Ajouter une réponse",
+      "save": "Sauvegarder",
+      "cancel": "Annuler",
+      "errorPrompt": "Le prompt est requis.",
+      "errorChoiceText": "Toutes les réponses doivent avoir du texte.",
+      "errorCorrectChoice": "Au moins une réponse correcte est requise.",
+      "errorMinChoices": "Au moins deux réponses sont requises."
+    },
+    "choice": {
+      "placeholder": "Réponse",
+      "correct": "Correcte",
+      "remove": "Retirer"
+    }
+  },
+  "session": {
+    "sectionTitle": "Session active",
+    "none": "Aucune session active.",
+    "code": "Code :",
+    "activeQuestion": "Question active",
+    "status": "Statut :",
+    "answers": "Réponses :",
+    "na": "N/A",
+    "actions": {
+      "stats": "Stats",
+      "start": "Démarrer",
+      "restart": "Redémarrer",
+      "restartKeep": "Redémarrer (garder les réponses)",
+      "next": "Suivant",
+      "reveal": "Révéler",
+      "end": "Terminer",
+      "archive": "Archiver"
+    },
+    "unsavedConfirm": "Vous avez des modifications non sauvegardées. Quitter quand même ?"
+  },
+  "stats": {
+    "back": "← Retour",
+    "pageTitle": "Stats en direct — {code}",
+    "currentQuestion": {
+      "sectionTitle": "Question courante",
+      "none": "Aucune question active",
+      "answered": "{count} / {total} ont répondu"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { Quiz } from "../../types/quiz/quiz.types";
+import { useI18n } from "vue-i18n";
+import type { Quiz } from "../../types/quiz/quiz.types";
 import EditQuiz from "../../components/quiz/edit/EditQuiz.vue";
 import { useQuizStore } from "@/stores/quizStore";
 import { useRouter } from "vue-router";
@@ -9,6 +10,7 @@ import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 const router = useRouter();
 const quizStore = useQuizStore();
 const { updateQuiz } = useQuizFetcher();
+const { t } = useI18n();
 
 const props = defineProps<{ quizId: number }>();
 
@@ -43,25 +45,25 @@ const save = async () => {
 
 const goHome = () => {
   if (formHasUnsavedChanges.value) {
-    if (!confirm("Vous avez des modifications non sauvegardées. Quitter quand même ?")) return;
+    if (!confirm(t("session.unsavedConfirm"))) return;
   }
   router.push({ name: "Home" });
 };
 </script>
 
 <template>
-  <div v-if="!quiz">Quiz introuvable</div>
+  <div v-if="!quiz">{{ t("quiz.edit.notFound") }}</div>
 
   <div v-else class="grid">
     <div class="card">
       <div class="quiz-header row">
-        <button class="secondary" @click="goHome">← Retour</button>
-        <input v-model.trim="quiz.title" placeholder="Titre du quiz" class="title-input" />
+        <button class="secondary" @click="goHome">{{ t("quiz.edit.back") }}</button>
+        <input v-model.trim="quiz.title" :placeholder="t('quiz.edit.titlePlaceholder')" class="title-input" />
         <select v-model="quiz.status" class="status-select">
-          <option value="DRAFT">Brouillon</option>
-          <option value="PUBLISHED">Publié</option>
+          <option value="DRAFT">{{ t("quiz.status.DRAFT") }}</option>
+          <option value="PUBLISHED">{{ t("quiz.status.PUBLISHED") }}</option>
         </select>
-        <button :disabled="!isDirty" @click="save">Sauvegarder</button>
+        <button :disabled="!isDirty" @click="save">{{ t("quiz.edit.save") }}</button>
       </div>
     </div>
 

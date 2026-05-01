@@ -1,0 +1,119 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "submitLogin": "Login",
+    "submitRegister": "Register",
+    "logout": "Logout"
+  },
+  "nav": {
+    "brand": "NKG Backoffice",
+    "badge": "Session control",
+    "switchLocale": "FR"
+  },
+  "quiz": {
+    "listTitle": "Quizzes",
+    "refresh": "Refresh",
+    "noQuizzes": "No quizzes yet.",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published"
+    },
+    "actions": {
+      "createSession": "Create session",
+      "viewSession": "View session",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteConfirm": "Delete this quiz? This action cannot be undone.",
+    "deleteSuccess": "Quiz deleted successfully.",
+    "deleteError": "Failed to delete quiz. Please try again.",
+    "create": {
+      "sectionTitle": "Create a quiz",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Quiz title",
+      "titleRequired": "Title is required",
+      "statusLabel": "Status",
+      "submit": "Create",
+      "submitting": "Creating…"
+    },
+    "edit": {
+      "notFound": "Quiz not found",
+      "back": "← Back",
+      "titlePlaceholder": "Quiz title",
+      "save": "Save"
+    }
+  },
+  "category": {
+    "sectionTitle": "Categories",
+    "none": "No categories assigned",
+    "add": "+ Category",
+    "questions": "Questions — {name}",
+    "questionsNone": "No questions in this category",
+    "addQuestion": "+ Question",
+    "deleteConfirm": "Delete category \"{name}\"? All its questions will also be deleted.",
+    "discardNewConfirm": "You are creating a new category. Discard it and switch?",
+    "form": {
+      "sectionTitle": "New category",
+      "namePlaceholder": "Category name",
+      "submit": "Create",
+      "cancel": "Cancel"
+    }
+  },
+  "question": {
+    "deleteConfirm": "Delete question \"{prompt}\"?",
+    "unsavedConfirm": "You have unsaved changes. Discard and switch?",
+    "form": {
+      "titleNew": "New question",
+      "titleEdit": "Edit question",
+      "promptLabel": "Prompt",
+      "promptPlaceholder": "Question text",
+      "timeLimitLabel": "Time limit (sec)",
+      "pointsLabel": "Points",
+      "choicesTitle": "Choices",
+      "addChoice": "+ Add choice",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errorPrompt": "Prompt is required.",
+      "errorChoiceText": "All choices must have text.",
+      "errorCorrectChoice": "At least one correct answer is required.",
+      "errorMinChoices": "At least two choices are required."
+    },
+    "choice": {
+      "placeholder": "Answer",
+      "correct": "Correct",
+      "remove": "Remove"
+    }
+  },
+  "session": {
+    "sectionTitle": "Active session",
+    "none": "No active session yet.",
+    "code": "Code:",
+    "activeQuestion": "Active question",
+    "status": "Status:",
+    "answers": "Answers:",
+    "na": "N/A",
+    "actions": {
+      "stats": "Stats",
+      "start": "Start",
+      "restart": "Restart",
+      "restartKeep": "Restart (keep answers)",
+      "next": "Next",
+      "reveal": "Reveal",
+      "end": "End",
+      "archive": "Archive"
+    },
+    "unsavedConfirm": "You have unsaved changes. Leave anyway?"
+  },
+  "stats": {
+    "back": "← Back",
+    "pageTitle": "Live stats — {code}",
+    "currentQuestion": {
+      "sectionTitle": "Current question",
+      "none": "No active question",
+      "answered": "{count} / {total} answered"
+    }
+  }
+}

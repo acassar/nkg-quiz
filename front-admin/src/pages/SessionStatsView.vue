@@ -2,6 +2,7 @@
 import { socketClient, connectAdminSocket } from "@/services/socket.service";
 import { S2C_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
+import { useI18n } from "vue-i18n";
 import CurrentQuestion from "@/components/stats/CurrentQuestion.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -9,6 +10,7 @@ import type { LiveStats } from "@/types/session/session.types";
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const code = route.params.code as string;
 
 const { getLiveStats } = useSessionFetcher();
@@ -32,8 +34,8 @@ onMounted(async () => {
 <template>
   <div class="stats-page">
     <div class="row">
-      <button @click="router.back()">← Retour</button>
-      <h1 style="margin: 0; font-size: 1.1rem;">Stats — <code>{{ code }}</code></h1>
+      <button @click="router.back()">{{ t("stats.back") }}</button>
+      <h1 class="page-title">Stats — <code>{{ code }}</code></h1>
     </div>
     <CurrentQuestion :stats="data" />
   </div>
@@ -46,5 +48,10 @@ onMounted(async () => {
   gap: 1.25rem;
   max-width: 860px;
   margin: 0 auto;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.1rem;
 }
 </style>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { LiveStats } from "@/types/session/session.types";
 
 const props = defineProps<{ stats: LiveStats | null }>();
+
+const { t } = useI18n();
 
 type QuestionWithMeta = NonNullable<LiveStats["currentQuestion"]> & {
   category?: string;
@@ -20,7 +23,7 @@ const progressPct = computed(() =>
 
 <template>
   <div class="card current-question">
-    <div class="section-title">Question courante</div>
+    <div class="section-title">{{ t("stats.currentQuestion.sectionTitle") }}</div>
 
     <div v-if="question" class="q-body">
       <div class="q-meta">
@@ -35,12 +38,12 @@ const progressPct = computed(() =>
         <div class="progress-fill" :style="{ width: `${progressPct}%` }" />
       </div>
       <div class="progress-label">
-        {{ answeredCount }} / {{ totalPlayers }} ont répondu
+        {{ t("stats.currentQuestion.answered", { count: answeredCount, total: totalPlayers }) }}
         <span class="progress-pct">({{ progressPct }}%)</span>
       </div>
     </div>
 
-    <p v-else class="muted">Aucune question active</p>
+    <p v-else class="muted">{{ t("stats.currentQuestion.none") }}</p>
   </div>
 </template>
 

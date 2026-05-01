@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useCategoryFetcher } from "@/composables/fetcher/category/useCategoryFetcher";
 import type { Category, CategoryInput } from "@/types/category/category.types";
 
@@ -10,6 +11,7 @@ const emits = defineEmits<{
 
 const props = defineProps<{ category: CategoryInput }>();
 
+const { t } = useI18n();
 const { createCategory } = useCategoryFetcher();
 const name = ref("");
 
@@ -25,11 +27,16 @@ const submit = async () => {
 
 <template>
   <div class="card">
-    <div class="section-title">Nouvelle catégorie</div>
+    <div class="section-title">{{ t("category.form.sectionTitle") }}</div>
     <form class="row" @submit.prevent="submit">
-      <input v-model.trim="name" placeholder="Nom de la catégorie" autofocus class="flex-input" />
-      <button type="submit" :disabled="!name.trim()">Créer</button>
-      <button type="button" class="secondary" @click="$emit('cancel')">Annuler</button>
+      <input
+        v-model.trim="name"
+        :placeholder="t('category.form.namePlaceholder')"
+        autofocus
+        class="flex-input"
+      />
+      <button type="submit" :disabled="!name.trim()">{{ t("category.form.submit") }}</button>
+      <button type="button" class="secondary" @click="$emit('cancel')">{{ t("category.form.cancel") }}</button>
     </form>
   </div>
 </template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
+import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
 
-const emits = defineEmits<{
-  (e: "created:quiz", quizId: number): void;
-}>();
+const emits = defineEmits<{ (e: "created:quiz", quizId: number): void }>();
 
+const { t } = useI18n();
 const { createQuiz: createQuizFetcher } = useQuizFetcher();
 
 const title = ref("");
@@ -16,7 +16,7 @@ const isLoading = computed(() => createQuizFetcher.isLoading.value);
 
 const createQuiz = async () => {
   if (!title.value.trim()) {
-    error.value = "Le titre est requis";
+    error.value = t("quiz.create.titleRequired");
     return;
   }
   const newQuiz = await createQuizFetcher.execute({ title: title.value, status: status.value });
@@ -26,27 +26,32 @@ const createQuiz = async () => {
 
 <template>
   <div class="card">
-    <div class="section-title">Créer un quiz</div>
+    <div class="section-title">{{ t("quiz.create.sectionTitle") }}</div>
 
     <form class="grid" @submit.prevent="createQuiz">
       <div v-if="error" class="error-message">{{ error }}</div>
 
       <div class="field">
-        <label>Titre</label>
-        <input v-model.trim="title" placeholder="Titre du quiz" :disabled="isLoading" @input="error = ''" />
+        <label>{{ t("quiz.create.titleLabel") }}</label>
+        <input
+          v-model.trim="title"
+          :placeholder="t('quiz.create.titlePlaceholder')"
+          :disabled="isLoading"
+          @input="error = ''"
+        />
       </div>
 
       <div class="field">
-        <label>Statut</label>
+        <label>{{ t("quiz.create.statusLabel") }}</label>
         <select v-model="status" :disabled="isLoading">
-          <option value="DRAFT">Brouillon</option>
-          <option value="PUBLISHED">Publié</option>
+          <option value="DRAFT">{{ t("quiz.status.DRAFT") }}</option>
+          <option value="PUBLISHED">{{ t("quiz.status.PUBLISHED") }}</option>
         </select>
       </div>
 
       <div class="row">
         <button type="submit" :disabled="isLoading">
-          {{ isLoading ? "Création…" : "Créer" }}
+          {{ isLoading ? t("quiz.create.submitting") : t("quiz.create.submit") }}
         </button>
       </div>
     </form>

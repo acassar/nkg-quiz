@@ -3,18 +3,17 @@ import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 import { useAuth } from "../composables/useAuth";
 import { useSession } from "../composables/useSession";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
-import { computed } from "vue";
-import { Quiz } from "@/types/quiz/quiz.types";
 import { useQuizStore } from "@/stores/quizStore";
+import { useI18n } from "vue-i18n";
+import { computed } from "vue";
+import type { Quiz } from "@/types/quiz/quiz.types";
 
-const emits = defineEmits<{
-  (e: "edit:quiz", quizId: number): void;
-}>();
+const emits = defineEmits<{ (e: "edit:quiz", quizId: number): void }>();
 
+const { t } = useI18n();
 const { isAuthed } = useAuth();
 const { getQuizzes, deleteQuiz: deleteQuizFetcher } = useQuizFetcher();
 const { set: updateQuizStore, clear: clearQuizzesStore } = useQuizStore();
-
 const { changeActiveSession } = useSession();
 const { createSession } = useSessionFetcher();
 
@@ -24,88 +23,74 @@ if (isAuthed.value) init();
 
 async function init() {
   try {
-    await Promise.all([initQuizzes()]);
+    await initQuizzes();
   } catch (err) {
-    console.error("Error loading quizzes or sessions:", err);
+    console.error("Error loading quizzes:", err);
   }
 }
 
 async function initQuizzes() {
   await getQuizzes.execute();
   if (getQuizzes.data.value) {
-    clearQuizzesStore(); // Clear the quiz store before setting new data
-    getQuizzes.data.value.forEach((quiz: Quiz) => {
-      updateQuizStore(quiz);
-    });
+    clearQuizzesStore();
+    getQuizzes.data.value.forEach((quiz: Quiz) => updateQuizStore(quiz));
   }
 }
 
-const getQuizActionLabel = (quiz: Quiz) => {
-  if (quiz.sessions && quiz.sessions.length > 0) {
-    return "View session";
-  }
-  return "Create session";
-};
+const getQuizActionLabel = (quiz: Quiz) =>
+  quiz.sessions && quiz.sessions.length > 0
+    ? t("quiz.actions.viewSession")
+    : t("quiz.actions.createSession");
 
 const handleClickQuiz = async (quiz: Quiz) => {
   if (quiz.sessions && quiz.sessions.length > 0) {
-    const session = quiz.sessions[0]; // Using the most recent session if multiple exist
-    if (session) {
-      changeActiveSession(session);
-    }
+    const session = quiz.sessions[0];
+    if (session) changeActiveSession(session);
   } else {
     await createSession.execute(quiz.id);
-    init(); // Refresh the list of active sessions after creating a new one
+    init();
   }
-};
-
-const editQuiz = (quizId: number) => {
-  emits("edit:quiz", quizId);
 };
 
 const deleteQuiz = async (quizId: number) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this quiz? This action cannot be undone.",
-  );
-  if (!confirmed) return;
-
+  if (!confirm(t("quiz.deleteConfirm"))) return;
   await deleteQuizFetcher.execute(quizId.toString());
   if (deleteQuizFetcher.error.value) {
-    console.error("Error deleting quiz:", deleteQuizFetcher.error.value);
-    alert("Failed to delete quiz. Please try again.");
+    alert(t("quiz.deleteError"));
     return;
   }
-  init(); // Refresh the list of quizzes after deletion
-  alert("Quiz deleted successfully");
+  init();
+  alert(t("quiz.deleteSuccess"));
 };
 </script>
 
 <template>
   <div class="card grid">
-    <div class="section-title">Quizzes</div>
-    <button class="secondary" @click="init" :disabled="isLoading">
-      Refresh list
+    <div class="section-title">{{ t("quiz.listTitle") }}</div>
+    <button class="secondary" :disabled="isLoading" @click="init">
+      {{ t("quiz.refresh") }}
     </button>
     <div class="list">
-      <div
-        v-for="quiz in getQuizzes.data.value"
-        :key="quiz.id"
-        class="list-item"
-      >
+      <p v-if="!getQuizzes.data.value?.length" class="muted">{{ t("quiz.noQuizzes") }}</p>
+      <div v-for="quiz in getQuizzes.data.value" :key="quiz.id" class="list-item">
         <div>
           <strong>{{ quiz.title }}</strong>
-          <div class="section-title">{{ quiz.status }}</div>
+          <div class="section-title">{{ t(`quiz.status.${quiz.status}`) }}</div>
         </div>
         <div class="row">
-          <button @click="handleClickQuiz(quiz)">
-            {{ getQuizActionLabel(quiz) }}
-          </button>
-          <button @click="editQuiz(quiz.id)" class="secondary">Edit</button>
-          <button @click="deleteQuiz(quiz.id)" class="secondary">Delete</button>
+          <button @click="handleClickQuiz(quiz)">{{ getQuizActionLabel(quiz) }}</button>
+          <button class="secondary" @click="emits('edit:quiz', quiz.id)">{{ t("quiz.actions.edit") }}</button>
+          <button class="secondary" @click="deleteQuiz(quiz.id)">{{ t("quiz.actions.delete") }}</button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.muted {
+  color: #7a6a56;
+  font-style: italic;
+  margin: 0;
+}
+</style>
