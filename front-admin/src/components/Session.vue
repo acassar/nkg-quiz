@@ -2,13 +2,18 @@
 import { useQuizStore } from "@/stores/quizStore";
 import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/session/session.types";
-import { answersCount } from "../services/socket.service";
-import { computed } from "vue";
+import { socketClient } from "../services/socket.service";
+import { S2C_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const { performAction, activeSession, sessionState } = useSession();
+
+const answersCount = ref(0);
+useSocketEvent(socketClient, S2C_EVENTS.ANSWER_RECEIVED, () => { answersCount.value++; });
+useSocketEvent(socketClient, S2C_EVENTS.SESSION_STATE, () => { answersCount.value = 0; });
 const { getById } = useQuizStore();
 
 const quiz = computed(() => {
