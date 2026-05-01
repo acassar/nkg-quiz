@@ -10,6 +10,7 @@ const { createQuiz: createQuizFetcher } = useQuizFetcher();
 
 const title = ref("");
 const status = ref<"DRAFT" | "PUBLISHED">("DRAFT");
+const autoRestart = ref(false);
 const error = ref("");
 
 const isLoading = computed(() => createQuizFetcher.isLoading.value);
@@ -19,7 +20,13 @@ const createQuiz = async () => {
     error.value = t("quiz.create.titleRequired");
     return;
   }
-  const newQuiz = await createQuizFetcher.execute({ title: title.value, status: status.value });
+  const newQuiz = await createQuizFetcher.execute({
+    title: title.value,
+    status: status.value,
+    options: {
+      autoRestart: autoRestart.value,
+    },
+  });
   if (newQuiz?.id) emits("created:quiz", newQuiz.id);
 };
 </script>
@@ -49,9 +56,16 @@ const createQuiz = async () => {
         </select>
       </div>
 
+      <div class="field">
+        <label>{{ t("quiz.create.autoRestartLabel") }}</label>
+        <input type="checkbox" v-model="autoRestart" :disabled="isLoading" />
+      </div>
+
       <div class="row">
         <button type="submit" :disabled="isLoading">
-          {{ isLoading ? t("quiz.create.submitting") : t("quiz.create.submit") }}
+          {{
+            isLoading ? t("quiz.create.submitting") : t("quiz.create.submit")
+          }}
         </button>
       </div>
     </form>

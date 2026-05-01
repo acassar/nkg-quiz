@@ -36,6 +36,7 @@
       "titlePlaceholder": "Titre du quiz",
       "titleRequired": "Le titre est requis",
       "statusLabel": "Statut",
+      "autoRestartLabel": "Redémarrage automatique",
       "submit": "Créer",
       "submitting": "Création…"
     },
@@ -43,7 +44,9 @@
       "notFound": "Quiz introuvable",
       "back": "← Retour",
       "titlePlaceholder": "Titre du quiz",
-      "save": "Sauvegarder"
+      "save": "Sauvegarder",
+      "updateError": "Échec de la mise à jour. Veuillez réessayer.",
+      "updateSuccess": "Quiz mis à jour avec succès."
     }
   },
   "category": {

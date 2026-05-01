@@ -18,7 +18,7 @@ export const quizFetcher = {
   },
   updateQuiz: async (id: string, quizData: Partial<Quiz>) => {
     return apiFetch<Quiz>(`${quizEndpoint}/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       body: JSON.stringify(quizData),
     });
   },

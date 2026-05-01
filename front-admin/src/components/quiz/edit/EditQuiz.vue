@@ -27,7 +27,10 @@ const categories = computed(() => props.quiz.categories);
 const selectOrDeselect = <T,>(current: T | undefined, newValue: T) =>
   current === newValue ? undefined : newValue;
 
-const handleUnsavedChanges = <T,>(valueToChange: Ref<T | undefined>, newValue: T) => {
+const handleUnsavedChanges = <T,>(
+  valueToChange: Ref<T | undefined>,
+  newValue: T,
+) => {
   const result = window.confirm(t("question.unsavedConfirm"));
   if (result) {
     hasUnsavedChanges.value = false;
@@ -70,20 +73,25 @@ const handleClickCreateCategory = () => {
 };
 
 const handleCategoryDelete = async (category: Category) => {
-  if (!window.confirm(t("category.deleteConfirm", { name: category.name }))) return;
+  if (!window.confirm(t("category.deleteConfirm", { name: category.name })))
+    return;
   const deleted = await deleteCategory.execute(category.id.toString());
   if (deleted) {
     const index = props.quiz.categories.findIndex((c) => c.id === category.id);
     if (index !== -1) props.quiz.categories.splice(index, 1);
   }
-  if (selectedCategory.value?.id === category.id) selectedCategory.value = undefined;
+  if (selectedCategory.value?.id === category.id)
+    selectedCategory.value = undefined;
 };
 
 const handleQuestionDelete = async (question: QuestionInput) => {
-  const category = props.quiz.categories.find((c) => c.id === question.categoryId);
+  const category = props.quiz.categories.find(
+    (c) => c.id === question.categoryId,
+  );
   if (!category) throw new Error("Category not found for question");
   if (!question.id) throw new Error("Question not found");
-  if (!window.confirm(t("question.deleteConfirm", { prompt: question.prompt }))) return;
+  if (!window.confirm(t("question.deleteConfirm", { prompt: question.prompt })))
+    return;
 
   const deleted = await deleteQuestion.execute(question.id.toString());
   if (!deleted) throw new Error("Failed to delete question");
@@ -91,7 +99,8 @@ const handleQuestionDelete = async (question: QuestionInput) => {
   const index = category.questions.findIndex((q) => q.id === question.id);
   if (index === -1) return;
   category.questions.splice(index, 1);
-  if (selectedQuestion.value?.id === question.id) selectedQuestion.value = undefined;
+  if (selectedQuestion.value?.id === question.id)
+    selectedQuestion.value = undefined;
 };
 
 const handleCategoryCreated = (category: Category) => {
@@ -105,17 +114,28 @@ const onQuestionFormSubmit = async (payload: QuestionInput) => {
   if (payload.id) {
     if (payload.choices.some((choice) => !choice.id))
       throw Error("All choices must have an id for update");
-    updatedQuestion = await updateQuestion.execute(payload.id.toString(), payload);
+    updatedQuestion = await updateQuestion.execute(
+      payload.id.toString(),
+      payload,
+    );
   } else {
-    if (!selectedCategory.value) throw new Error("No category selected for new question");
-    updatedQuestion = await createQuestion.execute(selectedCategory.value.id, payload);
+    if (!selectedCategory.value)
+      throw new Error("No category selected for new question");
+    updatedQuestion = await createQuestion.execute(
+      selectedCategory.value.id,
+      payload,
+    );
   }
 
   if (!updatedQuestion) throw new Error("Failed to save question");
 
-  const category = props.quiz.categories.find((c) => c.id === updatedQuestion!.categoryId);
+  const category = props.quiz.categories.find(
+    (c) => c.id === updatedQuestion!.categoryId,
+  );
   if (!category) throw new Error("Category not found for updated question");
-  const index = category.questions.findIndex((q) => q.id === updatedQuestion!.id);
+  const index = category.questions.findIndex(
+    (q) => q.id === updatedQuestion!.id,
+  );
   if (index === -1) {
     category.questions.push(updatedQuestion);
   } else {
@@ -140,7 +160,9 @@ const handleAddQuestion = (categoryId: number) => {
   };
 };
 
-watch(selectedCategory, () => { selectedQuestion.value = undefined; });
+watch(selectedCategory, () => {
+  selectedQuestion.value = undefined;
+});
 </script>
 
 <template>
@@ -156,7 +178,9 @@ watch(selectedCategory, () => { selectedQuestion.value = undefined; });
     </div>
 
     <div v-else class="row">
-      <span v-if="categories.length === 0" class="muted">{{ t("category.none") }}</span>
+      <span v-if="categories.length === 0" class="muted">{{
+        t("category.none")
+      }}</span>
       <CategoryCard
         v-for="category in categories"
         :key="category.id"
@@ -165,7 +189,9 @@ watch(selectedCategory, () => { selectedQuestion.value = undefined; });
         @click="onCategoryClick(category)"
         @delete="handleCategoryDelete(category)"
       />
-      <button class="secondary" @click="handleClickCreateCategory">{{ t("category.add") }}</button>
+      <button class="secondary" @click="handleClickCreateCategory">
+        {{ t("category.add") }}
+      </button>
     </div>
 
     <CategoryQuestions

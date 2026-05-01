@@ -6,6 +6,9 @@ export type Quiz = {
   id: number;
   title: string;
   status: "DRAFT" | "PUBLISHED";
+  options: {
+    autoRestart: boolean;
+  };
   categories: Category[];
   questions: Question[];
   sessions?: Session[];

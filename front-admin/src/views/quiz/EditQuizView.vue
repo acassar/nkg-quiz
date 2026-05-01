@@ -17,6 +17,7 @@ const props = defineProps<{ quizId: number }>();
 const quiz = ref<Quiz>();
 const savedTitle = ref("");
 const savedStatus = ref<"DRAFT" | "PUBLISHED">("DRAFT");
+const autoRestart = ref(false);
 const formHasUnsavedChanges = ref(false);
 
 onMounted(() => {
@@ -25,11 +26,15 @@ onMounted(() => {
   if (cached) {
     savedTitle.value = cached.title;
     savedStatus.value = cached.status;
+    autoRestart.value = cached.options?.autoRestart || false;
   }
 });
 
 const isDirty = computed(
-  () => quiz.value?.title !== savedTitle.value || quiz.value?.status !== savedStatus.value,
+  () =>
+    quiz.value?.title !== savedTitle.value ||
+    quiz.value?.status !== savedStatus.value ||
+    quiz.value?.options?.autoRestart !== autoRestart.value,
 );
 
 const save = async () => {
@@ -37,10 +42,16 @@ const save = async () => {
   await updateQuiz.execute(props.quizId.toString(), {
     title: quiz.value.title,
     status: quiz.value.status,
+    options: {
+      autoRestart: autoRestart.value,
+    },
   });
   savedTitle.value = quiz.value.title;
   savedStatus.value = quiz.value.status;
   quizStore.set(quiz.value);
+  if (!updateQuiz.error.value) {
+    alert(t("quiz.edit.updateSuccess"));
+  }
 };
 
 const goHome = () => {
@@ -57,17 +68,37 @@ const goHome = () => {
   <div v-else class="grid">
     <div class="card">
       <div class="quiz-header row">
-        <button class="secondary" @click="goHome">{{ t("quiz.edit.back") }}</button>
-        <input v-model.trim="quiz.title" :placeholder="t('quiz.edit.titlePlaceholder')" class="title-input" />
+        <button class="secondary" @click="goHome">
+          {{ t("quiz.edit.back") }}
+        </button>
+        <input
+          v-model.trim="quiz.title"
+          :placeholder="t('quiz.edit.titlePlaceholder')"
+          class="title-input"
+        />
         <select v-model="quiz.status" class="status-select">
           <option value="DRAFT">{{ t("quiz.status.DRAFT") }}</option>
           <option value="PUBLISHED">{{ t("quiz.status.PUBLISHED") }}</option>
         </select>
-        <button :disabled="!isDirty" @click="save">{{ t("quiz.edit.save") }}</button>
+
+        <div class="field">
+          <label>{{ t("quiz.create.autoRestartLabel") }}</label>
+          <input type="checkbox" v-model="autoRestart" />
+        </div>
+        <button :disabled="!isDirty" @click="save">
+          {{ t("quiz.edit.save") }}
+        </button>
       </div>
+
+      <p class="error">
+        {{ updateQuiz.error.value ? t("quiz.edit.updateError") : undefined }}
+      </p>
     </div>
 
-    <EditQuiz :quiz="quiz" v-model:has-unsaved-changes="formHasUnsavedChanges" />
+    <EditQuiz
+      :quiz="quiz"
+      v-model:has-unsaved-changes="formHasUnsavedChanges"
+    />
   </div>
 </template>
 
@@ -79,5 +110,9 @@ const goHome = () => {
 
 .status-select {
   width: auto;
+}
+
+.error {
+  color: red;
 }
 </style>
