@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Quiz } from "../../types/quiz/quiz.types";
-import EditQuiz from "../../components/quiz/edit/EditQuiz.vue";
+import type { Quiz } from "../types/quiz/quiz.types";
 import { useQuizStore } from "@/stores/quizStore";
 import { useRouter } from "vue-router";
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
+import EditQuiz from "@/components/quiz/edit/EditQuiz.vue";
 
 const router = useRouter();
 const quizStore = useQuizStore();

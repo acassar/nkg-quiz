@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../pages/Home.vue";
-import EditQuizView from "../views/quiz/EditQuizView.vue";
-import SessionStatsView from "../pages/SessionStatsView.vue";
+import Home from "../views/Home.vue";
+import EditQuizView from "../views/EditQuizView.vue";
+import SessionStatsView from "../views/SessionStatsView.vue";
 
 const routes = [
   {
