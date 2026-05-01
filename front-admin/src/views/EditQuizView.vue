@@ -10,6 +10,8 @@ import EditQuiz from "@/components/quiz/edit/EditQuiz.vue";
 const router = useRouter();
 const quizStore = useQuizStore();
 const { updateQuiz } = useQuizFetcher();
+const { getQuizzes } = useQuizFetcher();
+const { set: updateQuizStore, clear: clearQuizzesStore } = useQuizStore();
 const { t } = useI18n();
 
 const props = defineProps<{ quizId: number }>();
@@ -20,7 +22,8 @@ const savedStatus = ref<"DRAFT" | "PUBLISHED">("DRAFT");
 const autoRestart = ref(false);
 const formHasUnsavedChanges = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
+  await reloadQuizzes();
   const cached = quizStore.getById(props.quizId);
   quiz.value = cached;
   if (cached) {
@@ -37,6 +40,14 @@ const isDirty = computed(
     quiz.value?.options?.autoRestart !== autoRestart.value,
 );
 
+async function reloadQuizzes() {
+  await getQuizzes.execute();
+  if (getQuizzes.data.value) {
+    clearQuizzesStore();
+    getQuizzes.data.value.forEach((quiz: Quiz) => updateQuizStore(quiz));
+  }
+}
+
 const save = async () => {
   if (!quiz.value || !isDirty.value) return;
   await updateQuiz.execute(props.quizId.toString(), {
@@ -51,6 +62,8 @@ const save = async () => {
   quizStore.set(quiz.value);
   if (!updateQuiz.error.value) {
     alert(t("quiz.edit.updateSuccess"));
+    await reloadQuizzes();
+    quiz.value = quizStore.getById(props.quizId);
   }
 };
 
