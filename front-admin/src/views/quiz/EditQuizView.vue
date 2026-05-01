@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { Quiz } from "../../types/quiz/quiz.types";
 import EditQuiz from "../../components/quiz/edit/EditQuiz.vue";
 import { useQuizStore } from "@/stores/quizStore";
@@ -10,129 +10,72 @@ const router = useRouter();
 const quizStore = useQuizStore();
 const { updateQuiz } = useQuizFetcher();
 
-const props = defineProps<{
-  quizId: number;
-}>();
+const props = defineProps<{ quizId: number }>();
 
 const quiz = ref<Quiz>();
-
-const editingTitle = ref(false);
-const editingStatus = ref(false);
+const savedTitle = ref("");
+const savedStatus = ref<"DRAFT" | "PUBLISHED">("DRAFT");
 const formHasUnsavedChanges = ref(false);
 
-onMounted(async () => {
+onMounted(() => {
   const cached = quizStore.getById(props.quizId);
   quiz.value = cached;
+  if (cached) {
+    savedTitle.value = cached.title;
+    savedStatus.value = cached.status;
+  }
 });
 
-const saveQuiz = async () => {
-  if (!quiz.value) return;
+const isDirty = computed(
+  () => quiz.value?.title !== savedTitle.value || quiz.value?.status !== savedStatus.value,
+);
+
+const save = async () => {
+  if (!quiz.value || !isDirty.value) return;
   await updateQuiz.execute(props.quizId.toString(), {
     title: quiz.value.title,
     status: quiz.value.status,
   });
-  updateQuizInStore(quiz.value);
-};
-
-const saveTitle = async () => {
-  if (quiz.value) {
-    await saveQuiz();
-    editingTitle.value = false;
-  }
-};
-
-const saveStatus = async () => {
-  if (quiz.value) {
-    await saveQuiz();
-    editingStatus.value = false;
-  }
-};
-
-const updateQuizInStore = (updatedQuiz: Quiz) => {
-  quizStore.set(updatedQuiz);
-  quiz.value = updatedQuiz;
+  savedTitle.value = quiz.value.title;
+  savedStatus.value = quiz.value.status;
+  quizStore.set(quiz.value);
 };
 
 const goHome = () => {
   if (formHasUnsavedChanges.value) {
-    if (!confirm("You have unsaved changes. Are you sure you want to leave?")) {
-      return;
-    }
+    if (!confirm("Vous avez des modifications non sauvegardées. Quitter quand même ?")) return;
   }
   router.push({ name: "Home" });
 };
 </script>
 
 <template>
-  <div class="card">
-    <div class="content">
-      <!-- Back Button -->
-      <button @click="goHome" class="secondary" style="margin-bottom: 1rem">
-        ← Back to Quizzes
-      </button>
+  <div v-if="!quiz">Quiz introuvable</div>
 
-      <div v-if="!quiz">
-        <div class="content">Quiz not found</div>
+  <div v-else class="grid">
+    <div class="card">
+      <div class="quiz-header row">
+        <button class="secondary" @click="goHome">← Retour</button>
+        <input v-model.trim="quiz.title" placeholder="Titre du quiz" class="title-input" />
+        <select v-model="quiz.status" class="status-select">
+          <option value="DRAFT">Brouillon</option>
+          <option value="PUBLISHED">Publié</option>
+        </select>
+        <button :disabled="!isDirty" @click="save">Sauvegarder</button>
       </div>
-
-      <template v-else>
-        <!-- Header -->
-        <div class="section-title">
-          <div class="row">
-            <div v-if="editingTitle" class="row">
-              <input v-model.trim="quiz.title" />
-              <button @click="saveTitle" class="secondary">Save</button>
-              <button @click="editingTitle = false" class="secondary">
-                Cancel
-              </button>
-            </div>
-            <div v-else class="row">
-              <span>{{ quiz.title }}</span>
-              <button @click="editingTitle = true" class="secondary">
-                Edit
-              </button>
-            </div>
-          </div>
-        </div>
-        <!-- Status -->
-        <div class="row">
-          <label>Status:</label>
-          <div v-if="editingStatus" class="row">
-            <select v-model="quiz.status">
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
-            <button @click="saveStatus" class="secondary">Save</button>
-            <button @click="editingStatus = false" class="secondary">
-              Cancel
-            </button>
-          </div>
-          <div v-else class="row">
-            <span>{{ quiz.status }}</span>
-            <button @click="editingStatus = true" class="secondary">
-              Edit
-            </button>
-          </div>
-        </div>
-        <!-- Categories -->
-        <EditQuiz
-          :quiz="quiz"
-          v-model:has-unsaved-changes="formHasUnsavedChanges"
-        />
-      </template>
     </div>
+
+    <EditQuiz :quiz="quiz" v-model:has-unsaved-changes="formHasUnsavedChanges" />
   </div>
 </template>
 
 <style scoped>
-.category-list {
-  padding: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.title-input {
+  flex: 1;
+  width: auto;
 }
 
-.content > *:not(:last-child) {
-  margin-bottom: 1rem;
+.status-select {
+  width: auto;
 }
 </style>

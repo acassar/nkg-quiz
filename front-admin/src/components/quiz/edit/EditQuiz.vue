@@ -22,11 +22,7 @@ const selectedQuestion = ref<QuestionInput>();
 const editingCategory = ref<CategoryInput>();
 const hasUnsavedChanges = defineModel<boolean>("hasUnsavedChanges"); //Allows to track if form has unsaved changes and prevent category/question switch without confirmation
 
-const categories = computed(() => {
-  // const allCategories: (Category | CategoryInput)[] = props.quiz.categories;
-  // if (editingCategory.value) allCategories.push(editingCategory.value);
-  return props.quiz.categories;
-});
+const categories = computed(() => props.quiz.categories);
 
 const selectOrDeselect = <T,>(current: T | undefined, newValue: T) => {
   if (current === newValue) {
@@ -200,7 +196,6 @@ const handleAddQuestion = (categoryId: number) => {
 };
 
 const onFormChanged = () => {
-  console.log("form changed");
   hasUnsavedChanges.value = true;
 };
 
@@ -231,7 +226,7 @@ watch(selectedCategory, () => {
       @delete="handleCategoryDelete(category)"
     />
 
-    <button class="secondary" @click="handleClickCreateCategory">➕</button>
+    <button class="secondary" @click="handleClickCreateCategory">+ Catégorie</button>
   </div>
 
   <!-- questions -->

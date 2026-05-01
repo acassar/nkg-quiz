@@ -1,42 +1,42 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useCategoryFetcher } from "@/composables/fetcher/category/useCategoryFetcher";
-import { Category, CategoryInput } from "@/types/category/category.types";
+import type { Category, CategoryInput } from "@/types/category/category.types";
 
 const emits = defineEmits<{
   (e: "created", payload: Category): void;
   (e: "cancel"): void;
 }>();
 
-const props = defineProps<{
-  category: CategoryInput;
-}>();
+const props = defineProps<{ category: CategoryInput }>();
 
 const { createCategory } = useCategoryFetcher();
+const name = ref("");
 
-const handleSubmitCreateCategory = async () => {
-  if (props.category) {
-    const newCategory = await createCategory.execute(
-      props.category.quizId.toString(),
-      props.category,
-    );
-    if (!newCategory) return;
-
-    emits("created", newCategory);
-  }
+const submit = async () => {
+  if (!name.value.trim()) return;
+  const newCategory = await createCategory.execute(props.category.quizId.toString(), {
+    ...props.category,
+    name: name.value.trim(),
+  });
+  if (newCategory) emits("created", newCategory);
 };
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmitCreateCategory">
-    <input v-model="category.name" type="text" />
-
-    <button class="secondary" @click="$emit('cancel')">Cancel</button>
-    <button class="secondary" @click="handleSubmitCreateCategory">Save</button>
-  </form>
+  <div class="card">
+    <div class="section-title">Nouvelle catégorie</div>
+    <form class="row" @submit.prevent="submit">
+      <input v-model.trim="name" placeholder="Nom de la catégorie" autofocus class="flex-input" />
+      <button type="submit" :disabled="!name.trim()">Créer</button>
+      <button type="button" class="secondary" @click="$emit('cancel')">Annuler</button>
+    </form>
+  </div>
 </template>
 
 <style scoped>
-input {
-  margin: 1rem 0;
+.flex-input {
+  flex: 1;
+  width: auto;
 }
 </style>

@@ -33,7 +33,7 @@ const props = defineProps<{
           @delete="$emit('delete', question)"
         />
 
-        <button class="secondary" @click="$emit('click:new')">➕</button>
+        <button class="secondary" @click="$emit('click:new')">+ Question</button>
       </div>
     </div>
   </div>
