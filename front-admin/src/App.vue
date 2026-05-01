@@ -4,6 +4,18 @@ import HeaderBar from "./components/HeaderBar.vue";
 import Login from "./components/Login.vue";
 import { useAuth } from "./composables/useAuth";
 import router from "./router";
+import { socketClient } from "./services/socket.service";
+import { SOCKET_LIFECYCLE_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+
+useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
+  console.log("[admin-socket] Connected");
+});
+useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.DISCONNECT, () => {
+  console.log("[admin-socket] Disconnected");
+});
+useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT_ERROR, () => {
+  console.error("[admin-socket] Connection error");
+});
 
 const { isAuthed } = useAuth();
 const isTransitioning = ref(false);

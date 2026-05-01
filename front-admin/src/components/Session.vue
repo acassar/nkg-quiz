@@ -4,6 +4,7 @@ import { useSession } from "../composables/useSession";
 import { SessionAction } from "../types/session/session.types";
 import { socketClient } from "../services/socket.service";
 import { S2C_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+import type { SessionState } from "../types/session/session.types";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -12,8 +13,18 @@ const router = useRouter();
 const { performAction, activeSession, sessionState } = useSession();
 
 const answersCount = ref(0);
+
+useSocketEvent(socketClient, S2C_EVENTS.SESSION_JOINED, (payload) => {
+  sessionState.value = payload as unknown as SessionState;
+});
+useSocketEvent(socketClient, S2C_EVENTS.SESSION_STATE, (payload) => {
+  sessionState.value = payload as SessionState;
+  answersCount.value = 0;
+});
+useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
+  sessionState.value = payload as SessionState;
+});
 useSocketEvent(socketClient, S2C_EVENTS.ANSWER_RECEIVED, () => { answersCount.value++; });
-useSocketEvent(socketClient, S2C_EVENTS.SESSION_STATE, () => { answersCount.value = 0; });
 const { getById } = useQuizStore();
 
 const quiz = computed(() => {
