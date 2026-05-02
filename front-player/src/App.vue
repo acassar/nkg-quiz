@@ -3,10 +3,15 @@ import QuestionsComponent from "./components/QuestionsComponent.vue";
 import SessionJoinHandler from "./components/SessionJoinHandler.vue";
 import { useSessionState } from "./composable/useSessionState";
 import { socketClient } from "./service/socket.service";
-import { S2C_EVENTS, SOCKET_LIFECYCLE_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+import {
+  S2C_EVENTS,
+  SOCKET_LIFECYCLE_EVENTS,
+  useSocketEvent,
+} from "@nkg-quiz/shared-socket";
 import type { SessionState } from "@nkg-quiz/shared-types";
 
-const { sessionCode, leaveSession, updateState, setStatus, setPlayerAnswers } = useSessionState();
+const { sessionCode, leaveSession, updateState, setStatus, setPlayerAnswers } =
+  useSessionState();
 
 useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
   console.log("Connected to socket server");
@@ -24,7 +29,9 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_NOT_FOUND, () => {
 });
 useSocketEvent(socketClient, S2C_EVENTS.SESSION_JOINED, (payload) => {
   console.log("Joined session");
-  const { playerAnswers, ...state } = payload as SessionState & { playerAnswers: Record<string, number> };
+  const { playerAnswers, ...state } = payload as SessionState & {
+    playerAnswers: Record<string, number>;
+  };
   updateState(state as SessionState);
   setPlayerAnswers(playerAnswers ?? {});
   setStatus(state.status === "ENDED" ? "ended" : "connected");

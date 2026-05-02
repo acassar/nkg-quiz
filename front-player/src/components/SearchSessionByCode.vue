@@ -26,6 +26,13 @@ const searchSession = () => {
 <style scoped>
 .search-session {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+}
+
+@media (max-width: 720px) {
+  .search-session {
+    justify-content: center;
+  }
 }
 </style>
