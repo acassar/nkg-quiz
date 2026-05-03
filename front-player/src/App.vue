@@ -16,8 +16,14 @@ import ResultsComponent from "./components/ResultsComponent.vue";
 
 const { t } = useI18n();
 const { switchLabel, toggleLocale } = useLocaleSwitch();
-const { sessionCode, leaveSession, updateState, setStatus, setPlayerAnswers } =
-  useSessionState();
+const {
+  sessionCode,
+  leaveSession,
+  updateState,
+  setStatus,
+  setPlayerAnswers,
+  status,
+} = useSessionState();
 
 useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
   console.log("Connected to socket server");
@@ -56,6 +62,7 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
 const showResults = ref(false);
 
 const toggleShowResults = () => {
+  if (status.value !== "ended") return;
   showResults.value = !showResults.value;
 };
 
