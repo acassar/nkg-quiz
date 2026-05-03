@@ -7,15 +7,30 @@ import { usePlayer } from "../composable/usePlayer";
 
 const { t } = useI18n();
 
-const { sessionCode, currentQuestion: question, status, savePlayerAnswer, getPlayerAnswer } = useSessionState();
+const emit = defineEmits<{
+  "click:results": [];
+}>();
+
+const {
+  sessionCode,
+  currentQuestion: question,
+  status,
+  savePlayerAnswer,
+  getPlayerAnswer,
+} = useSessionState();
 const { currentPlayerId: playerId } = usePlayer();
 
 const selectedChoice = ref<number | null>(null);
 
 // Restore previously selected choice when question changes (e.g. after auto-restart)
-watch(() => question.value?.id, (questionId) => {
-  selectedChoice.value = questionId != null ? getPlayerAnswer(questionId) : null;
-}, { immediate: true });
+watch(
+  () => question.value?.id,
+  (questionId) => {
+    selectedChoice.value =
+      questionId != null ? getPlayerAnswer(questionId) : null;
+  },
+  { immediate: true },
+);
 
 const submitAnswer = async (choiceId: number) => {
   if (!question.value || !playerId.value || !sessionCode.value) return;
@@ -28,6 +43,10 @@ const submitAnswer = async (choiceId: number) => {
     playerId: parseInt(playerId.value),
     sessionCode: sessionCode.value,
   });
+};
+
+const showResults = () => {
+  emit("click:results");
 };
 </script>
 
@@ -49,7 +68,12 @@ const submitAnswer = async (choiceId: number) => {
 
   <section class="card" v-else>
     <p v-if="status === 'connected'">{{ t("player.questions.waiting") }}</p>
-    <p v-else-if="status === 'ended'">{{ t("player.questions.ended") }}</p>
+    <div v-else-if="status === 'ended'">
+      <p>{{ t("player.questions.ended") }}</p>
+      <button @click="showResults">
+        {{ t("player.questions.showResults") }}
+      </button>
+    </div>
     <p v-else>{{ t("player.questions.noSession") }}</p>
   </section>
 </template>

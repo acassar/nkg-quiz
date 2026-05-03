@@ -11,6 +11,7 @@ import {
 import type { SessionState } from "@nkg-quiz/shared-types";
 import { useI18n } from "vue-i18n";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
+import { ref } from "vue";
 
 const { t } = useI18n();
 const { switchLabel, toggleLocale } = useLocaleSwitch();
@@ -50,24 +51,52 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
   updateState(payload as SessionState);
   setStatus("ended");
 });
+
+const showResults = ref(false);
+
+const toggleShowResults = () => {
+  showResults.value = !showResults.value;
+};
+
+const handleLeaveSession = () => {
+  leaveSession();
+  showResults.value = false;
+};
 </script>
 
 <template>
   <div class="app-content">
     <div class="top-bar">
-      <button v-if="sessionCode" @click="leaveSession">{{ t("player.leaveSession") }}</button>
-      <button class="locale-btn" @click="toggleLocale">{{ switchLabel }}</button>
+      <button v-if="sessionCode" @click="handleLeaveSession">
+        {{ t("player.leaveSession") }}
+      </button>
+      <button class="locale-btn" @click="toggleLocale">
+        {{ switchLabel }}
+      </button>
     </div>
-    <SessionJoinHandler v-if="!sessionCode" />
-    <QuestionsComponent />
+
+    <div class="session" v-if="!showResults">
+      <SessionJoinHandler v-if="!sessionCode" />
+      <QuestionsComponent @click:results="toggleShowResults" />
+    </div>
+
+    <div v-else>todo</div>
   </div>
 </template>
 
 <style scoped>
 .app-content {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.8rem;
   padding: 2rem 7vw 4rem;
+}
+
+.session {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .top-bar {

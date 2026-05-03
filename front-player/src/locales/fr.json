@@ -20,7 +20,9 @@
     "questions": {
       "waiting": "En attente de la prochaine question...",
       "ended": "Session terminée. Merci d'avoir joué !",
-      "noSession": "Connectez-vous à une session pour voir les questions ici."
-    }
+      "noSession": "Connectez-vous à une session pour voir les questions ici.",
+      "showResults": "Afficher les résultats"
+    },
+    "results": {}
   }
 }
