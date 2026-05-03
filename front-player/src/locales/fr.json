@@ -23,6 +23,15 @@
       "noSession": "Connectez-vous à une session pour voir les questions ici.",
       "showResults": "Afficher les résultats"
     },
-    "results": {}
+    "results": {
+      "title": "Vos résultats",
+      "question": "Question {current} sur {total}",
+      "prev": "Précédent",
+      "next": "Suivant",
+      "errors": {
+        "noSession": "Aucune session trouvée. Veuillez rejoindre une session pour voir les résultats.",
+        "fetchError": "Échec de la récupération des résultats. Veuillez réessayer."
+      }
+    }
   }
 }

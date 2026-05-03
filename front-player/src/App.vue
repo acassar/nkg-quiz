@@ -12,6 +12,7 @@ import type { SessionState } from "@nkg-quiz/shared-types";
 import { useI18n } from "vue-i18n";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 import { ref } from "vue";
+import ResultsComponent from "./components/ResultsComponent.vue";
 
 const { t } = useI18n();
 const { switchLabel, toggleLocale } = useLocaleSwitch();
@@ -80,7 +81,9 @@ const handleLeaveSession = () => {
       <QuestionsComponent @click:results="toggleShowResults" />
     </div>
 
-    <div v-else>todo</div>
+    <div v-else>
+      <ResultsComponent />
+    </div>
   </div>
 </template>
 

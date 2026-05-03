@@ -613,6 +613,52 @@ export class SessionService implements ISessionService {
     return { results: sorted };
   }
 
+  async getPlayerResults(code: string, playerId: number) {
+    const session = await this.prisma.session.findUnique({
+      where: { code },
+      include: {
+        quiz: {
+          include: {
+            questions: {
+              orderBy: [
+                { category: { orderIndex: "asc" } },
+                { orderIndex: "asc" },
+              ],
+              include: { choices: true },
+            },
+          },
+        },
+        answers: {
+          where: { playerId },
+          select: { questionId: true, choiceId: true },
+        },
+      },
+    });
+
+    if (!session) throw new NotFoundException("Session not found");
+
+    // Map questionId to choiceId for the player's answers
+    const answerMap = new Map(
+      session.answers.map((a) => [a.questionId, a.choiceId]),
+    );
+
+    // Build the results with player's choice and correctness
+    const questions = session.quiz.questions.map((q) => ({
+      id: q.id,
+      prompt: q.prompt,
+      timeLimitSec: q.timeLimitSec,
+      points: q.points,
+      choices: q.choices.map((c) => ({
+        id: c.id,
+        text: c.text,
+        isCorrect: c.isCorrect,
+      })),
+      playerChoiceId: answerMap.get(q.id) ?? null,
+    }));
+
+    return { questions };
+  }
+
   // ==================== Private Helpers ====================
 
   private async getSessionByCode(code: string) {

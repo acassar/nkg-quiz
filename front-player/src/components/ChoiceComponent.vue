@@ -8,7 +8,7 @@ const emit = defineEmits<{
 const props = withDefaults(
   defineProps<{
     choice: Choice;
-    type?: "normal" | "selected" | "disabled" | "correct" | "incorrect";
+    type?: "normal" | "selected" | "disabled" | "correct" | "incorrect" | "missed";
   }>(),
   {
     type: "normal",
@@ -68,5 +68,10 @@ const handleClick = () => {
 .choice--incorrect {
   border-color: #7f1a1a;
   background: #f8d4d4;
+}
+
+.choice--missed {
+  border-color: #92600a;
+  background: #fff3d4;
 }
 </style>

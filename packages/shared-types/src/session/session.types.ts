@@ -48,6 +48,19 @@ export type LiveStatsPlayer = {
   rank: number;
 };
 
+export type PlayerQuestionResult = {
+  id: number;
+  prompt: string;
+  timeLimitSec: number | null;
+  points: number | null;
+  choices: { id: number; text: string; isCorrect: boolean }[];
+  playerChoiceId: number | null;
+};
+
+export type PlayerSessionResults = {
+  questions: PlayerQuestionResult[];
+};
+
 export type LiveStats = {
   code: string;
   status: SESSION_STATUS;

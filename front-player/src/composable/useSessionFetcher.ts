@@ -8,5 +8,7 @@ export function useSessionFetcher() {
 
   const getState = useFetcher(sessionFetcher.getState);
 
-  return { joinSession, getQuiz, getState };
+  const getResults = useFetcher(sessionFetcher.getResults);
+
+  return { joinSession, getQuiz, getState, getResults };
 }

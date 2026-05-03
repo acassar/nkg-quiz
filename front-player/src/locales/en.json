@@ -23,6 +23,15 @@
       "noSession": "Connect to a session to see questions here.",
       "showResults": "Show results"
     },
-    "results": {}
+    "results": {
+      "title": "Your results",
+      "question": "Question {current} of {total}",
+      "prev": "Previous",
+      "next": "Next",
+      "errors": {
+        "noSession": "No session found. Please join a session to see results.",
+        "fetchError": "Failed to fetch results. Please try again."
+      }
+    }
   }
 }

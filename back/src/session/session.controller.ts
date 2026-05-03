@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from "@nestjs/common";
@@ -50,6 +51,14 @@ export class SessionController {
     return this.sessionService.getResults(code);
   }
 
+  @Get(":code/player-results")
+  getPlayerResults(
+    @Param("code") code: string,
+    @Query("playerId") playerId: string,
+  ) {
+    return this.sessionService.getPlayerResults(code, parseInt(playerId));
+  }
+
   @UseGuards(AuthGuard)
   @Get(":code/live-stats")
   getLiveStats(@Param("code") code: string) {
@@ -64,7 +73,10 @@ export class SessionController {
 
   @UseGuards(AuthGuard)
   @Post(":code/restart")
-  restart(@Param("code") code: string, @Body() body: { keepAnswers?: boolean }) {
+  restart(
+    @Param("code") code: string,
+    @Body() body: { keepAnswers?: boolean },
+  ) {
     return this.sessionService.restartSession(code, body?.keepAnswers ?? false);
   }
 

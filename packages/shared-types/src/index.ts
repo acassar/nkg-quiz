@@ -8,6 +8,8 @@ export type {
   SessionStateResponse,
   LiveStatsPlayer,
   LiveStats,
+  PlayerQuestionResult,
+  PlayerSessionResults,
 } from "./session/session.types";
 
 // Question types

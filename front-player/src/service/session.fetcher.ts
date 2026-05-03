@@ -1,5 +1,9 @@
 import { apiFetch } from "@nkg-quiz/shared-fetcher";
-import { Quiz, SessionState } from "@nkg-quiz/shared-types";
+import {
+  PlayerSessionResults,
+  Quiz,
+  SessionState,
+} from "@nkg-quiz/shared-types";
 
 const sessionEndpoint = "/sessions";
 
@@ -16,6 +20,15 @@ export const sessionFetcher = {
   getState: async (code: string) => {
     return apiFetch<{ state: SessionState }>(
       `${sessionEndpoint}/${code}/state`,
+    );
+  },
+  getResults: async (code: string, playerId: string) => {
+    return apiFetch<PlayerSessionResults>(
+      `${sessionEndpoint}/${code}/player-results?` +
+        new URLSearchParams({
+          playerId,
+        }).toString(),
+      {},
     );
   },
 };
