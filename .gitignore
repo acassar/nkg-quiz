@@ -50,3 +50,5 @@ playwright-report/
 prisma/.env
 prisma/dev.db
 
+# Docker override (prod only)
+docker-compose.override.yml
