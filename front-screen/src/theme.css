@@ -1,0 +1,57 @@
+:root {
+  /* Typography */
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-serif: "Newsreader", serif;
+
+  /* Backgrounds */
+  --bg: #f5f2ea;
+  --bg-gradient: radial-gradient(circle at top left, #fbd1b7, transparent 55%),
+    radial-gradient(circle at 80% 20%, #bfe6f6, transparent 50%),
+    linear-gradient(180deg, #fef7ee 0%, #f3efe6 100%);
+  --bg-card: #ffffff;
+  --bg-card-semi: #ffffffc9;
+  --bg-item: #f8f1e7;
+  --bg-input: #f2e7d8;
+  --bg-btn: #1b1b1b;
+  --bg-badge: #101010;
+
+  /* Text */
+  --text: #101010;
+  --text-muted: #4a3f33;
+  --text-subtle: #6d5a45;
+  --text-inverse: #f9f1e6;
+  --text-on-btn: #ffffff;
+
+  /* Borders */
+  --border: #e5c7a1;
+  --border-dashed: #d9c7b0;
+
+  /* Semantic */
+  --color-error: #d9534f;
+
+  /* Shadows */
+  --shadow-card: 0 30px 60px rgba(20, 12, 3, 0.18);
+  --shadow-session-card: 0 18px 40px rgba(32, 24, 11, 0.15);
+  --shadow-btn-hover: 0 10px 20px rgba(0, 0, 0, 0.2);
+
+  /* Spinner */
+  --spinner-track: #e5c7a1;
+  --spinner-color: #4a3f33;
+
+  /* Podium */
+  --podium-rank-bg: #101010;
+  --podium-rank-color: #f9f1e6;
+  --podium-bar-1-from: #e5c7a1;
+  --podium-bar-1-to: #d9c7b0;
+  --podium-bar-2-from: #f8f1e7;
+  --podium-bar-2-to: #e5c7a1;
+  --podium-bar-3-from: #f8f1e7;
+  --podium-bar-3-to: #d9c7b0;
+
+  /* Radius */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-session-card: 18px;
+  --radius-full: 999px;
+}

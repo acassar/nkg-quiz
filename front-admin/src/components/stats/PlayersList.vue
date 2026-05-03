@@ -54,17 +54,17 @@ const players = computed(() =>
   align-items: center;
   gap: 0.6rem;
   padding: 0.45rem 0.6rem;
-  border-radius: 8px;
-  background: #f9f5ef;
+  border-radius: var(--radius-sm);
+  background: var(--bg-player-row);
   font-size: 0.88rem;
 }
 
 .rank {
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.8rem;
   min-width: 2rem;
-  color: #7a6a56;
+  color: var(--text-muted);
 }
 
 .nickname {
@@ -76,9 +76,9 @@ const players = computed(() =>
 }
 
 .progress {
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
-  color: #7a6a56;
+  color: var(--text-muted);
   min-width: 3.5rem;
   text-align: right;
 }
@@ -89,7 +89,7 @@ const players = computed(() =>
 }
 
 .score {
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.88rem;
   min-width: 4.5rem;
@@ -104,7 +104,7 @@ const players = computed(() =>
 
 .muted {
   font-style: italic;
-  color: #7a6a56;
+  color: var(--text-muted);
   margin: 0;
 }
 </style>

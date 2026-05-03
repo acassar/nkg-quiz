@@ -1,0 +1,47 @@
+:root {
+  /* Typography */
+  --font-sans: "Work Sans", system-ui, sans-serif;
+  --font-serif: "Literata", serif;
+
+  /* Backgrounds */
+  --bg: #f6f9ff;
+  --bg-gradient: radial-gradient(circle at 15% 20%, #bfe5ff, transparent 50%),
+    radial-gradient(circle at 90% 0%, #ffe9b3, transparent 45%),
+    linear-gradient(160deg, #ffffff 0%, #f0f6ff 100%);
+  --bg-card: #ffffff;
+  --bg-btn: #0b1f2a;
+  --bg-badge: #0b1f2a;
+
+  /* Text */
+  --text: #0b1f2a;
+  --text-muted: #6b7280;
+  --text-inverse: #ffffff;
+  --text-on-btn: #ffffff;
+
+  /* Borders */
+  --border-input: #c6d7ef;
+
+  /* Choice states */
+  --choice-bg: #f3f7ff;
+  --choice-hover-bg: #e1ecff;
+  --choice-selected-border: #0b1f2a;
+  --choice-correct-border: #1a7f37;
+  --choice-correct-bg: #d4f8d4;
+  --choice-incorrect-border: #7f1a1a;
+  --choice-incorrect-bg: #f8d4d4;
+  --choice-missed-border: #92600a;
+  --choice-missed-bg: #fff3d4;
+
+  /* Semantic */
+  --color-error: #d9534f;
+
+  /* Shadows */
+  --shadow-card: 0 22px 48px rgba(12, 24, 44, 0.15);
+  --shadow-btn-hover: 0 10px 20px rgba(11, 31, 42, 0.2);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 999px;
+}

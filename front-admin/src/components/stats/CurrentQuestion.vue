@@ -68,7 +68,7 @@ const progressPct = computed(() =>
 }
 
 .q-index {
-  font-family: "Space Mono", monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -76,14 +76,14 @@ const progressPct = computed(() =>
 .q-tag {
   font-size: 0.75rem;
   padding: 0.15rem 0.55rem;
-  border-radius: 6px;
-  background: #f0ebe3;
-  color: #5b4a37;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-section-title);
 }
 
 .q-tag--dark {
-  background: #101010;
-  color: #f9f1e6;
+  background: var(--bg-tag-dark);
+  color: var(--text-inverse);
   font-weight: 600;
 }
 
@@ -95,21 +95,21 @@ const progressPct = computed(() =>
 
 .progress-track {
   height: 8px;
-  background: #f0ebe3;
-  border-radius: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: #101010;
-  border-radius: 6px;
+  background: var(--text);
+  border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
 
 .progress-label {
   font-size: 0.82rem;
-  color: #7a6a56;
+  color: var(--text-muted);
 }
 
 .progress-pct {
@@ -118,7 +118,7 @@ const progressPct = computed(() =>
 
 .muted {
   font-style: italic;
-  color: #7a6a56;
+  color: var(--text-muted);
   margin: 0;
 }
 </style>

@@ -1,8 +1,10 @@
+@import "./theme.css";
+
 :root {
   color-scheme: light;
-  font-family: "Space Grotesk", system-ui, sans-serif;
-  background: #f5f2ea;
-  color: #101010;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
 }
 
 * {
@@ -12,9 +14,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at top left, #fbd1b7, transparent 55%),
-    radial-gradient(circle at 80% 20%, #bfe6f6, transparent 50%),
-    linear-gradient(180deg, #fef7ee 0%, #f3efe6 100%);
+  background: var(--bg-gradient);
 }
 
 #app {
@@ -43,10 +43,10 @@ body {
 }
 
 .session-card {
-  background: #ffffffc9;
-  border-radius: 18px;
+  background: var(--bg-card-semi);
+  border-radius: var(--radius-session-card);
   padding: 1.2rem 1.6rem;
-  box-shadow: 0 18px 40px rgba(32, 24, 11, 0.15);
+  box-shadow: var(--shadow-session-card);
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -54,19 +54,19 @@ body {
 
 .session-card input {
   border: none;
-  background: #f2e7d8;
+  background: var(--bg-input);
   padding: 0.6rem 0.8rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   min-width: 160px;
 }
 
 .session-card button {
   border: none;
-  background: #1b1b1b;
-  color: #fff;
+  background: var(--bg-btn);
+  color: var(--text-on-btn);
   padding: 0.6rem 1.4rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -74,7 +74,7 @@ body {
 
 .session-card button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-btn-hover);
 }
 
 .status-pill {
@@ -82,26 +82,26 @@ body {
   gap: 0.6rem;
   align-items: center;
   padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  background: #101010;
-  color: #f9f1e6;
+  border-radius: var(--radius-full);
+  background: var(--bg-badge);
+  color: var(--text-inverse);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .question-card {
-  background: #ffffff;
-  border-radius: 28px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
   padding: clamp(2rem, 4vw, 3.5rem);
-  box-shadow: 0 30px 60px rgba(20, 12, 3, 0.18);
+  box-shadow: var(--shadow-card);
   display: grid;
   gap: 1.6rem;
   animation: rise 0.6s ease;
 }
 
 .question-title {
-  font-family: "Newsreader", serif;
+  font-family: var(--font-serif);
   font-size: clamp(1.9rem, 3vw, 3rem);
   margin: 0;
 }
@@ -114,9 +114,9 @@ body {
 
 .choice {
   padding: 1.1rem 1.3rem;
-  border-radius: 16px;
-  background: #f8f1e7;
-  border: 2px solid #e5c7a1;
+  border-radius: var(--radius-md);
+  background: var(--bg-item);
+  border: 2px solid var(--border);
   font-weight: 600;
 }
 
@@ -124,17 +124,17 @@ body {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
-  color: #4a3f33;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
 .empty {
   padding: 3rem;
-  border: 2px dashed #d9c7b0;
+  border: 2px dashed var(--border-dashed);
   border-radius: 22px;
   text-align: center;
   font-size: 1.2rem;
-  color: #6d5a45;
+  color: var(--text-subtle);
 }
 
 @keyframes rise {

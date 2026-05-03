@@ -26,8 +26,8 @@ const actions: CardItemAction[] = [
   <CardItem
     :title="props.category.name"
     :selected="props.selected"
-    selectedBgColor="#f0b070"
-    bgColor="#f8d9b9"
+    selectedBgColor="var(--category-selected-bg)"
+    bgColor="var(--category-bg)"
     :actions
     @click="$emit('click', props.category)"
   ></CardItem>

@@ -89,7 +89,7 @@ const deleteQuiz = async (quizId: number) => {
 
 <style scoped>
 .muted {
-  color: #7a6a56;
+  color: var(--text-muted);
   font-style: italic;
   margin: 0;
 }

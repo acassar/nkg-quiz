@@ -68,7 +68,7 @@ const initCounter = () => {
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
-  background-color: white;
+  background-color: var(--bg-card);
   border-radius: 1rem;
   font-size: 1.5rem;
   font-weight: bold;

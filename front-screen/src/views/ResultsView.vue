@@ -132,10 +132,10 @@ onMounted(() => {
 /* ------------------------------------------------------------------ */
 
 .results-card {
-  background: #ffffff;
-  border-radius: 28px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
   padding: clamp(2rem, 4vw, 3.5rem);
-  box-shadow: 0 30px 60px rgba(20, 12, 3, 0.18);
+  box-shadow: var(--shadow-card);
   animation: rise 0.6s ease both;
 }
 
@@ -156,8 +156,8 @@ onMounted(() => {
 .loading-spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid #e5c7a1;
-  border-top-color: #4a3f33;
+  border: 4px solid var(--spinner-track);
+  border-top-color: var(--spinner-color);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -170,7 +170,7 @@ onMounted(() => {
 
 .loading-text {
   font-size: 1.1rem;
-  color: #6d5a45;
+  color: var(--text-subtle);
 }
 
 /* ------------------------------------------------------------------ */
@@ -183,27 +183,27 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f1e7;
-  border: 2px solid #e5c7a1;
+  background: var(--bg-item);
+  border: 2px solid var(--border);
   border-radius: 50%;
   font-size: 1.6rem;
   font-weight: 700;
-  color: #4a3f33;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .error-text {
-  color: #4a3f33;
+  color: var(--text-muted);
   font-size: 1rem;
   max-width: 420px;
 }
 
 .retry-btn {
   border: none;
-  background: #1b1b1b;
-  color: #fff;
+  background: var(--bg-btn);
+  color: var(--text-on-btn);
   padding: 0.6rem 1.6rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   transition:
@@ -213,7 +213,7 @@ onMounted(() => {
 
 .retry-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-btn-hover);
 }
 
 /* ------------------------------------------------------------------ */
@@ -225,14 +225,14 @@ onMounted(() => {
 }
 
 .unavailable-title {
-  font-family: "Newsreader", serif;
+  font-family: var(--font-serif);
   font-size: clamp(1.6rem, 2.5vw, 2.2rem);
-  color: #4a3f33;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .unavailable-text {
-  color: #6d5a45;
+  color: var(--text-subtle);
   font-size: 1.05rem;
   max-width: 460px;
   line-height: 1.6;
@@ -265,8 +265,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #101010;
-  color: #f9f1e6;
+  background: var(--podium-rank-bg);
+  color: var(--podium-rank-color);
   border-radius: 50%;
   font-weight: 700;
   font-size: 1.1rem;
@@ -280,23 +280,23 @@ onMounted(() => {
 
 .podium-bar--1 {
   height: 160px;
-  background: linear-gradient(180deg, #e5c7a1, #d9c7b0);
+  background: linear-gradient(180deg, var(--podium-bar-1-from), var(--podium-bar-1-to));
 }
 
 .podium-bar--2 {
   height: 120px;
-  background: linear-gradient(180deg, #f8f1e7, #e5c7a1);
+  background: linear-gradient(180deg, var(--podium-bar-2-from), var(--podium-bar-2-to));
 }
 
 .podium-bar--3 {
   height: 90px;
-  background: linear-gradient(180deg, #f8f1e7, #d9c7b0);
+  background: linear-gradient(180deg, var(--podium-bar-3-from), var(--podium-bar-3-to));
 }
 
 .podium-nickname {
   font-weight: 700;
   font-size: 1rem;
-  color: #101010;
+  color: var(--text);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -305,7 +305,7 @@ onMounted(() => {
 
 .podium-score {
   font-size: 0.9rem;
-  color: #6d5a45;
+  color: var(--text-subtle);
   font-weight: 600;
 }
 
@@ -314,7 +314,7 @@ onMounted(() => {
 /* ------------------------------------------------------------------ */
 
 .results-heading {
-  font-family: "Newsreader", serif;
+  font-family: var(--font-serif);
   font-size: clamp(1.4rem, 2vw, 1.8rem);
   margin: 0 0 1.2rem;
 }
@@ -333,9 +333,9 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 0.9rem 1.2rem;
-  background: #f8f1e7;
-  border: 2px solid #e5c7a1;
-  border-radius: 16px;
+  background: var(--bg-item);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
   animation: rise 0.6s ease both;
 }
 
@@ -345,8 +345,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #101010;
-  color: #f9f1e6;
+  background: var(--podium-rank-bg);
+  color: var(--podium-rank-color);
   border-radius: 50%;
   font-weight: 700;
   font-size: 0.9rem;
@@ -364,7 +364,7 @@ onMounted(() => {
 
 .results-score {
   font-weight: 700;
-  color: #4a3f33;
+  color: var(--text-muted);
   font-size: 1rem;
   white-space: nowrap;
 }

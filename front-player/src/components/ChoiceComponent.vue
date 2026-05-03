@@ -30,8 +30,8 @@ const handleClick = () => {
 <style scoped>
 .choice {
   border: 2px solid transparent;
-  background: #f3f7ff;
-  border-radius: 16px;
+  background: var(--choice-bg);
+  border-radius: var(--radius-md);
   padding: 0.9rem 1.1rem;
   font-weight: 600;
   text-align: left;
@@ -39,7 +39,7 @@ const handleClick = () => {
 }
 
 .choice-text {
-  color: black;
+  color: var(--text);
 }
 
 .choice--normal {
@@ -47,12 +47,12 @@ const handleClick = () => {
 }
 
 .choice--normal:hover {
-  background: #e1ecff;
+  background: var(--choice-hover-bg);
 }
 
 .choice--selected {
-  border-color: #0b1f2a;
-  background: #e1ecff;
+  border-color: var(--choice-selected-border);
+  background: var(--choice-hover-bg);
 }
 
 .choice--disabled {
@@ -61,17 +61,17 @@ const handleClick = () => {
 }
 
 .choice--correct {
-  border-color: #1a7f37;
-  background: #d4f8d4;
+  border-color: var(--choice-correct-border);
+  background: var(--choice-correct-bg);
 }
 
 .choice--incorrect {
-  border-color: #7f1a1a;
-  background: #f8d4d4;
+  border-color: var(--choice-incorrect-border);
+  background: var(--choice-incorrect-bg);
 }
 
 .choice--missed {
-  border-color: #92600a;
-  background: #fff3d4;
+  border-color: var(--choice-missed-border);
+  background: var(--choice-missed-bg);
 }
 </style>

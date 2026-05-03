@@ -26,8 +26,8 @@ const actions: CardItemAction[] = [
   <CardItem
     :title="props.question.prompt"
     :selected="props.selected"
-    selectedBgColor="#70a0f0"
-    bgColor="#b9c8f8"
+    selectedBgColor="var(--question-selected-bg)"
+    bgColor="var(--question-bg)"
     :actions="actions"
     @click="$emit('click', props.question)"
   />

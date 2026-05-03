@@ -106,8 +106,8 @@ const sessionAction = async (action: SessionAction, body?: Record<string, unknow
   flex-wrap: wrap;
 }
 
-span[status="LOBBY"]    { color: #6b7280; }
-span[status="RUNNING"]  { color: #059669; }
-span[status="REVEAL"]   { color: #f59e0b; }
-span[status="ENDED"]    { color: #dc2626; }
+span[status="LOBBY"]    { color: var(--status-lobby); }
+span[status="RUNNING"]  { color: var(--status-running); }
+span[status="REVEAL"]   { color: var(--status-reveal); }
+span[status="ENDED"]    { color: var(--status-ended); }
 </style>

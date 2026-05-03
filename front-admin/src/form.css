@@ -1,12 +1,12 @@
 input,
 select,
 textarea {
-  border: 1px solid #d9c8b4;
-  border-radius: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 0.7rem 0.9rem;
   font-size: 0.95rem;
   width: 100%;
-  background: #fdfaf6;
+  background: var(--bg-input);
 }
 
 textarea {
@@ -16,18 +16,18 @@ textarea {
 
 button {
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 0.7rem 1.2rem;
   font-weight: 600;
-  background: #101010;
-  color: #fff;
+  background: var(--bg-btn);
+  color: var(--text-on-btn);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button.secondary {
-  background: #f0e6d8;
-  color: #141414;
+  background: var(--bg-btn-secondary);
+  color: var(--text-btn-secondary);
 }
 
 button:disabled {
@@ -37,11 +37,11 @@ button:disabled {
 
 button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgba(16, 16, 16, 0.2);
+  box-shadow: var(--shadow-btn-hover);
 }
 
 .error-message {
-  color: #d9534f;
+  color: var(--color-error);
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
@@ -60,9 +60,9 @@ button:hover:not(:disabled) {
   appearance: none;
   width: 18px;
   height: 18px;
-  border-radius: 6px;
-  border: 2px solid #caa77b;
-  background: #fff6ea;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-checkbox);
+  background: var(--bg-checkbox);
   display: grid;
   place-content: center;
   cursor: pointer;
@@ -76,12 +76,12 @@ button:hover:not(:disabled) {
   border-radius: 3px;
   transform: scale(0);
   transition: transform 0.16s ease;
-  box-shadow: inset 1em 1em #101010;
+  box-shadow: inset 1em 1em var(--text);
 }
 
 .checkbox input[type="checkbox"]:checked {
-  border-color: #101010;
-  background: #f0e6d8;
+  border-color: var(--text);
+  background: var(--bg-checkbox-checked);
 }
 
 .checkbox input[type="checkbox"]:checked::before {
@@ -89,6 +89,6 @@ button:hover:not(:disabled) {
 }
 
 .checkbox input[type="checkbox"]:focus-visible {
-  outline: 2px solid #101010;
+  outline: 2px solid var(--text);
   outline-offset: 2px;
 }
