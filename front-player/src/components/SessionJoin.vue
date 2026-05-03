@@ -85,13 +85,25 @@ const joinSession = async () => {
 .session-join {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
 .back-container {
   margin-bottom: 1rem;
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
+}
+
+@media (max-width: 720px) {
+  .session-join {
+    justify-content: center;
+  }
+
+  .back-container {
+    justify-content: center;
+  }
 }
 </style>
