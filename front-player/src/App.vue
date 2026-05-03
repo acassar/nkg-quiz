@@ -9,7 +9,11 @@ import {
   useSocketEvent,
 } from "@nkg-quiz/shared-socket";
 import type { SessionState } from "@nkg-quiz/shared-types";
+import { useI18n } from "vue-i18n";
+import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 
+const { t } = useI18n();
+const { switchLabel, toggleLocale } = useLocaleSwitch();
 const { sessionCode, leaveSession, updateState, setStatus, setPlayerAnswers } =
   useSessionState();
 
@@ -50,7 +54,10 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
 
 <template>
   <div class="app-content">
-    <button v-if="sessionCode" @click="leaveSession">Leave session</button>
+    <div class="top-bar">
+      <button v-if="sessionCode" @click="leaveSession">{{ t("player.leaveSession") }}</button>
+      <button class="locale-btn" @click="toggleLocale">{{ switchLabel }}</button>
+    </div>
     <SessionJoinHandler v-if="!sessionCode" />
     <QuestionsComponent />
   </div>
@@ -61,6 +68,17 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
   display: grid;
   gap: 1.8rem;
   padding: 2rem 7vw 4rem;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 2.5rem;
+}
+
+.locale-btn {
+  margin-left: auto;
 }
 
 @media (max-width: 720px) {

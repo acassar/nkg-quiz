@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useSessionState } from "../../composables/useSessionState";
+
+const { t } = useI18n();
 import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
@@ -51,7 +54,7 @@ const handleTimesUp = () => {
 
 <template>
   <div v-if="displayCountdown !== null" class="restart-overlay">
-    <p>Le quiz reprend dans {{ displayCountdown }}s...</p>
+    <p>{{ t("screen.quiz.restartCountdown", { count: displayCountdown }) }}</p>
   </div>
 
   <CounterComponent
@@ -68,13 +71,9 @@ const handleTimesUp = () => {
   />
 
   <section v-else class="empty">
-    <p v-if="sessionNotFound">
-      Session not found. Please check the session code and try again.
-    </p>
-    <p v-else-if="!isConnected">
-      Connect to a session to display questions here.
-    </p>
-    <p v-else>No active question yet.</p>
+    <p v-if="sessionNotFound">{{ t("screen.quiz.notFound") }}</p>
+    <p v-else-if="!isConnected">{{ t("screen.quiz.noSession") }}</p>
+    <p v-else>{{ t("screen.quiz.noQuestion") }}</p>
   </section>
 </template>
 

@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { usePlayer } from "../composable/usePlayer";
 import { Player } from "../types/player.types";
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
   (e: "submit", player: Player | undefined): void;
@@ -18,8 +21,8 @@ const searchSession = () => {
 
 <template>
   <div class="search-session">
-    <input v-model.trim="sessionCode" placeholder="Session code" />
-    <button @click="searchSession">Search session</button>
+    <input v-model.trim="sessionCode" :placeholder="t('player.search.codePlaceholder')" />
+    <button @click="searchSession">{{ t("player.search.submit") }}</button>
   </div>
 </template>
 

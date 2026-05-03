@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { Question } from "@nkg-quiz/shared-types";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   currentQuestion: Question | undefined;
@@ -11,13 +14,13 @@ const props = defineProps<{
   <section v-if="currentQuestion" class="question-card">
     <h1 class="question-title">{{ currentQuestion.prompt }}</h1>
     <div class="meta-row">
-      <span>Answers: {{ answersCount }}</span>
+      <span>{{ t("screen.quiz.answers", { count: answersCount }) }}</span>
       <span v-if="currentQuestion.timeLimitSec">
-        Timer: {{ currentQuestion.timeLimitSec }}s
+        {{ t("screen.quiz.timer", { sec: currentQuestion.timeLimitSec }) }}
       </span>
-      <span v-if="currentQuestion.points"
-        >Points: {{ currentQuestion.points }}</span
-      >
+      <span v-if="currentQuestion.points">
+        {{ t("screen.quiz.points", { count: currentQuestion.points }) }}
+      </span>
     </div>
     <div class="choices">
       <div

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { Player } from "../types/player.types";
+
+const { t } = useI18n();
 import SearchSessionByCode from "./SearchSessionByCode.vue";
 import SessionJoin from "./SessionJoin.vue";
 import { useSessionFetcher } from "../composable/useSessionFetcher";
@@ -24,9 +27,9 @@ const handleRetrievedPlayerForSession = async (player: Player | undefined) => {
 
 <template>
   <section class="hero">
-    <span class="badge">Player</span>
-    <h1>Join the live quiz</h1>
-    <p>Enter the session code and your nickname to play.</p>
+    <span class="badge">{{ t("player.handler.badge") }}</span>
+    <h1>{{ t("player.handler.title") }}</h1>
+    <p>{{ t("player.handler.description") }}</p>
   </section>
 
   <section class="card">

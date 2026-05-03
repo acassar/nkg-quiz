@@ -1,0 +1,22 @@
+{
+  "name": "@nkg-quiz/shared-i18n",
+  "version": "0.1.0",
+  "description": "Shared i18n locales and configuration for NKG Quiz",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "vue-i18n": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vue-i18n": "^11.4.0"
+  }
+}

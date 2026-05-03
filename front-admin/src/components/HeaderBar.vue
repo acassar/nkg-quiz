@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { useAuth } from "../composables/useAuth";
 import { useI18n } from "vue-i18n";
+import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 
 const { isAuthed, logout } = useAuth();
-const { t, locale } = useI18n();
-
-const toggleLocale = () => {
-  locale.value = locale.value === "en" ? "fr" : "en";
-  localStorage.setItem("locale", locale.value);
-};
+const { t } = useI18n();
+const { switchLabel, toggleLocale } = useLocaleSwitch();
 </script>
 
 <template>
@@ -18,7 +15,7 @@ const toggleLocale = () => {
       <div class="badge">{{ t("nav.badge") }}</div>
     </div>
     <div class="row">
-      <button class="secondary" @click="toggleLocale">{{ t("nav.switchLocale") }}</button>
+      <button class="secondary" @click="toggleLocale">{{ switchLabel }}</button>
       <button class="secondary" @click="logout">{{ t("auth.logout") }}</button>
     </div>
   </header>

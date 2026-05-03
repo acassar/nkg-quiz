@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
+
+const { t } = useI18n();
 import { useSessionFetcher } from "../composables/useSessionFetcher";
 import type { PlayerResult } from "../types/results.types";
 
@@ -53,10 +56,10 @@ onMounted(() => {
     <!-- Header -->
     <header class="header">
       <div>
-        <div class="brand">NKG Quiz Live</div>
+        <div class="brand">{{ t("screen.brand") }}</div>
         <div class="meta-row">
-          <span class="status-pill">Resultats</span>
-          <span>Session {{ code }}</span>
+          <span class="status-pill">{{ t("screen.results.status") }}</span>
+          <span>{{ t("screen.header.session", { code }) }}</span>
         </div>
       </div>
     </header>
@@ -64,19 +67,19 @@ onMounted(() => {
     <!-- Loading -->
     <div v-if="isLoading" class="results-card results-card--center">
       <div class="loading-spinner" />
-      <p class="loading-text">Chargement des resultats...</p>
+      <p class="loading-text">{{ t("screen.results.loading") }}</p>
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="results-card results-card--center">
       <p class="error-icon">!</p>
       <p class="error-text">{{ error }}</p>
-      <button class="retry-btn" @click="fetchResults">Reessayer</button>
+      <button class="retry-btn" @click="fetchResults">{{ t("screen.results.retry") }}</button>
     </div>
 
     <!-- Results: empty -->
     <section v-else-if="results.length === 0" class="empty">
-      <p>Aucun resultat pour cette session.</p>
+      <p>{{ t("screen.results.empty") }}</p>
     </section>
 
     <!-- Results: podium + list -->
@@ -94,7 +97,7 @@ onMounted(() => {
           <div class="podium-bar" :class="`podium-bar--${player.rank}`" />
           <div class="podium-nickname">{{ player.nickname }}</div>
           <div v-if="showScore" class="podium-score">
-            {{ player.score.toLocaleString() }} pts
+            {{ t("screen.results.score", { score: player.score.toLocaleString() }) }}
           </div>
         </div>
       </div>
@@ -102,7 +105,7 @@ onMounted(() => {
       <!-- Full list (or top-only based on param) -->
       <div class="results-card">
         <h2 class="results-heading">
-          {{ topOnly ? "Top 3" : "Classement" }}
+          {{ topOnly ? t("screen.results.top3") : t("screen.results.ranking") }}
         </h2>
         <ol class="results-list">
           <li
@@ -114,7 +117,7 @@ onMounted(() => {
             <span class="results-rank">{{ player.rank }}</span>
             <span class="results-nickname">{{ player.nickname }}</span>
             <span v-if="showScore" class="results-score">
-              {{ player.score.toLocaleString() }} pts
+              {{ t("screen.results.score", { score: player.score.toLocaleString() }) }}
             </span>
           </li>
         </ol>

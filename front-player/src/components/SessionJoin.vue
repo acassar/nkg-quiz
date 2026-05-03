@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { Player } from "../types/player.types";
+
+const { t } = useI18n();
 import { useSessionState } from "../composable/useSessionState";
 import { usePlayer } from "../composable/usePlayer";
 import { useSessionFetcher } from "../composable/useSessionFetcher";
@@ -68,14 +71,14 @@ const joinSession = async () => {
 <template>
   <div class="back-container">
     <span
-      >Session code: <b>{{ props.sessionCode }}</b></span
+      >{{ t("player.join.codeLabel") }} <b>{{ props.sessionCode }}</b></span
     >
-    <button @click="$emit('back')">Change session code</button>
+    <button @click="$emit('back')">{{ t("player.join.changeCode") }}</button>
   </div>
   <div class="session-join">
-    <input v-model.trim="nickName" placeholder="Nickname" />
+    <input v-model.trim="nickName" :placeholder="t('player.join.nicknamePlaceholder')" />
     <button :disabled="!canJoin || status === 'joining'" @click="joinSession">
-      {{ status === "joining" ? "Joining..." : "Join session with this name" }}
+      {{ status === "joining" ? t("player.join.submitting") : t("player.join.submit") }}
     </button>
     <span class="error" v-if="joinFetcherError">{{ joinFetcherError }}</span>
   </div>

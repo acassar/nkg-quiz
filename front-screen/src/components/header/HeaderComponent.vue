@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 import { useSessionState } from "../../composables/useSessionState";
 import { connectSocket } from "../../services/socket.service";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
+
+const { t } = useI18n();
+const { switchLabel, toggleLocale } = useLocaleSwitch();
 
 const {
   state,
@@ -36,19 +41,20 @@ const handleConnectClick = () => {
 <template>
   <header class="header">
     <div>
-      <div class="brand">NKG Quiz Live</div>
+      <div class="brand">{{ t("screen.brand") }}</div>
       <div class="meta-row">
         <span class="status-pill">{{ status }}</span>
-        <span v-if="state">Session {{ state.code }}</span>
+        <span v-if="state">{{ t("screen.header.session", { code: state.code }) }}</span>
       </div>
     </div>
     <div class="session-card">
       <input
         v-model.trim="sessionCodeModel"
-        placeholder="Session code"
-        aria-label="Session code"
+        :placeholder="t('screen.header.codePlaceholder')"
+        :aria-label="t('screen.header.codePlaceholder')"
       />
-      <button @click="handleConnectClick">Connect</button>
+      <button @click="handleConnectClick">{{ t("screen.header.connect") }}</button>
+      <button @click="toggleLocale">{{ switchLabel }}</button>
     </div>
   </header>
 </template>

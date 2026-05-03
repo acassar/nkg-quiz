@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useSessionState } from "../composable/useSessionState";
 import { sendAnswer } from "../service/socket.service";
 import { usePlayer } from "../composable/usePlayer";
+
+const { t } = useI18n();
 
 const { sessionCode, currentQuestion: question, status, savePlayerAnswer, getPlayerAnswer } = useSessionState();
 const { currentPlayerId: playerId } = usePlayer();
@@ -45,9 +48,9 @@ const submitAnswer = async (choiceId: number) => {
   </section>
 
   <section class="card" v-else>
-    <p v-if="status === 'connected'">Waiting for the next question...</p>
-    <p v-else-if="status === 'ended'">Session ended. Thanks for playing!</p>
-    <p v-else>Connect to a session to see questions here.</p>
+    <p v-if="status === 'connected'">{{ t("player.questions.waiting") }}</p>
+    <p v-else-if="status === 'ended'">{{ t("player.questions.ended") }}</p>
+    <p v-else>{{ t("player.questions.noSession") }}</p>
   </section>
 </template>
 
