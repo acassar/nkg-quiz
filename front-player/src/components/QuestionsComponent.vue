@@ -15,6 +15,7 @@ const emit = defineEmits<{
 const {
   sessionCode,
   currentQuestion: question,
+  currentCategoryName: categoryName,
   status,
   savePlayerAnswer,
   getPlayerAnswer,
@@ -53,6 +54,7 @@ const showResults = () => {
 
 <template>
   <section class="card question" v-if="question">
+    <span v-if="categoryName" class="category-badge">{{ categoryName }}</span>
     <h2>{{ question.prompt }}</h2>
     <div class="choices">
       <ChoiceComponent
@@ -81,6 +83,20 @@ const showResults = () => {
 .question {
   display: grid;
   gap: 1rem;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--bg-badge);
+  color: var(--text-inverse);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+  align-self: start;
+  justify-self: start;
 }
 
 .question h2 {

@@ -8,7 +8,7 @@ import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 
-const { state, currentQuestion, status, sessionCode } = useSessionState();
+const { state, currentQuestion, currentCategoryName, status, sessionCode } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
 
 const answersCount = ref(0); //TODO: make the answers count retrieved from the session state api
@@ -68,6 +68,7 @@ const handleTimesUp = () => {
     v-if="currentQuestion"
     :currentQuestion="currentQuestion"
     :answersCount="answersCount"
+    :categoryName="currentCategoryName"
   />
 
   <section v-else class="empty">

@@ -35,6 +35,15 @@ export function useSessionState() {
     return currentQuestion || null;
   });
 
+  const currentCategoryName = computed<string | null>(() => {
+    if (!currentQuestion.value || !sessionQuiz.value) return null;
+    return (
+      sessionQuiz.value.categories.find(
+        (c) => c.id === currentQuestion.value!.categoryId,
+      )?.name ?? null
+    );
+  });
+
   function updateState(newState: SessionState) {
     sessionState.value = newState;
   }
@@ -76,6 +85,7 @@ export function useSessionState() {
     status,
     sessionCode,
     currentQuestion,
+    currentCategoryName,
     updateState,
     setStatus,
     setSessionCode,
