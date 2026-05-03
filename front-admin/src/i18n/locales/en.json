@@ -117,6 +117,10 @@
       "sectionTitle": "Current question",
       "none": "No active question",
       "answered": "{count} / {total} answered"
+    },
+    "players": {
+      "sectionTitle": "Players",
+      "none": "No players yet"
     }
   }
 }

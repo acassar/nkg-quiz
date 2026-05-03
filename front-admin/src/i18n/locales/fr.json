@@ -117,6 +117,10 @@
       "sectionTitle": "Question courante",
       "none": "Aucune question active",
       "answered": "{count} / {total} ont répondu"
+    },
+    "players": {
+      "sectionTitle": "Joueurs",
+      "none": "Aucun joueur pour le moment"
     }
   }
 }

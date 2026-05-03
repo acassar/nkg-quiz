@@ -518,20 +518,21 @@ export class SessionService implements ISessionService {
       | (Partial<Question> & { category: string; answersCount: number })
       | null = null;
 
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: session.quizId },
+      include: {
+        questions: {
+          orderBy: [
+            { category: { orderIndex: "asc" } },
+            { orderIndex: "asc" },
+          ],
+          include: { category: { select: { name: true } } },
+        },
+      },
+    });
+
     const currentIndex = state?.currentQuestionIndex;
     if (currentIndex !== null && currentIndex !== undefined) {
-      const quiz = await this.prisma.quiz.findUnique({
-        where: { id: session.quizId },
-        include: {
-          questions: {
-            orderBy: [
-              { category: { orderIndex: "asc" } },
-              { orderIndex: "asc" },
-            ],
-            include: { category: { select: { name: true } } },
-          },
-        },
-      });
       const q = quiz?.questions[currentIndex];
       if (q) {
         currentQuestion = {
@@ -566,12 +567,15 @@ export class SessionService implements ISessionService {
       .sort((a, b) => b.score - a.score)
       .map((p, i) => ({ ...p, rank: i + 1 }));
 
+    const totalQuestions = quiz?.questions.length ?? 0;
+
     return {
       code: session.code,
       status: state?.status ?? session.status,
       currentQuestionIndex: state?.currentQuestionIndex ?? null,
       currentQuestion,
       totalPlayers: players.length,
+      totalQuestions,
       players: sorted,
     };
   }

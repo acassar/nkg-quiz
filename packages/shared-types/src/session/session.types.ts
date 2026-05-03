@@ -67,5 +67,6 @@ export type LiveStats = {
   currentQuestionIndex: number | null;
   currentQuestion: Question | null;
   totalPlayers: number;
+  totalQuestions: number;
   players: LiveStatsPlayer[];
 };
