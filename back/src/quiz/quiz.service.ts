@@ -6,6 +6,7 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
+import { ImportQuizDto } from "./dto/import-quiz.dto";
 import { categoriesWithRelations } from "./prisma/quizPrisma.object";
 import { SessionStatus } from "@prisma/client";
 
@@ -111,5 +112,56 @@ export class QuizService {
   async remove(id: number) {
     await this.get(id);
     return this.prisma.quiz.delete({ where: { id } });
+  }
+
+  async import(dto: ImportQuizDto, userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new BadRequestException("Invalid user");
+
+    return this.prisma.$transaction(async (tx) => {
+      const quiz = await tx.quiz.create({
+        data: { title: dto.title, createdById: userId },
+      });
+
+      for (const [catIdx, cat] of dto.categories.entries()) {
+        const category = await tx.category.create({
+          data: { name: cat.name, quizId: quiz.id, orderIndex: catIdx },
+        });
+
+        for (const [qIdx, q] of cat.questions.entries()) {
+          await tx.question.create({
+            data: {
+              prompt: q.prompt,
+              timeLimitSec: q.timeLimitSec ?? null,
+              points: q.points ?? 1000,
+              orderIndex: qIdx,
+              quizId: quiz.id,
+              categoryId: category.id,
+              choices: {
+                create: q.choices.map((c) => ({
+                  text: c.text,
+                  isCorrect: c.isCorrect,
+                })),
+              },
+            },
+          });
+        }
+      }
+
+      return tx.quiz.findUnique({
+        where: { id: quiz.id },
+        include: {
+          options: true,
+          categories: {
+            include: {
+              questions: {
+                include: { choices: true },
+                orderBy: { orderIndex: "asc" },
+              },
+            },
+          },
+        },
+      });
+    });
   }
 }

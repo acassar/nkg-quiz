@@ -27,4 +27,10 @@ export const quizFetcher = {
       method: "DELETE",
     });
   },
+  importQuiz: async (payload: unknown) => {
+    return apiFetch<Quiz>(`${quizEndpoint}/import`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
 };

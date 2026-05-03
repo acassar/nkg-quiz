@@ -40,6 +40,11 @@
       "submit": "Create",
       "submitting": "Creating…"
     },
+    "import": {
+      "button": "Import JSON",
+      "error": "Import failed. Check the server response.",
+      "parseError": "Invalid JSON file."
+    },
     "edit": {
       "notFound": "Quiz not found",
       "back": "← Back",

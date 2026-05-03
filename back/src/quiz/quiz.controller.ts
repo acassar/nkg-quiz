@@ -13,6 +13,7 @@ import { AuthGuard } from "../auth/auth.guard";
 import { AuthenticatedRequest } from "../common/types/authenticated-request.type";
 import { CreateQuizDto } from "./dto/create-quiz.dto";
 import { UpdateQuizDto } from "./dto/update-quiz.dto";
+import { ImportQuizDto } from "./dto/import-quiz.dto";
 import { QuizService } from "./quiz.service";
 
 @Controller("quizzes")
@@ -50,5 +51,10 @@ export class QuizController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.quizService.remove(Number(id));
+  }
+
+  @Post("import")
+  import(@Body() dto: ImportQuizDto, @Req() req: AuthenticatedRequest) {
+    return this.quizService.import(dto, req.user.sub);
   }
 }

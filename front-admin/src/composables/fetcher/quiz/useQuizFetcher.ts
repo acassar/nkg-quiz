@@ -11,5 +11,6 @@ export function useQuizFetcher() {
     quizFetcher.updateQuiz,
   );
   const deleteQuiz = useFetcher<void, [string]>(quizFetcher.deleteQuiz);
-  return { getQuizzes, getQuiz, createQuiz, updateQuiz, deleteQuiz };
+  const importQuiz = useFetcher<Quiz, [unknown]>(quizFetcher.importQuiz);
+  return { getQuizzes, getQuiz, createQuiz, updateQuiz, deleteQuiz, importQuiz };
 }

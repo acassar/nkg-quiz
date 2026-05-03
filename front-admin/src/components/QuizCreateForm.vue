@@ -6,14 +6,32 @@ import { computed, ref } from "vue";
 const emits = defineEmits<{ (e: "created:quiz", quizId: number): void }>();
 
 const { t } = useI18n();
-const { createQuiz: createQuizFetcher } = useQuizFetcher();
+const { createQuiz: createQuizFetcher, importQuiz: importQuizFetcher } = useQuizFetcher();
 
 const title = ref("");
 const status = ref<"DRAFT" | "PUBLISHED">("DRAFT");
 const autoRestart = ref(false);
 const error = ref("");
 
-const isLoading = computed(() => createQuizFetcher.isLoading.value);
+const isLoading = computed(() => createQuizFetcher.isLoading.value || importQuizFetcher.isLoading.value);
+const importError = ref("");
+
+const handleImport = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  importError.value = "";
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const newQuiz = await importQuizFetcher.execute(payload);
+    if (newQuiz?.id) emits("created:quiz", newQuiz.id);
+    else importError.value = t("quiz.import.error");
+  } catch {
+    importError.value = t("quiz.import.parseError");
+  } finally {
+    (e.target as HTMLInputElement).value = "";
+  }
+};
 
 const createQuiz = async () => {
   if (!title.value.trim()) {
@@ -63,11 +81,45 @@ const createQuiz = async () => {
 
       <div class="row">
         <button type="submit" :disabled="isLoading">
-          {{
-            isLoading ? t("quiz.create.submitting") : t("quiz.create.submit")
-          }}
+          {{ isLoading ? t("quiz.create.submitting") : t("quiz.create.submit") }}
         </button>
+        <label class="import-label" :class="{ disabled: isLoading }">
+          {{ t("quiz.import.button") }}
+          <input type="file" accept=".json" :disabled="isLoading" @change="handleImport" />
+        </label>
       </div>
+      <p v-if="importError" class="error-message">{{ importError }}</p>
     </form>
   </div>
 </template>
+
+<style scoped>
+.import-label {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.7rem 1.2rem;
+  font-weight: 600;
+  background: var(--bg-btn-secondary);
+  color: var(--text-btn-secondary);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.import-label:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+
+.import-label.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.import-label input[type="file"] {
+  display: none;
+}
+</style>
