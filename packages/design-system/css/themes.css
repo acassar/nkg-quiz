@@ -1,0 +1,115 @@
+/* ============================================================
+   NKG Quiz — Design System Themes
+   Two themes: blue (default) and black.
+   Consume via: var(--ds-*)
+   ============================================================ */
+
+/* ── Blue theme (default) ─────────────────────────────────── */
+:root {
+  /* Primary — deep navy blue */
+  --ds-primary:         #162695;
+  --ds-primary-light:   #9fb3ed;
+  --ds-primary-lighter: #d6e0f8;
+  --ds-primary-dark:    #0d1a6e;
+
+  /* Secondary — warm sand */
+  --ds-secondary:       #f0e5c7;
+  --ds-secondary-light: #fff4ec;
+  --ds-secondary-dark:  #d9c89a;
+
+  /* Tertiary — warm brown */
+  --ds-tertiary:        #7a6a56;
+  --ds-tertiary-light:  #9a8a75;
+  --ds-tertiary-dark:   #5b4a37;
+
+  /* Surfaces */
+  --ds-background:      #fff4ec;
+  --ds-surface:         #ffffff;
+  --ds-surface-raised:  #f7f0e4;
+
+  /* Text */
+  --ds-text:            #1a1520;
+  --ds-text-muted:      #7a6a56;
+  --ds-text-subtle:     #9a8a75;
+  --ds-text-inverse:    #ffffff;
+  --ds-text-on-primary: #ffffff;
+
+  /* Border */
+  --ds-border:          #9fb3ed;
+  --ds-border-subtle:   #d6e0f8;
+
+  /* Semantic */
+  --ds-success:         #1a7f37;
+  --ds-success-bg:      #d4f8d4;
+  --ds-error:           #d9534f;
+  --ds-error-bg:        #f8d4d4;
+  --ds-warning:         #92600a;
+  --ds-warning-bg:      #fff3d4;
+
+  /* Shadows */
+  --ds-shadow-sm:       0 4px 12px rgba(22, 38, 149, 0.08);
+  --ds-shadow-md:       0 10px 24px rgba(22, 38, 149, 0.12);
+  --ds-shadow-lg:       0 24px 50px rgba(22, 38, 149, 0.15);
+  --ds-shadow-btn:      0 10px 20px rgba(22, 38, 149, 0.25);
+
+  /* Radius */
+  --ds-radius-sm:       6px;
+  --ds-radius-md:       14px;
+  --ds-radius-lg:       24px;
+  --ds-radius-full:     999px;
+}
+
+/* ── Black theme ──────────────────────────────────────────── */
+:root[data-theme="black"] {
+  /* Primary — near black */
+  --ds-primary:         #101010;
+  --ds-primary-light:   #3a3a3a;
+  --ds-primary-lighter: #d9c8b4;
+  --ds-primary-dark:    #000000;
+
+  /* Secondary — warm beige */
+  --ds-secondary:       #f0e6d8;
+  --ds-secondary-light: #f9f5ef;
+  --ds-secondary-dark:  #d9c8b4;
+
+  /* Tertiary — warm brown */
+  --ds-tertiary:        #5b4a37;
+  --ds-tertiary-light:  #7a6a56;
+  --ds-tertiary-dark:   #3d3025;
+
+  /* Surfaces */
+  --ds-background:      #f4f1ea;
+  --ds-surface:         #ffffff;
+  --ds-surface-raised:  #f8f1e7;
+
+  /* Text */
+  --ds-text:            #101010;
+  --ds-text-muted:      #7a6a56;
+  --ds-text-subtle:     #6b7280;
+  --ds-text-inverse:    #f9f1e6;
+  --ds-text-on-primary: #f9f1e6;
+
+  /* Border */
+  --ds-border:          #d9c8b4;
+  --ds-border-subtle:   #e5c7a1;
+
+  /* Semantic (inchangé) */
+  --ds-success:         #1a7f37;
+  --ds-success-bg:      #d4f8d4;
+  --ds-error:           #d9534f;
+  --ds-error-bg:        #f8d4d4;
+  --ds-warning:         #92600a;
+  --ds-warning-bg:      #fff3d4;
+
+  /* Shadows */
+  --ds-shadow-sm:       0 4px 12px rgba(18, 12, 6, 0.08);
+  --ds-shadow-md:       0 10px 24px rgba(18, 12, 6, 0.14);
+  --ds-shadow-lg:       0 24px 50px rgba(18, 12, 6, 0.18);
+  --ds-shadow-btn:      0 10px 20px rgba(16, 16, 16, 0.22);
+
+  /* Radius (identique) */
+  --ds-radius-sm:       6px;
+  --ds-radius-md:       14px;
+  --ds-radius-lg:       24px;
+  --ds-radius-full:     999px;
+}

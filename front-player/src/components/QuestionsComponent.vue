@@ -88,8 +88,8 @@ const showResults = () => {
 .category-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: var(--bg-badge);
-  color: var(--text-inverse);
+  background: var(--bg-category-badge);
+  color: var(--text-category-badge);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04em;

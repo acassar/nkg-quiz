@@ -1,59 +1,66 @@
+@import "@nkg-quiz/design-system/css/themes.css";
+
 :root {
-  /* Typography */
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-mono: "Space Mono", monospace;
 
-  /* Backgrounds */
-  --bg: #f4f1ea;
-  --bg-gradient: radial-gradient(circle at 15% 15%, #f8d9b9, transparent 45%),
-    radial-gradient(circle at 85% 25%, #c9e6dc, transparent 40%),
-    linear-gradient(180deg, #f9f5ef 0%, #efe9df 100%);
-  --bg-card: #ffffff;
-  --bg-item: #f7f1e7;
-  --bg-input: #fdfaf6;
-  --bg-btn: #101010;
-  --bg-btn-secondary: #f0e6d8;
-  --bg-badge: #101010;
-  --bg-subtle: #f0ebe3;
-  --bg-tag-dark: #101010;
-  --bg-checkbox: #fff6ea;
-  --bg-checkbox-checked: #f0e6d8;
-  --bg-player-row: #f9f5ef;
+  --bg:                  var(--ds-background);
+  --bg-gradient:         var(--ds-background);
+  --bg-card:             var(--ds-surface);
+  --bg-item:             var(--ds-secondary);
+  --bg-input:            var(--ds-surface);
+  --bg-btn:              var(--ds-primary);
+  --bg-btn-secondary:    var(--ds-secondary);
+  --bg-badge:            var(--ds-primary);
+  --bg-category-badge:   var(--ds-secondary);
+  --bg-subtle:           var(--ds-secondary-light);
+  --bg-tag-dark:         var(--ds-primary);
+  --bg-checkbox:         var(--ds-secondary-light);
+  --bg-checkbox-checked: var(--ds-secondary);
+  --bg-player-row:       var(--ds-surface-raised);
 
-  /* Text */
-  --text: #101010;
-  --text-muted: #7a6a56;
-  --text-inverse: #f9f1e6;
-  --text-on-btn: #ffffff;
-  --text-btn-secondary: #141414;
-  --text-section-title: #5b4a37;
+  --text:                var(--ds-text);
+  --text-muted:          var(--ds-text-muted);
+  --text-inverse:        var(--ds-text-inverse);
+  --text-on-btn:         var(--ds-text-on-primary);
+  --text-btn-secondary:  var(--ds-primary);
+  --text-section-title:  var(--ds-primary);
+  --text-category-badge: var(--ds-text-muted);
 
-  /* Borders */
-  --border: #d9c8b4;
-  --border-checkbox: #caa77b;
+  --border:              var(--ds-border);
+  --border-checkbox:     var(--ds-border);
 
-  /* Session status */
-  --status-lobby: #6b7280;
-  --status-running: #059669;
-  --status-reveal: #f59e0b;
-  --status-ended: #dc2626;
+  --status-lobby:        #6b7280;
+  --status-running:      #059669;
+  --status-reveal:       #f59e0b;
+  --status-ended:        #dc2626;
 
-  /* Semantic */
-  --color-error: #d9534f;
+  --color-error:         var(--ds-error);
 
-  /* Shadows */
-  --shadow-card: 0 24px 50px rgba(18, 12, 6, 0.16);
-  --shadow-btn-hover: 0 12px 22px rgba(16, 16, 16, 0.2);
+  --shadow-card:         var(--ds-shadow-lg);
+  --shadow-btn-hover:    var(--ds-shadow-btn);
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 14px;
-  --radius-lg: 24px;
-  --radius-full: 999px;
+  --radius-sm:           var(--ds-radius-sm);
+  --radius-md:           var(--ds-radius-md);
+  --radius-lg:           var(--ds-radius-lg);
+  --radius-full:         var(--ds-radius-full);
 
-  /* Card item colors */
-  --category-bg: #f8d9b9;
-  --category-selected-bg: #f0b070;
-  --question-bg: #b9c8f8;
-  --question-selected-bg: #70a0f0;
+  --category-bg:         var(--ds-secondary);
+  --category-selected-bg:var(--ds-secondary-dark);
+  --question-bg:         var(--ds-primary-light);
+  --question-selected-bg:var(--ds-primary);
+}
+
+/* Overrides: variables that map to a DIFFERENT token in black */
+:root[data-theme="black"] {
+  --bg-item:             var(--ds-surface-raised);
+  --bg-category-badge:   var(--ds-primary);
+  --text-btn-secondary:  var(--ds-text);
+  --text-section-title:  var(--ds-tertiary);
+  --text-category-badge: var(--ds-text-inverse);
+  --border-checkbox:     var(--ds-border-subtle);
+  --category-bg:         #f8d9b9;
+  --category-selected-bg:#f0b070;
+  --question-bg:         #b9c8f8;
+  --question-selected-bg:#70a0f0;
 }

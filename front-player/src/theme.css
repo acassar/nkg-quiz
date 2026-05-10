@@ -1,47 +1,50 @@
+@import "@nkg-quiz/design-system/css/themes.css";
+
 :root {
-  /* Typography */
   --font-sans: "Work Sans", system-ui, sans-serif;
   --font-serif: "Literata", serif;
 
-  /* Backgrounds */
-  --bg: #f6f9ff;
-  --bg-gradient: radial-gradient(circle at 15% 20%, #bfe5ff, transparent 50%),
-    radial-gradient(circle at 90% 0%, #ffe9b3, transparent 45%),
-    linear-gradient(160deg, #ffffff 0%, #f0f6ff 100%);
-  --bg-card: #ffffff;
-  --bg-btn: #0b1f2a;
-  --bg-badge: #0b1f2a;
+  --bg:                     var(--ds-background);
+  --bg-gradient:            var(--ds-background);
+  --bg-card:                var(--ds-surface);
+  --bg-btn:                 var(--ds-primary);
+  --bg-badge:               var(--ds-primary);
+  --bg-category-badge:      var(--ds-secondary);
 
-  /* Text */
-  --text: #0b1f2a;
-  --text-muted: #6b7280;
-  --text-inverse: #ffffff;
-  --text-on-btn: #ffffff;
+  --text:                   var(--ds-text);
+  --text-muted:             var(--ds-text-muted);
+  --text-inverse:           var(--ds-text-inverse);
+  --text-on-btn:            var(--ds-text-on-primary);
+  --text-category-badge:    var(--ds-text-muted);
 
-  /* Borders */
-  --border-input: #c6d7ef;
+  --border-input:           var(--ds-border);
 
-  /* Choice states */
-  --choice-bg: #f3f7ff;
-  --choice-hover-bg: #e1ecff;
-  --choice-selected-border: #0b1f2a;
-  --choice-correct-border: #1a7f37;
-  --choice-correct-bg: #d4f8d4;
-  --choice-incorrect-border: #7f1a1a;
-  --choice-incorrect-bg: #f8d4d4;
-  --choice-missed-border: #92600a;
-  --choice-missed-bg: #fff3d4;
+  --choice-bg:              var(--ds-secondary);
+  --choice-hover-bg:        var(--ds-secondary-dark);
+  --choice-selected-border: var(--ds-primary);
+  --choice-correct-border:  var(--ds-success);
+  --choice-correct-bg:      var(--ds-success-bg);
+  --choice-incorrect-border:var(--ds-error);
+  --choice-incorrect-bg:    var(--ds-error-bg);
+  --choice-missed-border:   var(--ds-warning);
+  --choice-missed-bg:       var(--ds-warning-bg);
 
-  /* Semantic */
-  --color-error: #d9534f;
+  --color-error:            var(--ds-error);
 
-  /* Shadows */
-  --shadow-card: 0 22px 48px rgba(12, 24, 44, 0.15);
-  --shadow-btn-hover: 0 10px 20px rgba(11, 31, 42, 0.2);
+  --shadow-card:            var(--ds-shadow-lg);
+  --shadow-btn-hover:       var(--ds-shadow-btn);
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-full: 999px;
+  --radius-sm:              var(--ds-radius-sm);
+  --radius-md:              var(--ds-radius-md);
+  --radius-lg:              var(--ds-radius-lg);
+  --radius-full:            var(--ds-radius-full);
+}
+
+/* Overrides: variables that map to a DIFFERENT token in black */
+:root[data-theme="black"] {
+  --bg-category-badge:      var(--ds-primary);
+  --text-muted:             var(--ds-text-subtle);
+  --text-category-badge:    var(--ds-text-inverse);
+  --choice-bg:              #f3f7ff;
+  --choice-hover-bg:        #e1ecff;
 }

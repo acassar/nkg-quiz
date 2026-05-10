@@ -2,10 +2,12 @@
 import { useAuth } from "../composables/useAuth";
 import { useI18n } from "vue-i18n";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
+import { useTheme } from "@nkg-quiz/design-system";
 
 const { isAuthed, logout } = useAuth();
 const { t } = useI18n();
 const { switchLabel, toggleLocale } = useLocaleSwitch();
+const { theme, toggleTheme } = useTheme();
 </script>
 
 <template>
@@ -16,6 +18,7 @@ const { switchLabel, toggleLocale } = useLocaleSwitch();
     </div>
     <div class="row">
       <button class="secondary" @click="toggleLocale">{{ switchLabel }}</button>
+      <button class="secondary" @click="toggleTheme">{{ theme === "blue" ? "Classique" : "Marine" }}</button>
       <button class="secondary" @click="logout">{{ t("auth.logout") }}</button>
     </div>
   </header>

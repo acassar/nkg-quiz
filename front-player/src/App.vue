@@ -11,11 +11,13 @@ import {
 import type { SessionState } from "@nkg-quiz/shared-types";
 import { useI18n } from "vue-i18n";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
+import { useTheme } from "@nkg-quiz/design-system";
 import { ref } from "vue";
 import ResultsComponent from "./components/ResultsComponent.vue";
 
 const { t } = useI18n();
 const { switchLabel, toggleLocale } = useLocaleSwitch();
+const { theme, toggleTheme } = useTheme();
 const {
   sessionCode,
   leaveSession,
@@ -81,6 +83,7 @@ const handleLeaveSession = () => {
       <button class="locale-btn" @click="toggleLocale">
         {{ switchLabel }}
       </button>
+      <button @click="toggleTheme">{{ theme === "blue" ? "Classique" : "Marine" }}</button>
     </div>
 
     <div class="session" v-if="!showResults">

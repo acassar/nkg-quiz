@@ -45,8 +45,8 @@ const props = defineProps<{
 .category-badge {
   display: inline-block;
   padding: 0.25rem 0.8rem;
-  background: var(--bg-badge);
-  color: var(--text-inverse);
+  background: var(--bg-category-badge);
+  color: var(--text-category-badge);
   font-size: clamp(0.7rem, 1vw, 0.85rem);
   font-weight: 600;
   letter-spacing: 0.05em;
