@@ -15,6 +15,7 @@ const error = ref<string | null>(null);
 const currentIndex = ref(0);
 
 const questions = computed(() => getResults.data.value?.questions ?? []);
+const score = computed(() => getResults.data.value?.score ?? 0);
 const currentQuestion = computed(() => questions.value[currentIndex.value]);
 
 type ChoiceState = "correct" | "incorrect" | "missed" | "normal";
@@ -51,6 +52,7 @@ fetchResults();
     <template v-else-if="questions.length > 0 && currentQuestion">
       <div class="header">
         <h2>{{ t("player.results.title") }}</h2>
+        <span class="score">{{ t("player.results.score", { score }) }}</span>
         <span class="counter">
           {{ t("player.results.question", { current: currentIndex + 1, total: questions.length }) }}
         </span>
@@ -103,6 +105,12 @@ fetchResults();
 
 .header h2 {
   margin: 0;
+}
+
+.score {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary, #4f46e5);
 }
 
 .counter {

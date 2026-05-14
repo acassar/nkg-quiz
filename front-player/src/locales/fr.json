@@ -25,6 +25,7 @@
     },
     "results": {
       "title": "Vos résultats",
+      "score": "Score : {score} pts",
       "question": "Question {current} sur {total}",
       "prev": "Précédent",
       "next": "Suivant",

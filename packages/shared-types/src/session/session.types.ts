@@ -59,6 +59,7 @@ export type PlayerQuestionResult = {
 
 export type PlayerSessionResults = {
   questions: PlayerQuestionResult[];
+  score: number;
 };
 
 export type LiveStats = {

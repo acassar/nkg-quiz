@@ -522,10 +522,7 @@ export class SessionService implements ISessionService {
       where: { id: session.quizId },
       include: {
         questions: {
-          orderBy: [
-            { category: { orderIndex: "asc" } },
-            { orderIndex: "asc" },
-          ],
+          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
           include: { category: { select: { name: true } } },
         },
       },
@@ -660,7 +657,15 @@ export class SessionService implements ISessionService {
       playerChoiceId: answerMap.get(q.id) ?? null,
     }));
 
-    return { questions };
+    const score = questions.reduce((total, q) => {
+      const choiceId = q.playerChoiceId;
+      const isCorrect =
+        choiceId != null &&
+        q.choices.some((c) => c.id === choiceId && c.isCorrect);
+      return total + (isCorrect ? (q.points ?? 0) : 0);
+    }, 0);
+
+    return { questions, score };
   }
 
   // ==================== Private Helpers ====================
