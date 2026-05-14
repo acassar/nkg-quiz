@@ -6,10 +6,10 @@ export function useLocaleSwitch() {
 
   const switchLabel = computed(() => (locale.value === "en" ? "FR" : "EN"));
 
-  const toggleLocale = () => {
-    locale.value = locale.value === "en" ? "fr" : "en";
-    localStorage.setItem("locale", locale.value);
+  const setLocale = (val: string) => {
+    locale.value = val;
+    localStorage.setItem("locale", val);
   };
 
-  return { locale, switchLabel, toggleLocale };
+  return { locale, switchLabel, setLocale };
 }
