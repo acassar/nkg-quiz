@@ -5,7 +5,10 @@ import Login from "./components/Login.vue";
 import { useAuth } from "./composables/useAuth";
 import router from "./router";
 import { socketClient } from "./services/socket.service";
-import { SOCKET_LIFECYCLE_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+import {
+  SOCKET_LIFECYCLE_EVENTS,
+  useSocketEvent,
+} from "@nkg-quiz/shared-socket";
 import { SettingsPanel } from "@nkg-quiz/design-system";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 
