@@ -125,7 +125,9 @@
     },
     "players": {
       "sectionTitle": "Joueurs",
-      "none": "Aucun joueur pour le moment"
+      "none": "Aucun joueur pour le moment",
+      "sortScore": "Score",
+      "sortCompletion": "Complétion"
     }
   }
 }

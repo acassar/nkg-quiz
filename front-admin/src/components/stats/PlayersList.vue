@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { LiveStats } from "@/types/session/session.types";
 
@@ -7,16 +7,37 @@ const props = defineProps<{ stats: LiveStats | null }>();
 
 const { t } = useI18n();
 
+type SortMode = "score" | "completion";
+const sortMode = ref<SortMode>("score");
+
 const totalQuestions = computed(() => props.stats?.totalQuestions ?? 0);
 
 const players = computed(() =>
-  [...(props.stats?.players ?? [])].sort((a, b) => b.score - a.score),
+  [...(props.stats?.players ?? [])].sort((a, b) => {
+    if (sortMode.value === "completion") {
+      const diff = b.totalAnswers - a.totalAnswers;
+      return diff !== 0 ? diff : b.score - a.score;
+    }
+    return b.score - a.score;
+  }),
 );
 </script>
 
 <template>
   <div class="card players-list">
-    <div class="section-title">{{ t("stats.players.sectionTitle") }}</div>
+    <div class="list-header">
+      <div class="section-title">{{ t("stats.players.sectionTitle") }}</div>
+      <div class="sort-buttons">
+        <button
+          :class="['sort-btn', { active: sortMode === 'score' }]"
+          @click="sortMode = 'score'"
+        >{{ t("stats.players.sortScore") }}</button>
+        <button
+          :class="['sort-btn', { active: sortMode === 'completion' }]"
+          @click="sortMode = 'completion'"
+        >{{ t("stats.players.sortCompletion") }}</button>
+      </div>
+    </div>
 
     <div v-if="players.length" class="list">
       <div v-for="player in players" :key="player.playerId" class="player-row">
@@ -41,6 +62,34 @@ const players = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.sort-btn {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.sort-btn.active {
+  background: var(--color-primary, #4f46e5);
+  border-color: var(--color-primary, #4f46e5);
+  color: #fff;
 }
 
 .list {

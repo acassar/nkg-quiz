@@ -125,7 +125,9 @@
     },
     "players": {
       "sectionTitle": "Players",
-      "none": "No players yet"
+      "none": "No players yet",
+      "sortScore": "Score",
+      "sortCompletion": "Completion"
     }
   }
 }
