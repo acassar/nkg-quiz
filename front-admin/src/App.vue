@@ -6,6 +6,8 @@ import { useAuth } from "./composables/useAuth";
 import router from "./router";
 import { socketClient } from "./services/socket.service";
 import { SOCKET_LIFECYCLE_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
+import { SettingsPanel } from "@nkg-quiz/design-system";
+import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 
 useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
   console.log("[admin-socket] Connected");
@@ -19,6 +21,7 @@ useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT_ERROR, () => {
 
 const { isAuthed } = useAuth();
 const isTransitioning = ref(false);
+const { locale, setLocale } = useLocaleSwitch();
 
 router.afterEach((to, from) => {
   const toDepth = to.path.split("/").length;
@@ -51,6 +54,8 @@ router.afterEach((to, from) => {
         </RouterView>
       </div>
     </div>
+
+    <SettingsPanel :locale="locale" @update:locale="setLocale" />
   </div>
 </template>
 

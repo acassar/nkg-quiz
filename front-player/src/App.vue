@@ -11,13 +11,12 @@ import {
 import type { SessionState } from "@nkg-quiz/shared-types";
 import { useI18n } from "vue-i18n";
 import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
-import { useTheme } from "@nkg-quiz/design-system";
+import { SettingsPanel } from "@nkg-quiz/design-system";
 import { ref } from "vue";
 import ResultsComponent from "./components/ResultsComponent.vue";
 
 const { t } = useI18n();
-const { switchLabel, toggleLocale } = useLocaleSwitch();
-const { theme, toggleTheme } = useTheme();
+const { locale, setLocale } = useLocaleSwitch();
 const {
   sessionCode,
   leaveSession,
@@ -80,10 +79,6 @@ const handleLeaveSession = () => {
       <button v-if="sessionCode" @click="handleLeaveSession">
         {{ t("player.leaveSession") }}
       </button>
-      <button class="locale-btn" @click="toggleLocale">
-        {{ switchLabel }}
-      </button>
-      <button @click="toggleTheme">{{ theme === "blue" ? "Classique" : "Marine" }}</button>
     </div>
 
     <div class="session" v-if="!showResults">
@@ -94,6 +89,8 @@ const handleLeaveSession = () => {
     <div v-else>
       <ResultsComponent />
     </div>
+
+    <SettingsPanel :locale="locale" @update:locale="setLocale" />
   </div>
 </template>
 
@@ -114,13 +111,8 @@ const handleLeaveSession = () => {
 
 .top-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   min-height: 2.5rem;
-}
-
-.locale-btn {
-  margin-left: auto;
 }
 
 @media (max-width: 720px) {

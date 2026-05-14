@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 import { useSessionState } from "../../composables/useSessionState";
-import { useTheme } from "@nkg-quiz/design-system";
 import { connectSocket } from "../../services/socket.service";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 
 const { t } = useI18n();
-const { switchLabel, toggleLocale } = useLocaleSwitch();
-const { theme, toggleTheme } = useTheme();
 
 const {
   state,
@@ -18,7 +14,7 @@ const {
   setSessionQuiz,
 } = useSessionState();
 const { getQuiz } = useSessionFetcher();
-const sessionCodeModel = ref(""); // Session code input by the user
+const sessionCodeModel = ref("");
 
 watch(status, (newStatus) => {
   if (newStatus === "connected") {
@@ -56,8 +52,6 @@ const handleConnectClick = () => {
         :aria-label="t('screen.header.codePlaceholder')"
       />
       <button @click="handleConnectClick">{{ t("screen.header.connect") }}</button>
-      <button @click="toggleLocale">{{ switchLabel }}</button>
-      <button @click="toggleTheme">{{ theme === "blue" ? "Classique" : "Marine" }}</button>
     </div>
   </header>
 </template>

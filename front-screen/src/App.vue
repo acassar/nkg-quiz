@@ -4,8 +4,11 @@ import { socketClient } from "./services/socket.service";
 import { S2C_EVENTS, SOCKET_LIFECYCLE_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
 import { useSessionState } from "./composables/useSessionState";
 import type { SessionState } from "@nkg-quiz/shared-types";
+import { SettingsPanel } from "@nkg-quiz/design-system";
+import { useLocaleSwitch } from "@nkg-quiz/shared-i18n";
 
 const { updateState, setStatus, incrementAnswersCount } = useSessionState();
+const { locale, setLocale } = useLocaleSwitch();
 
 useSocketEvent(socketClient, SOCKET_LIFECYCLE_EVENTS.CONNECT, () => {
   console.log("Connected to socket server");
@@ -39,4 +42,5 @@ useSocketEvent(socketClient, S2C_EVENTS.SESSION_END, (payload) => {
 
 <template>
   <RouterView />
+  <SettingsPanel :locale="locale" @update:locale="setLocale" />
 </template>
