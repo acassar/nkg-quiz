@@ -7,6 +7,7 @@
       "session": "Session {code}"
     },
     "quiz": {
+      "progress": "Question {current} / {total}",
       "answers": "Réponses : {count}",
       "timer": "Temps : {sec}s",
       "points": "Points : {count}",

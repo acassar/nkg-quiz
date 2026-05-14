@@ -121,7 +121,8 @@
     "currentQuestion": {
       "sectionTitle": "Current question",
       "none": "No active question",
-      "answered": "{count} / {total} answered"
+      "answered": "{count} / {total} answered",
+      "progress": "Question {current} / {total}"
     },
     "players": {
       "sectionTitle": "Players",

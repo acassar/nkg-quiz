@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Question } from "@nkg-quiz/shared-types";
 
@@ -8,11 +9,25 @@ const props = defineProps<{
   currentQuestion: Question | undefined;
   answersCount: number;
   categoryName: string | null;
+  currentQuestionIndex: number;
+  totalQuestions: number;
 }>();
+
+const progressPct = computed(() =>
+  props.totalQuestions ? Math.round(((props.currentQuestionIndex + 1) / props.totalQuestions) * 100) : 0,
+);
 </script>
 
 <template>
   <section v-if="currentQuestion" class="question-card">
+    <div class="quiz-progress">
+      <div class="quiz-progress-track">
+        <div class="quiz-progress-fill" :style="{ width: `${progressPct}%` }" />
+      </div>
+      <span class="quiz-progress-label">
+        {{ t("screen.quiz.progress", { current: currentQuestionIndex + 1, total: totalQuestions }) }}
+      </span>
+    </div>
     <span v-if="categoryName" class="category-badge">{{ categoryName }}</span>
     <h1 class="question-title">{{ currentQuestion.prompt }}</h1>
     <div class="meta-row">
@@ -40,6 +55,34 @@ const props = defineProps<{
 .question-card {
   display: grid;
   gap: 1rem;
+}
+
+.quiz-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.quiz-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-category-badge, rgba(255,255,255,0.15));
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--text-category-badge, #fff);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.quiz-progress-label {
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 600;
+  opacity: 0.7;
+  white-space: nowrap;
 }
 
 .category-badge {

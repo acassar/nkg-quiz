@@ -65,6 +65,7 @@ export function useSessionState() {
 
   return {
     state,
+    questions,
     currentQuestion,
     currentCategoryName,
     answersCount,

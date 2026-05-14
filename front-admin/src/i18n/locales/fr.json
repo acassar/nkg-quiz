@@ -121,7 +121,8 @@
     "currentQuestion": {
       "sectionTitle": "Question courante",
       "none": "Aucune question active",
-      "answered": "{count} / {total} ont répondu"
+      "answered": "{count} / {total} ont répondu",
+      "progress": "Question {current} / {total}"
     },
     "players": {
       "sectionTitle": "Joueurs",

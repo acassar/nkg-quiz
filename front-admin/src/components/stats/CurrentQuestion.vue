@@ -14,6 +14,12 @@ type QuestionWithMeta = NonNullable<LiveStats["currentQuestion"]> & {
 
 const question = computed(() => props.stats?.currentQuestion as QuestionWithMeta | null);
 const index = computed(() => props.stats?.currentQuestionIndex);
+const totalQuestions = computed(() => props.stats?.totalQuestions ?? 0);
+const quizProgressPct = computed(() =>
+  totalQuestions.value && index.value != null
+    ? Math.round(((index.value + 1) / totalQuestions.value) * 100)
+    : 0,
+);
 const totalPlayers = computed(() => props.stats?.totalPlayers ?? 0);
 const answeredCount = computed(() => question.value?.answersCount ?? 0);
 const progressPct = computed(() =>
@@ -33,6 +39,13 @@ const progressPct = computed(() =>
       </div>
 
       <p class="q-prompt">{{ question.prompt }}</p>
+
+      <div class="quiz-progress-track">
+        <div class="quiz-progress-fill" :style="{ width: `${quizProgressPct}%` }" />
+      </div>
+      <div class="progress-label">
+        {{ t("stats.currentQuestion.progress", { current: (index ?? 0) + 1, total: totalQuestions }) }}
+      </div>
 
       <div class="progress-track">
         <div class="progress-fill" :style="{ width: `${progressPct}%` }" />
@@ -91,6 +104,20 @@ const progressPct = computed(() =>
   font-size: 1.05rem;
   font-weight: 500;
   margin: 0;
+}
+
+.quiz-progress-track {
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--color-primary, #4f46e5);
+  border-radius: var(--radius-sm);
+  transition: width 0.4s ease;
 }
 
 .progress-track {

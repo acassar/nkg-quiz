@@ -58,6 +58,10 @@ fetchResults();
         </span>
       </div>
 
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" :style="{ width: `${((currentIndex + 1) / questions.length) * 100}%` }" />
+      </div>
+
       <div class="card question-card">
         <p class="prompt">{{ currentQuestion.prompt }}</p>
 
@@ -116,6 +120,20 @@ fetchResults();
 .counter {
   font-size: 0.9rem;
   color: var(--text-muted);
+}
+
+.progress-bar-track {
+  height: 4px;
+  background: var(--bg-subtle, #e5e7eb);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-primary, #4f46e5);
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
 .question-card {

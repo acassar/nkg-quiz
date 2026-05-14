@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSessionState } from "../composable/useSessionState";
 import { sendAnswer } from "../service/socket.service";
@@ -14,12 +14,21 @@ const emit = defineEmits<{
 
 const {
   sessionCode,
+  questions,
   currentQuestion: question,
   currentCategoryName: categoryName,
+  sessionState,
   status,
   savePlayerAnswer,
   getPlayerAnswer,
 } = useSessionState();
+
+const progressPct = computed(() => {
+  const total = questions.value.length;
+  const index = sessionState.value?.currentQuestionIndex;
+  if (!total || index == null) return 0;
+  return Math.round(((index + 1) / total) * 100);
+});
 const { currentPlayerId: playerId } = usePlayer();
 
 const selectedChoiceId = ref<number | null>(null);
@@ -54,6 +63,9 @@ const showResults = () => {
 
 <template>
   <section class="card question" v-if="question">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" :style="{ width: `${progressPct}%` }" />
+    </div>
     <span v-if="categoryName" class="category-badge">{{ categoryName }}</span>
     <h2>{{ question.prompt }}</h2>
     <div class="choices">
@@ -83,6 +95,20 @@ const showResults = () => {
 .question {
   display: grid;
   gap: 1rem;
+}
+
+.progress-bar-track {
+  height: 4px;
+  background: var(--bg-subtle, #e5e7eb);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-primary, #4f46e5);
+  border-radius: 999px;
+  transition: width 0.4s ease;
 }
 
 .category-badge {

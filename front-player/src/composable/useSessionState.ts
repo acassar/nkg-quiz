@@ -84,8 +84,10 @@ export function useSessionState() {
   return {
     status,
     sessionCode,
+    questions,
     currentQuestion,
     currentCategoryName,
+    sessionState,
     updateState,
     setStatus,
     setSessionCode,
