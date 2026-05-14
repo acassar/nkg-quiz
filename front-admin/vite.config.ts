@@ -9,6 +9,7 @@ export default defineConfig({
     port: 5176,
   },
   resolve: {
+    conditions: ["source"],
     alias: {
       "@": "/src",
       "@types": "/src/types",

@@ -1,8 +1,8 @@
-{
+﻿{
   "name": "@nkg-quiz/shared-socket-types",
   "version": "0.1.0",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
@@ -12,5 +12,12 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   }
 }

@@ -1,9 +1,9 @@
-{
+﻿{
   "name": "@nkg-quiz/shared-fetcher",
   "version": "1.0.0",
   "description": "Shared HTTP fetcher utilities for nkg-quiz applications",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -26,5 +26,12 @@
   },
   "files": [
     "dist/"
-  ]
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  }
 }

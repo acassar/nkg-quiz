@@ -8,4 +8,7 @@ export default defineConfig({
     host: true,
     port: 5175,
   },
+  resolve: {
+    conditions: ["source"],
+  },
 });
