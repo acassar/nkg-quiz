@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Player } from "../types/player.types";
 
@@ -23,6 +23,14 @@ const handleRetrievedPlayerForSession = async (player: Player | undefined) => {
   retrievedPlayer.value = player;
   status.value = "nickname";
 };
+
+onMounted(() => {
+  const code = new URLSearchParams(window.location.search).get("code");
+  if (code) {
+    sessionCode.value = code;
+    handleRetrievedPlayerForSession(undefined);
+  }
+});
 </script>
 
 <template>
