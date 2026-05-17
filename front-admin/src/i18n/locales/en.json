@@ -6,7 +6,10 @@
     "passwordPlaceholder": "Password",
     "submitLogin": "Login",
     "submitRegister": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loginError": "Invalid email or password.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "genericError": "An error occurred. Please try again."
   },
   "nav": {
     "brand": "NKG Backoffice",

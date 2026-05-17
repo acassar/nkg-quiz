@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAuth } from "../composables/useAuth";
 import { useI18n } from "vue-i18n";
 
@@ -11,6 +11,15 @@ const email = ref("");
 const password = ref("");
 
 const { isAuthed, login, register, error } = useAuth();
+
+const AUTH_ERROR_MAP: Record<string, string> = {
+  "Invalid credentials": t("auth.loginError"),
+  "password must be longer than or equal to 8 characters": t("auth.passwordTooShort"),
+};
+
+const displayError = computed(() =>
+  error.value ? (AUTH_ERROR_MAP[error.value] ?? t("auth.genericError")) : null,
+);
 
 const handleSubmit = async () => {
   if (mode.value === "login") {
@@ -41,7 +50,7 @@ const handleSubmit = async () => {
         <button type="submit">
           {{ mode === "login" ? t("auth.submitLogin") : t("auth.submitRegister") }}
         </button>
-        <p v-if="error" class="error-message">{{ error }}</p>
+        <p v-if="error" class="error-message">{{ displayError }}</p>
       </form>
     </div>
   </div>

@@ -58,7 +58,7 @@ async function handleFetch(
   });
 
   if (!response.ok) {
-    if (response.status === 401 && globalConfig.authProvider) {
+    if (response.status === 401 && globalConfig.authProvider && globalConfig.authProvider.getToken()) {
       globalConfig.authProvider.logout();
     }
     const text = await response.text();
