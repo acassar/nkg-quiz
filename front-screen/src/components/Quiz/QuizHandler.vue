@@ -23,30 +23,35 @@ const answersCount = ref(0); //TODO: make the answers count retrieved from the s
 const isConnected = computed(() => status.value === "connected");
 const sessionNotFound = computed(() => status.value === "session not found");
 
-const now = ref(Date.now()); // Only updated when restarting
+const now = ref(Date.now());
+const localDeadline = ref<number | null>(null);
 let clockInterval: ReturnType<typeof setInterval> | null = null;
 
 watch(
   () => state.value?.restartAt,
   (restartAt) => {
     if (clockInterval) clearInterval(clockInterval);
-    if (restartAt) now.value = Date.now();
-    clockInterval = restartAt
-      ? setInterval(() => {
-          now.value = Date.now();
-          if (clockInterval && new Date(restartAt).getTime() <= now.value) {
-            clearInterval(clockInterval);
-            clockInterval = null;
-          }
-        }, 500)
-      : null;
+    if (restartAt && state.value?.restartInMs != null) {
+      localDeadline.value = Date.now() + state.value.restartInMs;
+      now.value = Date.now();
+      clockInterval = setInterval(() => {
+        now.value = Date.now();
+        if (clockInterval && localDeadline.value !== null && localDeadline.value <= now.value) {
+          clearInterval(clockInterval);
+          clockInterval = null;
+        }
+      }, 500);
+    } else {
+      localDeadline.value = null;
+      clockInterval = null;
+    }
   },
   { immediate: true },
 );
 
 const displayCountdown = computed(() => {
-  if (!state.value?.restartAt) return null;
-  const remaining = new Date(state.value.restartAt).getTime() - now.value;
+  if (localDeadline.value === null) return null;
+  const remaining = localDeadline.value - now.value;
   return remaining > 0 ? Math.ceil(remaining / 1000) : null;
 });
 

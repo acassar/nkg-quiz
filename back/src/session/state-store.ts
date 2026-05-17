@@ -8,6 +8,7 @@ export type SessionState = {
   status: SessionStatus;
   currentQuestionIndex: number | null;
   restartAt?: string | null;
+  restartInMs?: number | null;
   stopAtEnd?: boolean;
   updatedAt: string;
 };

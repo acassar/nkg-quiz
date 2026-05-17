@@ -29,6 +29,7 @@ export type SessionState = {
   status: SESSION_STATUS;
   currentQuestionIndex: number | null;
   restartAt?: string | null;
+  restartInMs?: number | null;
   stopAtEnd?: boolean;
 };
 

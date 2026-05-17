@@ -203,7 +203,10 @@ export class SessionService implements ISessionService {
         updatedAt: new Date().toISOString(),
       }));
 
-    return { state };
+    const restartInMs = state.restartAt
+      ? Math.max(0, new Date(state.restartAt).getTime() - Date.now())
+      : null;
+    return { state: { ...state, restartInMs } };
   }
 
   async getOptions(code: string) {
@@ -443,6 +446,7 @@ export class SessionService implements ISessionService {
       status: SessionStatus.RESTARTING,
       currentQuestionIndex: null,
       restartAt,
+      restartInMs: COUNTDOWN_SEC * 1000,
       stopAtEnd: false,
       updatedAt: new Date().toISOString(),
     });
