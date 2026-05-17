@@ -117,7 +117,9 @@
       "next": "Suivant",
       "reveal": "Révéler",
       "end": "Terminer",
-      "archive": "Archiver"
+      "archive": "Archiver",
+      "stopAtEnd": "Arrêter à la fin",
+      "stopAtEndCancel": "Annuler l'arrêt"
     },
     "unsavedConfirm": "Vous avez des modifications non sauvegardées. Quitter quand même ?",
     "create": {

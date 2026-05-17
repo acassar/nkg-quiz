@@ -107,4 +107,13 @@ export class SessionController {
   archive(@Param("code") code: string) {
     return this.sessionService.archiveSession(code);
   }
+
+  @UseGuards(AuthGuard)
+  @Post(":code/stop-at-end")
+  stopAtEnd(
+    @Param("code") code: string,
+    @Body() body: { value: boolean },
+  ) {
+    return this.sessionService.setStopAtEnd(code, body.value);
+  }
 }

@@ -29,6 +29,7 @@ export type SessionState = {
   status: SESSION_STATUS;
   currentQuestionIndex: number | null;
   restartAt?: string | null;
+  stopAtEnd?: boolean;
 };
 
 export type SessionAction =
@@ -37,7 +38,8 @@ export type SessionAction =
   | "reveal"
   | "end"
   | "restart"
-  | "archive";
+  | "archive"
+  | "stop-at-end";
 
 export type CreateSessionResponse = {
   session: Session;

@@ -10,7 +10,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const { t } = useI18n();
-const { performAction, activeSession, sessionState } = useSession();
+const { performAction, activeSession, sessionState, activeSessionOptions } = useSession();
 const { getById } = useQuizStore();
 
 const answersCount = ref(0);
@@ -82,6 +82,13 @@ const sessionAction = async (action: SessionAction, body?: Record<string, unknow
             {{ t("session.actions.restartKeep") }}
           </button>
         </template>
+        <button
+          v-if="activeSessionOptions?.autoRestart && (sessionState?.status === 'RUNNING' || sessionState?.status === 'REVEAL')"
+          :class="sessionState?.stopAtEnd ? 'danger' : 'secondary'"
+          @click="sessionAction('stop-at-end', { value: !sessionState?.stopAtEnd })"
+        >
+          {{ sessionState?.stopAtEnd ? t("session.actions.stopAtEndCancel") : t("session.actions.stopAtEnd") }}
+        </button>
         <button @click="sessionAction('next')">{{ t("session.actions.next") }}</button>
         <button @click="sessionAction('reveal')">{{ t("session.actions.reveal") }}</button>
         <button class="secondary" @click="sessionAction('end')">{{ t("session.actions.end") }}</button>

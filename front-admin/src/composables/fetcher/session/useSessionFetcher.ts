@@ -23,6 +23,9 @@ export function useSessionFetcher() {
     SessionStateResponse,
     [string, SessionAction, Record<string, unknown>?]
   >(sessionFetcher.performAction);
+  const getOptions = useFetcher<{ options: SessionOptions | null }, [string]>(
+    sessionFetcher.getOptions,
+  );
   const getLiveStats = useFetcher<LiveStats, [string]>(
     sessionFetcher.getLiveStats,
   );
@@ -32,6 +35,7 @@ export function useSessionFetcher() {
     getSessionState,
     getActiveSessions,
     performAction,
+    getOptions,
     getLiveStats,
   };
 }

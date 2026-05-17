@@ -41,6 +41,16 @@ export class SessionService implements ISessionService {
     return this.scheduleAutoRestart(code);
   }
 
+  async setStopAtEnd(code: string, value: boolean) {
+    const state = await this.stateStore.update(code, {
+      stopAtEnd: value,
+      updatedAt: new Date().toISOString(),
+    });
+
+    await this.handleBroadcastSessionState(code, state);
+    return { state };
+  }
+
   async archiveSession(code: string) {
     const session = await this.getSessionByCode(code);
 
@@ -291,10 +301,11 @@ export class SessionService implements ISessionService {
     }
 
     // Update session state in the state store
-    const state = await this.stateStore.set({
-      code: session.code,
+    const state = await this.stateStore.update(session.code, {
       status: SessionStatus.RUNNING,
       currentQuestionIndex,
+      restartAt: null,
+      stopAtEnd: false,
       updatedAt: new Date().toISOString(),
     });
 
@@ -335,6 +346,10 @@ export class SessionService implements ISessionService {
         include: { options: true },
       });
       if (sessionWithOptions?.options?.autoRestart) {
+        const state = await this.stateStore.get(code);
+        if (state?.stopAtEnd) {
+          return this.endSession(code);
+        }
         return this.scheduleAutoRestart(code);
       }
       return this.endSession(code);
@@ -348,8 +363,7 @@ export class SessionService implements ISessionService {
       },
     });
 
-    const state = await this.stateStore.set({
-      code: session.code,
+    const state = await this.stateStore.update(session.code, {
       status: SessionStatus.RUNNING,
       currentQuestionIndex: nextIndex,
       updatedAt: new Date().toISOString(),
@@ -373,8 +387,7 @@ export class SessionService implements ISessionService {
       data: { status: SessionStatus.REVEAL },
     });
 
-    const state = await this.stateStore.set({
-      code: session.code,
+    const state = await this.stateStore.update(session.code, {
       status: SessionStatus.REVEAL,
       currentQuestionIndex: session.currentQuestionIndex ?? null,
       updatedAt: new Date().toISOString(),
@@ -398,10 +411,10 @@ export class SessionService implements ISessionService {
       data: { status: SessionStatus.ENDED, endedAt: new Date() },
     });
 
-    const state = await this.stateStore.set({
-      code: session.code,
+    const state = await this.stateStore.update(session.code, {
       status: SessionStatus.ENDED,
       currentQuestionIndex: null,
+      stopAtEnd: false,
       updatedAt: new Date().toISOString(),
     });
 
@@ -426,11 +439,11 @@ export class SessionService implements ISessionService {
       data: { status: SessionStatus.RESTARTING },
     });
 
-    const state = await this.stateStore.set({
-      code,
+    const state = await this.stateStore.update(code, {
       status: SessionStatus.RESTARTING,
       currentQuestionIndex: null,
       restartAt,
+      stopAtEnd: false,
       updatedAt: new Date().toISOString(),
     });
 

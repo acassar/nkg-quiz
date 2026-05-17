@@ -36,6 +36,9 @@ export const sessionFetcher = {
       },
     );
   },
+  getOptions: async (code: string) => {
+    return apiFetch<{ options: SessionOptions | null }>(`${sessionEndpoint}/${code}/options`);
+  },
   getLiveStats: async (code: string) => {
     return apiFetch<LiveStats>(`${sessionEndpoint}/${code}/live-stats`);
   },

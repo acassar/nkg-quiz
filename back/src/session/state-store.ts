@@ -8,6 +8,7 @@ export type SessionState = {
   status: SessionStatus;
   currentQuestionIndex: number | null;
   restartAt?: string | null;
+  stopAtEnd?: boolean;
   updatedAt: string;
 };
 
@@ -41,6 +42,15 @@ export class SessionStateStore {
     }
 
     return state;
+  }
+
+  async update(
+    code: string,
+    partial: Partial<Omit<SessionState, "code">>,
+  ): Promise<SessionState> {
+    const current = await this.get(code);
+    if (!current) throw new Error(`No state found for session ${code}`);
+    return this.set({ ...current, ...partial });
   }
 
   // ==================== Cleanup ====================

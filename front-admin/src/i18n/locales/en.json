@@ -117,7 +117,9 @@
       "next": "Next",
       "reveal": "Reveal",
       "end": "End",
-      "archive": "Archive"
+      "archive": "Archive",
+      "stopAtEnd": "Stop at end",
+      "stopAtEndCancel": "Cancel stop"
     },
     "unsavedConfirm": "You have unsaved changes. Leave anyway?",
     "create": {
