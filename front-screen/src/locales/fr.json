@@ -14,7 +14,9 @@
       "restartCountdown": "Le quiz reprend dans {count}s...",
       "notFound": "Session introuvable. Vérifiez le code et réessayez.",
       "noSession": "Connectez-vous à une session pour afficher les questions.",
-      "noQuestion": "Aucune question active pour le moment."
+      "noQuestion": "Aucune question active pour le moment.",
+      "ended": "Le quiz est terminé.",
+      "showLeaderboard": "Voir le classement"
     },
     "results": {
       "status": "Résultats",

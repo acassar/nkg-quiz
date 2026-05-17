@@ -41,6 +41,11 @@ export class SessionController {
     return this.sessionService.getState(code);
   }
 
+  @Get(":code/options")
+  getOptions(@Param("code") code: string) {
+    return this.sessionService.getOptions(code);
+  }
+
   @Get(":code/quiz")
   getQuiz(@Param("code") code: string) {
     return this.sessionService.getQuiz(code);

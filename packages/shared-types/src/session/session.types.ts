@@ -46,6 +46,7 @@ export type CreateSessionResponse = {
 
 export type SessionStateResponse = {
   state: SessionState;
+  options?: SessionOptions | null;
 };
 
 export type LiveStatsPlayer = {

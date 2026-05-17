@@ -2,33 +2,30 @@
 import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-
-const { t } = useI18n();
 import { useSessionFetcher } from "../composables/useSessionFetcher";
 import type { PlayerResult } from "../types/results.types";
+
+const { t } = useI18n();
 
 const route = useRoute();
 const code = computed(() => route.params.code as string);
 
-const showScore = computed(() => {
-  const q = route.query.showScore;
-  return q !== "false" && q !== "0";
-});
+const { getResults, getOptions } = useSessionFetcher();
 
-const topOnly = computed(() => {
-  const q = route.query.topOnly;
-  return q === "true" || q === "1";
-});
-
-const { getResults } = useSessionFetcher();
-
-const isLoading = computed(() => getResults.isLoading.value);
-const error = computed(() => getResults.error.value);
+const isLoading = computed(
+  () => getResults.isLoading.value || getOptions.isLoading.value,
+);
+const error = computed(() => getResults.error.value ?? getOptions.error.value);
 const results = computed<PlayerResult[]>(
   () => getResults.data.value?.results ?? [],
 );
 
-const fetchResults = () => getResults.execute(code.value);
+const showScore = computed(
+  () => getOptions.data.value?.options?.showScores !== false,
+);
+const topOnly = computed(
+  () => getOptions.data.value?.options?.showFullRanking === false,
+);
 
 const displayedResults = computed(() =>
   topOnly.value ? results.value.slice(0, 3) : results.value,
@@ -42,12 +39,17 @@ const podiumPlaces = computed(() => {
   return top3;
 });
 
+const fetchData = () => {
+  getResults.execute(code.value);
+  getOptions.execute(code.value);
+};
+
 // ---------------------------------------------------------------------------
 // Lifecycle
 // ---------------------------------------------------------------------------
 
 onMounted(() => {
-  fetchResults();
+  fetchData();
 });
 </script>
 
@@ -74,7 +76,9 @@ onMounted(() => {
     <div v-else-if="error" class="results-card results-card--center">
       <p class="error-icon">!</p>
       <p class="error-text">{{ error }}</p>
-      <button class="retry-btn" @click="fetchResults">{{ t("screen.results.retry") }}</button>
+      <button class="retry-btn" @click="fetchData">
+        {{ t("screen.results.retry") }}
+      </button>
     </div>
 
     <!-- Results: empty -->
@@ -97,7 +101,11 @@ onMounted(() => {
           <div class="podium-bar" :class="`podium-bar--${player.rank}`" />
           <div class="podium-nickname">{{ player.nickname }}</div>
           <div v-if="showScore" class="podium-score">
-            {{ t("screen.results.score", { score: player.score.toLocaleString() }) }}
+            {{
+              t("screen.results.score", {
+                score: player.score.toLocaleString(),
+              })
+            }}
           </div>
         </div>
       </div>
@@ -117,7 +125,11 @@ onMounted(() => {
             <span class="results-rank">{{ player.rank }}</span>
             <span class="results-nickname">{{ player.nickname }}</span>
             <span v-if="showScore" class="results-score">
-              {{ t("screen.results.score", { score: player.score.toLocaleString() }) }}
+              {{
+                t("screen.results.score", {
+                  score: player.score.toLocaleString(),
+                })
+              }}
             </span>
           </li>
         </ol>
@@ -280,17 +292,29 @@ onMounted(() => {
 
 .podium-bar--1 {
   height: 160px;
-  background: linear-gradient(180deg, var(--podium-bar-1-from), var(--podium-bar-1-to));
+  background: linear-gradient(
+    180deg,
+    var(--podium-bar-1-from),
+    var(--podium-bar-1-to)
+  );
 }
 
 .podium-bar--2 {
   height: 120px;
-  background: linear-gradient(180deg, var(--podium-bar-2-from), var(--podium-bar-2-to));
+  background: linear-gradient(
+    180deg,
+    var(--podium-bar-2-from),
+    var(--podium-bar-2-to)
+  );
 }
 
 .podium-bar--3 {
   height: 90px;
-  background: linear-gradient(180deg, var(--podium-bar-3-from), var(--podium-bar-3-to));
+  background: linear-gradient(
+    180deg,
+    var(--podium-bar-3-from),
+    var(--podium-bar-3-to)
+  );
 }
 
 .podium-nickname {

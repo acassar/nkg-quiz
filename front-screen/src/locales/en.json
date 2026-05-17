@@ -14,7 +14,9 @@
       "restartCountdown": "The quiz resumes in {count}s...",
       "notFound": "Session not found. Please check the session code and try again.",
       "noSession": "Connect to a session to display questions here.",
-      "noQuestion": "No active question yet."
+      "noQuestion": "No active question yet.",
+      "ended": "The quiz has ended.",
+      "showLeaderboard": "Show leaderboard"
     },
     "results": {
       "status": "Results",

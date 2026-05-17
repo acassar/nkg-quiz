@@ -1,10 +1,11 @@
-import { Question, Quiz, SessionState } from "@nkg-quiz/shared-types";
+import { Question, Quiz, SessionOptions, SessionState } from "@nkg-quiz/shared-types";
 import { computed, ref } from "vue";
 
 type SessionStatus =
   | "connected"
   | "disconnected"
   | "session not found"
+  | "ended"
   | "error"
   | "connecting";
 
@@ -14,6 +15,7 @@ const sessionQuiz = ref<Quiz>();
 const answersCount = ref(0);
 const status = ref<SessionStatus>("disconnected");
 const sessionCode = ref<string>();
+const sessionOptions = ref<SessionOptions | null>(null);
 
 export function useSessionState() {
   function updateState(newState: SessionState) {
@@ -26,6 +28,10 @@ export function useSessionState() {
 
   function setSessionQuiz(quiz: Quiz) {
     sessionQuiz.value = quiz;
+  }
+
+  function setSessionOptions(options: SessionOptions | null) {
+    sessionOptions.value = options;
   }
 
   function incrementAnswersCount() {
@@ -71,8 +77,10 @@ export function useSessionState() {
     answersCount,
     status,
     sessionCode,
+    sessionOptions,
     setStatus,
     setSessionQuiz,
+    setSessionOptions,
     updateState,
     incrementAnswersCount,
     resetAnswersCount,

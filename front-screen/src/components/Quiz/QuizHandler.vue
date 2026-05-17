@@ -7,9 +7,16 @@ const { t } = useI18n();
 import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
+import { useRouter } from "vue-router";
 
-const { state, currentQuestion, currentCategoryName, questions, status, sessionCode } = useSessionState();
+const { state, currentQuestion, currentCategoryName, questions, status, sessionCode, sessionOptions } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
+const router = useRouter();
+
+const goToLeaderboard = () => {
+  if (!sessionCode.value) return;
+  router.push(`/results/${sessionCode.value}`);
+};
 
 const answersCount = ref(0); //TODO: make the answers count retrieved from the session state api
 const isConnected = computed(() => status.value === "connected");
@@ -72,6 +79,13 @@ const handleTimesUp = () => {
     :currentQuestionIndex="state?.currentQuestionIndex ?? 0"
     :totalQuestions="questions.length"
   />
+
+  <section v-else-if="status === 'ended'" class="ended">
+    <p>{{ t("screen.quiz.ended") }}</p>
+    <button v-if="sessionOptions?.showLeaderboard !== false" @click="goToLeaderboard">
+      {{ t("screen.quiz.showLeaderboard") }}
+    </button>
+  </section>
 
   <section v-else class="empty">
     <p v-if="sessionNotFound">{{ t("screen.quiz.notFound") }}</p>

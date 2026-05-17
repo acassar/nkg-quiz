@@ -61,7 +61,7 @@ body {
   min-width: 160px;
 }
 
-.session-card button {
+button {
   border: none;
   background: var(--bg-btn);
   color: var(--text-on-btn);
@@ -72,7 +72,7 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.session-card button:hover {
+button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-btn-hover);
 }

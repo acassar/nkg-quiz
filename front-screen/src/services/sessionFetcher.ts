@@ -1,5 +1,5 @@
 import { apiFetch } from "@nkg-quiz/shared-fetcher";
-import { Quiz, SessionState } from "@nkg-quiz/shared-types";
+import { Quiz, SessionOptions, SessionState } from "@nkg-quiz/shared-types";
 import type { PlayerResult } from "../types/results.types";
 
 const sessionEndpoint = "/sessions";
@@ -7,6 +7,9 @@ const sessionEndpoint = "/sessions";
 export const sessionFetcher = {
   getQuiz: async (code: string) => {
     return apiFetch<Quiz>(`${sessionEndpoint}/${code}/quiz`);
+  },
+  getOptions: async (code: string) => {
+    return apiFetch<{ options: SessionOptions | null }>(`${sessionEndpoint}/${code}/options`);
   },
   nextQuestion: async (code: string) => {
     return apiFetch<SessionState>(`${sessionEndpoint}/${code}/next`, {

@@ -196,6 +196,15 @@ export class SessionService implements ISessionService {
     return { state };
   }
 
+  async getOptions(code: string) {
+    const session = await this.prisma.session.findUnique({
+      where: { code },
+      include: { options: true },
+    });
+    if (!session) throw new NotFoundException("Session not found");
+    return { options: session.options };
+  }
+
   async getQuiz(code: string) {
     const session = await this.getSessionByCode(code);
 
