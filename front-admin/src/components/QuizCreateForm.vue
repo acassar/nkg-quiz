@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
 import type { QuizOptions } from "@nkg-quiz/shared-types";
 import OptionsForm from "./OptionsForm.vue";
+import ImportOptionsModal from "./ImportOptionsModal.vue";
 
 const emits = defineEmits<{ (e: "created:quiz", quizId: number): void }>();
 
@@ -23,22 +24,37 @@ const error = ref("");
 
 const isLoading = computed(() => createQuizFetcher.isLoading.value || importQuizFetcher.isLoading.value);
 const importError = ref("");
+const pendingImport = ref<{ title: string; categories: unknown[] } | null>(null);
+let pendingImportEvent: HTMLInputElement | null = null;
 
 const handleImport = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
   if (!file) return;
   importError.value = "";
   try {
     const text = await file.text();
     const payload = JSON.parse(text);
-    const newQuiz = await importQuizFetcher.execute(payload);
-    if (newQuiz?.id) emits("created:quiz", newQuiz.id);
-    else importError.value = t("quiz.import.error");
+    pendingImport.value = payload;
+    pendingImportEvent = input;
   } catch {
     importError.value = t("quiz.import.parseError");
-  } finally {
-    (e.target as HTMLInputElement).value = "";
+    input.value = "";
   }
+};
+
+const handleImportConfirm = async (options: QuizOptions) => {
+  if (!pendingImport.value) return;
+  const newQuiz = await importQuizFetcher.execute({ ...pendingImport.value, options });
+  pendingImport.value = null;
+  if (pendingImportEvent) { pendingImportEvent.value = ""; pendingImportEvent = null; }
+  if (newQuiz?.id) emits("created:quiz", newQuiz.id);
+  else importError.value = t("quiz.import.error");
+};
+
+const handleImportCancel = () => {
+  pendingImport.value = null;
+  if (pendingImportEvent) { pendingImportEvent.value = ""; pendingImportEvent = null; }
 };
 
 const createQuiz = async () => {
@@ -94,6 +110,13 @@ const createQuiz = async () => {
       <p v-if="importError" class="error-message">{{ importError }}</p>
     </form>
   </div>
+
+  <ImportOptionsModal
+    v-if="pendingImport"
+    :title="pendingImport.title"
+    @confirm="handleImportConfirm"
+    @cancel="handleImportCancel"
+  />
 </template>
 
 <style scoped>

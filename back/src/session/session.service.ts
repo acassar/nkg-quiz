@@ -84,7 +84,6 @@ export class SessionService implements ISessionService {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id: dto.quizId },
       include: {
-        options: true,
         questions: {
           orderBy: { orderIndex: "asc" },
           include: { choices: true },
@@ -100,17 +99,7 @@ export class SessionService implements ISessionService {
       throw new BadRequestException("Quiz has no questions");
     }
 
-    const optionsSnapshot: SessionOptionsDto = {
-      autoRestart: dto.options?.autoRestart ?? quiz.options?.autoRestart,
-      revealAnswers: dto.options?.revealAnswers ?? quiz.options?.revealAnswers,
-      showLeaderboard:
-        dto.options?.showLeaderboard ?? quiz.options?.showLeaderboard,
-      showScores: dto.options?.showScores ?? quiz.options?.showScores,
-      showFullRanking:
-        dto.options?.showFullRanking ?? quiz.options?.showFullRanking,
-    };
-
-    const session = await this.createSessionWithCode(quiz.id, optionsSnapshot);
+    const session = await this.createSessionWithCode(quiz.id, dto.options);
 
     const state = await this.stateStore.set({
       code: session.code,

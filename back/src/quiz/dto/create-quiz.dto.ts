@@ -32,9 +32,8 @@ export class CreateQuizDto {
   @IsOptional()
   status: QuizStatus = QuizStatus.DRAFT;
 
-  @IsOptional()
   @ValidateNested()
   @Type(() => QuizOptionsDto)
-  options?: QuizOptionsDto;
+  options!: QuizOptionsDto;
 }
 

@@ -47,7 +47,9 @@
     "import": {
       "button": "Importer JSON",
       "error": "Échec de l'import. Vérifiez la réponse du serveur.",
-      "parseError": "Fichier JSON invalide."
+      "parseError": "Fichier JSON invalide.",
+      "modalTitle": "Importer — {title}",
+      "confirm": "Importer"
     },
     "edit": {
       "notFound": "Quiz introuvable",

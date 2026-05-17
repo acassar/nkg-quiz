@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsInt, IsOptional, Min, ValidateNested } from "class-validator";
+import { IsInt, Min, ValidateNested } from "class-validator";
 import { SessionOptionsDto } from "./session-options.dto";
 
 export class CreateSessionDto {
@@ -7,8 +7,7 @@ export class CreateSessionDto {
   @Min(1)
   quizId!: number;
 
-  @IsOptional()
   @ValidateNested()
   @Type(() => SessionOptionsDto)
-  options?: SessionOptionsDto;
+  options!: SessionOptionsDto;
 }

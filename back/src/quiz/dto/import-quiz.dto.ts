@@ -9,6 +9,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
+import { QuizOptionsDto } from "./create-quiz.dto";
 
 class ImportChoiceDto {
   @IsString()
@@ -58,4 +59,8 @@ export class ImportQuizDto {
   @ValidateNested({ each: true })
   @Type(() => ImportCategoryDto)
   categories!: ImportCategoryDto[];
+
+  @ValidateNested()
+  @Type(() => QuizOptionsDto)
+  options!: QuizOptionsDto;
 }

@@ -68,7 +68,7 @@ export class QuizService {
         title: dto.title,
         status: dto.status,
         createdById: userId,
-          options: { create: dto.options },
+        options: { create: dto.options },
       },
       include: {
         options: true,
@@ -157,6 +157,10 @@ export class QuizService {
           });
         }
       }
+
+      await tx.quizOptions.create({
+        data: { quizId: quiz.id, ...dto.options },
+      });
 
       return tx.quiz.findUnique({
         where: { id: quiz.id },
