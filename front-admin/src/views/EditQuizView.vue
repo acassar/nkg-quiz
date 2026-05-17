@@ -83,9 +83,10 @@ const goHome = () => {
   <div v-if="!quiz">{{ t("quiz.edit.notFound") }}</div>
 
   <div v-else class="grid">
-    <div class="card">
-      <div class="quiz-header row">
-        <button class="secondary" @click="goHome">
+    <div class="card quiz-header-card">
+      <!-- Title bar -->
+      <div class="quiz-meta-bar">
+        <button class="secondary btn-back" @click="goHome">
           {{ t("quiz.edit.back") }}
         </button>
         <input
@@ -93,21 +94,28 @@ const goHome = () => {
           :placeholder="t('quiz.edit.titlePlaceholder')"
           class="title-input"
         />
-        <select v-model="quiz.status" class="status-select">
+        <select
+          v-model="quiz.status"
+          class="status-select"
+          :class="`status--${quiz.status.toLowerCase()}`"
+        >
           <option value="DRAFT">{{ t("quiz.status.DRAFT") }}</option>
           <option value="PUBLISHED">{{ t("quiz.status.PUBLISHED") }}</option>
         </select>
-
-        <OptionsForm v-if="options" v-model="options" />
-
-        <button :disabled="!isDirty" @click="save">
+        <button :disabled="!isDirty" class="btn-save" @click="save">
           {{ t("quiz.edit.save") }}
         </button>
       </div>
 
-      <p class="error">
-        {{ updateQuiz.error.value ? t("quiz.edit.updateError") : undefined }}
-      </p>
+      <!-- Options section -->
+      <div v-if="options" class="quiz-options">
+        <OptionsForm v-model="options" />
+      </div>
+
+      <!-- Error feedback -->
+      <div v-if="updateQuiz.error.value" class="update-error">
+        {{ t("quiz.edit.updateError") }}
+      </div>
     </div>
 
     <EditQuiz
@@ -118,16 +126,67 @@ const goHome = () => {
 </template>
 
 <style scoped>
+.quiz-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.btn-back {
+  flex-shrink: 0;
+}
+
 .title-input {
   flex: 1;
+  min-width: 200px;
   width: auto;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .status-select {
   width: auto;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border-width: 1.5px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.error {
-  color: red;
+.status--draft {
+  background: var(--ds-warning-bg);
+  border-color: var(--ds-warning);
+  color: var(--ds-warning);
+}
+
+.status--published {
+  background: var(--ds-success-bg);
+  border-color: var(--ds-success);
+  color: var(--ds-success);
+}
+
+.btn-save {
+  margin-left: auto;
+}
+
+.quiz-options {
+  padding-top: 0.9rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
+.update-error {
+  margin-top: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--ds-error-bg);
+  border: 1px solid var(--ds-error);
+  color: var(--ds-error);
+  font-size: 0.9rem;
 }
 </style>
