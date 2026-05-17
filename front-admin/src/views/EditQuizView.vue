@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Quiz, QuizOptions } from "../types/quiz/quiz.types";
+import type { Quiz, QuizOptions } from "@nkg-quiz/shared-types";
 import { useQuizStore } from "@/stores/quizStore";
 import { useRouter } from "vue-router";
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";

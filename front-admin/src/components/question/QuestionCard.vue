@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Question } from "@/types/question/question.types";
+import type { Question } from "@nkg-quiz/shared-types";
 import CardItem, { CardItemAction } from "../common/card/CardItem.vue";
 
 const emits = defineEmits<{

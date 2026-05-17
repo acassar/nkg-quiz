@@ -1,4 +1,4 @@
-import { Question, QuestionInput } from "@/types/question/question.types";
+import type { Question, QuestionInput } from "@nkg-quiz/shared-types";
 import { apiFetch } from "../fetcher";
 
 const questionEndpoint = "/questions";

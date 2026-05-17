@@ -1,6 +1,7 @@
 // Session types
 export type {
   SessionState,
+  SessionOptions,
   CreateSessionResponse,
   SESSION_STATUS,
   Session,
@@ -22,4 +23,4 @@ export type { Choice, ChoiceInput } from "./choice/choice.types";
 export type { Category, CategoryInput } from "./category/category.types";
 
 // Quiz types
-export type { Quiz } from "./quiz/quiz.types";
+export type { Quiz, QuizOptions } from "./quiz/quiz.types";

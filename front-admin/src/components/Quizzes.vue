@@ -6,8 +6,7 @@ import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetch
 import { useQuizStore } from "@/stores/quizStore";
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
-import type { Quiz } from "@/types/quiz/quiz.types";
-import type { SessionOptions } from "@/types/session/session.types";
+import type { Quiz, SessionOptions } from "@nkg-quiz/shared-types";
 import CreateSessionModal from "./CreateSessionModal.vue";
 
 const emits = defineEmits<{ (e: "edit:quiz", quizId: number): void }>();

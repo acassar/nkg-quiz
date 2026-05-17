@@ -1,12 +1,12 @@
 import { apiFetch } from "../fetcher";
-import {
+import type {
   CreateSessionResponse,
   LiveStats,
   Session,
   SessionAction,
   SessionOptions,
   SessionStateResponse,
-} from "@/types/session/session.types";
+} from "@nkg-quiz/shared-types";
 
 const sessionEndpoint = "/sessions";
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import type { LiveStats } from "@/types/session/session.types";
+import type { LiveStats } from "@nkg-quiz/shared-types";
 
 const props = defineProps<{ stats: LiveStats | null }>();
 

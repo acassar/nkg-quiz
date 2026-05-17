@@ -1,7 +1,4 @@
-import {
-  Session,
-  SessionAction,
-} from "../types/session/session.types";
+import type { Session, SessionAction } from "@nkg-quiz/shared-types";
 import { useSessionFetcher } from "./fetcher/session/useSessionFetcher";
 import {
   connectAdminSocket,

@@ -7,7 +7,7 @@ import CurrentQuestion from "@/components/stats/CurrentQuestion.vue";
 import PlayersList from "@/components/stats/PlayersList.vue";
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { LiveStats } from "@/types/session/session.types";
+import type { LiveStats } from "@nkg-quiz/shared-types";
 
 const route = useRoute();
 const router = useRouter();

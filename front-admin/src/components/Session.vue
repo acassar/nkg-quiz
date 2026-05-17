@@ -4,7 +4,7 @@ import { useSession } from "../composables/useSession";
 import { socketClient } from "../services/socket.service";
 import { S2C_EVENTS, useSocketEvent } from "@nkg-quiz/shared-socket";
 import { useI18n } from "vue-i18n";
-import type { SessionAction, SessionState } from "../types/session/session.types";
+import type { SessionAction, SessionState } from "@nkg-quiz/shared-types";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 

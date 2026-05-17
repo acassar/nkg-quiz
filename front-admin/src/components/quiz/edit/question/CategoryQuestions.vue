@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import QuestionCard from "@/components/question/QuestionCard.vue";
-import type { Category } from "@/types/category/category.types";
-import type { QuestionInput } from "@/types/question/question.types";
+import type { Category, QuestionInput } from "@nkg-quiz/shared-types";
 
 defineEmits<{
   (e: "click", question: QuestionInput): void;

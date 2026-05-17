@@ -1,4 +1,4 @@
-import { Category, CategoryInput } from "@/types/category/category.types";
+import type { Category, CategoryInput } from "@nkg-quiz/shared-types";
 import { apiFetch } from "../fetcher";
 
 const categoryEndpoint = "/categories";

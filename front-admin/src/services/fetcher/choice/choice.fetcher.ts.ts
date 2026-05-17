@@ -1,4 +1,4 @@
-import { Choice } from "@/types/choice/choice.types";
+import type { Choice } from "@nkg-quiz/shared-types";
 import { apiFetch } from "../fetcher";
 
 const choiceEndpoint = "/choices";

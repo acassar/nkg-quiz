@@ -1,12 +1,12 @@
 import { sessionFetcher } from "@/services/fetcher/session/sessionFetcher";
-import {
+import type {
   CreateSessionResponse,
   LiveStats,
   Session,
   SessionAction,
   SessionOptions,
   SessionStateResponse,
-} from "@/types/session/session.types";
+} from "@nkg-quiz/shared-types";
 import { useFetcher } from "../useFetcher";
 
 export function useSessionFetcher() {

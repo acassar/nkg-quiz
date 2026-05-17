@@ -2,7 +2,7 @@
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
-import type { QuizOptions } from "@/types/quiz/quiz.types";
+import type { QuizOptions } from "@nkg-quiz/shared-types";
 import OptionsForm from "./OptionsForm.vue";
 
 const emits = defineEmits<{ (e: "created:quiz", quizId: number): void }>();

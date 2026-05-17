@@ -1,5 +1,5 @@
 import { quizFetcher } from "@/services/fetcher/quiz/quiz.fetcher";
-import { Quiz } from "@/types/quiz/quiz.types";
+import type { Quiz } from "@nkg-quiz/shared-types";
 import { useFetcher } from "../useFetcher";
 
 export function useQuizFetcher() {

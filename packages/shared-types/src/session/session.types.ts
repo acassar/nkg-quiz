@@ -8,11 +8,20 @@ export type SESSION_STATUS =
   | "RESTARTING"
   | "ARCHIVED";
 
+export type SessionOptions = {
+  autoRestart: boolean;
+  revealAnswers: boolean;
+  showLeaderboard: boolean;
+  showScores: boolean;
+  showFullRanking: boolean;
+};
+
 export type Session = {
   id: number;
   quizId: number;
   code: string;
   status: SESSION_STATUS;
+  options?: SessionOptions | null;
 };
 
 export type SessionState = {

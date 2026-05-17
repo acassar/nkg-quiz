@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import type { QuizOptions } from "@/types/quiz/quiz.types";
+import type { QuizOptions } from "@nkg-quiz/shared-types";
 
 const props = defineProps<{ modelValue: QuizOptions; disabled?: boolean }>();
 const emit = defineEmits<{ "update:modelValue": [QuizOptions] }>();

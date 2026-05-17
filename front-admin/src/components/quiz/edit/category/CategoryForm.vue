@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useCategoryFetcher } from "@/composables/fetcher/category/useCategoryFetcher";
-import type { Category, CategoryInput } from "@/types/category/category.types";
+import type { Category, CategoryInput } from "@nkg-quiz/shared-types";
 
 const emits = defineEmits<{
   (e: "created", payload: Category): void;

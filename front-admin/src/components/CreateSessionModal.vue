@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Quiz, QuizOptions } from "@/types/quiz/quiz.types";
+import type { Quiz, QuizOptions } from "@nkg-quiz/shared-types";
 import OptionsForm from "./OptionsForm.vue";
 
 const props = defineProps<{ quiz: Quiz }>();
