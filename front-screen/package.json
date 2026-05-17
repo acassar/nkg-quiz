@@ -15,12 +15,14 @@
     "@nkg-quiz/shared-i18n": "file:../packages/shared-i18n",
     "@nkg-quiz/shared-socket": "file:../packages/shared-socket",
     "@nkg-quiz/shared-types": "file:../packages/shared-types",
+    "qrcode": "^1.5.4",
     "vue": "^3.5.28",
     "vue-i18n": "^11.4.0",
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
     "@types/node": "^24.12.0",
+    "@types/qrcode": "^1.5.6",
     "@vitejs/plugin-vue": "^6.0.4",
     "typescript": "~5.9.3",
     "vite": "^7.3.1",

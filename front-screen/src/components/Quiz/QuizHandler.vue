@@ -8,6 +8,7 @@ import QuizQuestions from "./QuizQuestions.vue";
 import CounterComponent from "../counter/CounterComponent.vue";
 import { useSessionFetcher } from "../../composables/useSessionFetcher";
 import { useRouter } from "vue-router";
+import QrCodeJoin from "../QrCodeJoin.vue";
 
 const { state, currentQuestion, currentCategoryName, questions, status, sessionCode, sessionOptions } = useSessionState();
 const { nextQuestion } = useSessionFetcher();
@@ -90,8 +91,18 @@ const handleTimesUp = () => {
   <section v-else class="empty">
     <p v-if="sessionNotFound">{{ t("screen.quiz.notFound") }}</p>
     <p v-else-if="!isConnected">{{ t("screen.quiz.noSession") }}</p>
-    <p v-else>{{ t("screen.quiz.noQuestion") }}</p>
+    <template v-else>
+      <p>{{ t("screen.quiz.noQuestion") }}</p>
+      <QrCodeJoin :sessionCode="sessionCode ?? ''" />
+    </template>
   </section>
+
+  <QrCodeJoin
+    v-if="currentQuestion && sessionCode"
+    :sessionCode="sessionCode ?? ''"
+    :small="true"
+    class="qr-running"
+  />
 </template>
 
 <style scoped>
