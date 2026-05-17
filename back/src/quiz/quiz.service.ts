@@ -68,9 +68,7 @@ export class QuizService {
         title: dto.title,
         status: dto.status,
         createdById: userId,
-        ...(dto.options && {
           options: { create: dto.options },
-        }),
       },
       include: {
         options: true,
@@ -100,8 +98,20 @@ export class QuizService {
         ...(dto.options && {
           options: {
             upsert: {
-              create: dto.options,
-              update: dto.options,
+              create: {
+                autoRestart: dto.options.autoRestart,
+                revealAnswers: dto.options.revealAnswers,
+                showLeaderboard: dto.options.showLeaderboard,
+                showScores: dto.options.showScores,
+                showFullRanking: dto.options.showFullRanking,
+              },
+              update: {
+                autoRestart: dto.options.autoRestart,
+                revealAnswers: dto.options.revealAnswers,
+                showLeaderboard: dto.options.showLeaderboard,
+                showScores: dto.options.showScores,
+                showFullRanking: dto.options.showFullRanking,
+              },
             },
           },
         }),

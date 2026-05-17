@@ -39,11 +39,6 @@ export class QuizController {
   }
 
   @Patch(":id")
-  replace(@Param("id") id: string, @Body() dto: Partial<UpdateQuizDto>) {
-    return this.quizService.update(Number(id), dto);
-  }
-
-  @Patch(":id")
   update(@Param("id") id: string, @Body() dto: UpdateQuizDto) {
     return this.quizService.update(Number(id), dto);
   }
