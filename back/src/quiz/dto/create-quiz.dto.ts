@@ -10,6 +10,18 @@ export class QuizOptionsDto {
   @IsBoolean()
   @IsOptional()
   revealAnswers: boolean = false;
+
+  @IsBoolean()
+  @IsOptional()
+  showLeaderboard: boolean = true;
+
+  @IsBoolean()
+  @IsOptional()
+  showScores: boolean = true;
+
+  @IsBoolean()
+  @IsOptional()
+  showFullRanking: boolean = true;
 }
 
 export class CreateQuizDto {

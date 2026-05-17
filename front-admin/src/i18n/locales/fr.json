@@ -37,6 +37,10 @@
       "titleRequired": "Le titre est requis",
       "statusLabel": "Statut",
       "autoRestartLabel": "Redémarrage automatique",
+      "revealAnswersLabel": "Révéler les réponses",
+      "showLeaderboardLabel": "Afficher le classement",
+      "showScoresLabel": "Afficher les scores",
+      "showFullRankingLabel": "Classement complet (sinon top 3)",
       "submit": "Créer",
       "submitting": "Création…"
     },
@@ -113,7 +117,13 @@
       "end": "Terminer",
       "archive": "Archiver"
     },
-    "unsavedConfirm": "Vous avez des modifications non sauvegardées. Quitter quand même ?"
+    "unsavedConfirm": "Vous avez des modifications non sauvegardées. Quitter quand même ?",
+    "create": {
+      "title": "Créer une session — {quiz}",
+      "optionsTitle": "Options",
+      "confirm": "Créer la session",
+      "cancel": "Annuler"
+    }
   },
   "stats": {
     "back": "← Retour",

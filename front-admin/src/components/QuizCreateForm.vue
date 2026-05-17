@@ -2,6 +2,8 @@
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
+import type { QuizOptions } from "@/types/quiz/quiz.types";
+import OptionsForm from "./OptionsForm.vue";
 
 const emits = defineEmits<{ (e: "created:quiz", quizId: number): void }>();
 
@@ -10,7 +12,13 @@ const { createQuiz: createQuizFetcher, importQuiz: importQuizFetcher } = useQuiz
 
 const title = ref("");
 const status = ref<"DRAFT" | "PUBLISHED">("DRAFT");
-const autoRestart = ref(false);
+const options = ref<QuizOptions>({
+  autoRestart: false,
+  revealAnswers: false,
+  showLeaderboard: true,
+  showScores: true,
+  showFullRanking: true,
+});
 const error = ref("");
 
 const isLoading = computed(() => createQuizFetcher.isLoading.value || importQuizFetcher.isLoading.value);
@@ -41,9 +49,7 @@ const createQuiz = async () => {
   const newQuiz = await createQuizFetcher.execute({
     title: title.value,
     status: status.value,
-    options: {
-      autoRestart: autoRestart.value,
-    },
+    options: options.value,
   });
   if (newQuiz?.id) emits("created:quiz", newQuiz.id);
 };
@@ -74,10 +80,7 @@ const createQuiz = async () => {
         </select>
       </div>
 
-      <div class="field">
-        <label>{{ t("quiz.create.autoRestartLabel") }}</label>
-        <input type="checkbox" v-model="autoRestart" :disabled="isLoading" />
-      </div>
+      <OptionsForm v-model="options" :disabled="isLoading" />
 
       <div class="row">
         <button type="submit" :disabled="isLoading">

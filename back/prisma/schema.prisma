@@ -46,11 +46,14 @@ model Quiz {
 }
 
 model QuizOptions {
-  id            Int     @id @default(autoincrement())
-  quiz          Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  quizId        Int     @unique
-  autoRestart   Boolean @default(false)
-  revealAnswers Boolean @default(false)
+  id              Int     @id @default(autoincrement())
+  quiz            Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId          Int     @unique
+  autoRestart     Boolean @default(false)
+  revealAnswers   Boolean @default(false)
+  showLeaderboard Boolean @default(true)
+  showScores      Boolean @default(true)
+  showFullRanking Boolean @default(true)
 }
 
 model Category {
@@ -91,19 +94,31 @@ model Choice {
 }
 
 model Session {
-  id                  Int           @id @default(autoincrement())
-  quiz                Quiz          @relation(fields: [quizId], references: [id])
-  quizId              Int
-  code                String        @unique
-  status              SessionStatus @default(LOBBY)
+  id                   Int           @id @default(autoincrement())
+  quiz                 Quiz          @relation(fields: [quizId], references: [id])
+  quizId               Int
+  code                 String        @unique
+  status               SessionStatus @default(LOBBY)
   currentQuestionIndex Int?
-  createdAt           DateTime      @default(now())
-  startedAt           DateTime?
-  endedAt             DateTime?
+  createdAt            DateTime      @default(now())
+  startedAt            DateTime?
+  endedAt              DateTime?
 
+  options SessionOptions?
   players SessionPlayer[]
   answers SessionAnswer[]
   results SessionResult[]
+}
+
+model SessionOptions {
+  id              Int     @id @default(autoincrement())
+  session         Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId       Int     @unique
+  autoRestart     Boolean @default(false)
+  revealAnswers   Boolean @default(false)
+  showLeaderboard Boolean @default(true)
+  showScores      Boolean @default(true)
+  showFullRanking Boolean @default(true)
 }
 
 model SessionPlayer {

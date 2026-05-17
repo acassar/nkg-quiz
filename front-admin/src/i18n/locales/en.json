@@ -37,6 +37,10 @@
       "titleRequired": "Title is required",
       "statusLabel": "Status",
       "autoRestartLabel": "Auto-restart",
+      "revealAnswersLabel": "Reveal answers",
+      "showLeaderboardLabel": "Show leaderboard",
+      "showScoresLabel": "Show scores",
+      "showFullRankingLabel": "Full ranking (otherwise top 3)",
       "submit": "Create",
       "submitting": "Creating…"
     },
@@ -113,7 +117,13 @@
       "end": "End",
       "archive": "Archive"
     },
-    "unsavedConfirm": "You have unsaved changes. Leave anyway?"
+    "unsavedConfirm": "You have unsaved changes. Leave anyway?",
+    "create": {
+      "title": "Create session — {quiz}",
+      "optionsTitle": "Options",
+      "confirm": "Create session",
+      "cancel": "Cancel"
+    }
   },
   "stats": {
     "back": "← Back",

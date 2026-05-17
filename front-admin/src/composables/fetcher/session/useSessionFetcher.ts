@@ -4,12 +4,13 @@ import {
   LiveStats,
   Session,
   SessionAction,
+  SessionOptions,
   SessionStateResponse,
 } from "@/types/session/session.types";
 import { useFetcher } from "../useFetcher";
 
 export function useSessionFetcher() {
-  const createSession = useFetcher<CreateSessionResponse, [number]>(
+  const createSession = useFetcher<CreateSessionResponse, [number, SessionOptions?]>(
     sessionFetcher.createSession,
   );
   const getSessionState = useFetcher<SessionStateResponse, [string]>(

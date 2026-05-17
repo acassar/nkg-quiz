@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Quiz } from "../types/quiz/quiz.types";
+import type { Quiz, QuizOptions } from "../types/quiz/quiz.types";
 import { useQuizStore } from "@/stores/quizStore";
 import { useRouter } from "vue-router";
 import { useQuizFetcher } from "@/composables/fetcher/quiz/useQuizFetcher";
 import EditQuiz from "@/components/quiz/edit/EditQuiz.vue";
+import OptionsForm from "@/components/OptionsForm.vue";
 
 const router = useRouter();
 const quizStore = useQuizStore();
@@ -19,7 +20,8 @@ const props = defineProps<{ quizId: number }>();
 const quiz = ref<Quiz>();
 const savedTitle = ref("");
 const savedStatus = ref<"DRAFT" | "PUBLISHED">("DRAFT");
-const autoRestart = ref(false);
+const options = ref<QuizOptions | null>(null);
+const savedOptions = ref<QuizOptions | null>(null);
 const formHasUnsavedChanges = ref(false);
 
 onMounted(async () => {
@@ -29,16 +31,19 @@ onMounted(async () => {
   if (cached) {
     savedTitle.value = cached.title;
     savedStatus.value = cached.status;
-    autoRestart.value = cached.options?.autoRestart || false;
+    options.value = cached.options ?? null;
+    savedOptions.value = cached.options ? { ...cached.options } : null;
   }
 });
 
-const isDirty = computed(
-  () =>
-    quiz.value?.title !== savedTitle.value ||
-    quiz.value?.status !== savedStatus.value ||
-    quiz.value?.options?.autoRestart !== autoRestart.value,
-);
+const isDirty = computed(() => {
+  if (quiz.value?.title !== savedTitle.value) return true;
+  if (quiz.value?.status !== savedStatus.value) return true;
+  if (!options.value || !savedOptions.value) return false;
+  return (Object.keys(options.value) as (keyof QuizOptions)[]).some(
+    (k) => options.value![k] !== savedOptions.value![k],
+  );
+});
 
 async function reloadQuizzes() {
   await getQuizzes.execute();
@@ -53,12 +58,11 @@ const save = async () => {
   await updateQuiz.execute(props.quizId.toString(), {
     title: quiz.value.title,
     status: quiz.value.status,
-    options: {
-      autoRestart: autoRestart.value,
-    },
+    options: options.value,
   });
   savedTitle.value = quiz.value.title;
   savedStatus.value = quiz.value.status;
+  savedOptions.value = options.value ? { ...options.value } : null;
   quizStore.set(quiz.value);
   if (!updateQuiz.error.value) {
     alert(t("quiz.edit.updateSuccess"));
@@ -94,10 +98,8 @@ const goHome = () => {
           <option value="PUBLISHED">{{ t("quiz.status.PUBLISHED") }}</option>
         </select>
 
-        <div class="field">
-          <label>{{ t("quiz.create.autoRestartLabel") }}</label>
-          <input type="checkbox" v-model="autoRestart" />
-        </div>
+        <OptionsForm v-if="options" v-model="options" />
+
         <button :disabled="!isDirty" @click="save">
           {{ t("quiz.edit.save") }}
         </button>

@@ -4,6 +4,7 @@ import {
   LiveStats,
   Session,
   SessionAction,
+  SessionOptions,
   SessionStateResponse,
 } from "@/types/session/session.types";
 
@@ -16,10 +17,10 @@ export const sessionFetcher = {
   getSessionState: async (id: string) => {
     return apiFetch<SessionStateResponse>(`${sessionEndpoint}/${id}/state`);
   },
-  createSession: async (quizId: number) => {
+  createSession: async (quizId: number, options?: SessionOptions) => {
     return apiFetch<CreateSessionResponse>(sessionEndpoint, {
       method: "POST",
-      body: JSON.stringify({ quizId }),
+      body: JSON.stringify({ quizId, options }),
     });
   },
   performAction: async (

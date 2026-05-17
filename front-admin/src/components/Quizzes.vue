@@ -5,8 +5,10 @@ import { useSession } from "../composables/useSession";
 import { useSessionFetcher } from "@/composables/fetcher/session/useSessionFetcher";
 import { useQuizStore } from "@/stores/quizStore";
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { Quiz } from "@/types/quiz/quiz.types";
+import type { SessionOptions } from "@/types/session/session.types";
+import CreateSessionModal from "./CreateSessionModal.vue";
 
 const emits = defineEmits<{ (e: "edit:quiz", quizId: number): void }>();
 
@@ -18,6 +20,7 @@ const { changeActiveSession } = useSession();
 const { createSession } = useSessionFetcher();
 
 const isLoading = computed(() => getQuizzes.isLoading.value);
+const pendingQuiz = ref<Quiz | null>(null);
 
 if (isAuthed.value) init();
 
@@ -42,14 +45,24 @@ const getQuizActionLabel = (quiz: Quiz) =>
     ? t("quiz.actions.viewSession")
     : t("quiz.actions.createSession");
 
-const handleClickQuiz = async (quiz: Quiz) => {
+const handleClickQuiz = (quiz: Quiz) => {
   if (quiz.sessions && quiz.sessions.length > 0) {
     const session = quiz.sessions[0];
     if (session) changeActiveSession(session);
   } else {
-    await createSession.execute(quiz.id);
-    init();
+    pendingQuiz.value = quiz;
   }
+};
+
+const handleConfirmCreate = async (options: SessionOptions) => {
+  if (!pendingQuiz.value) return;
+  await createSession.execute(pendingQuiz.value.id, options);
+  pendingQuiz.value = null;
+  init();
+};
+
+const handleCancelCreate = () => {
+  pendingQuiz.value = null;
 };
 
 const deleteQuiz = async (quizId: number) => {
@@ -85,6 +98,12 @@ const deleteQuiz = async (quizId: number) => {
       </div>
     </div>
   </div>
+  <CreateSessionModal
+    v-if="pendingQuiz"
+    :quiz="pendingQuiz"
+    @confirm="handleConfirmCreate"
+    @cancel="handleCancelCreate"
+  />
 </template>
 
 <style scoped>

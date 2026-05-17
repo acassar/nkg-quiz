@@ -14,6 +14,7 @@ import { Prisma, Question, Session, SessionStatus } from "@prisma/client";
 import { SessionGateway } from "./session.gateway";
 import { ISessionService } from "./model/sessionService.model";
 import { S2C_EVENTS } from "@nkg-quiz/shared-socket-types";
+import { SessionOptionsDto } from "./dto/session-options.dto";
 
 //TODO make interfaces to create contracts between service and users of the service (controller and gateway).
 
@@ -83,6 +84,7 @@ export class SessionService implements ISessionService {
     const quiz = await this.prisma.quiz.findUnique({
       where: { id: dto.quizId },
       include: {
+        options: true,
         questions: {
           orderBy: { orderIndex: "asc" },
           include: { choices: true },
@@ -98,7 +100,17 @@ export class SessionService implements ISessionService {
       throw new BadRequestException("Quiz has no questions");
     }
 
-    const session = await this.createSessionWithCode(quiz.id);
+    const optionsSnapshot: SessionOptionsDto = {
+      autoRestart: dto.options?.autoRestart ?? quiz.options?.autoRestart,
+      revealAnswers: dto.options?.revealAnswers ?? quiz.options?.revealAnswers,
+      showLeaderboard:
+        dto.options?.showLeaderboard ?? quiz.options?.showLeaderboard,
+      showScores: dto.options?.showScores ?? quiz.options?.showScores,
+      showFullRanking:
+        dto.options?.showFullRanking ?? quiz.options?.showFullRanking,
+    };
+
+    const session = await this.createSessionWithCode(quiz.id, optionsSnapshot);
 
     const state = await this.stateStore.set({
       code: session.code,
@@ -320,11 +332,11 @@ export class SessionService implements ISessionService {
 
     const question = await this.getQuestionByIndex(session.quizId, nextIndex);
     if (!question) {
-      const quiz = await this.prisma.quiz.findUnique({
-        where: { id: session.quizId },
+      const sessionWithOptions = await this.prisma.session.findUnique({
+        where: { code },
         include: { options: true },
       });
-      if (quiz?.options?.autoRestart) {
+      if (sessionWithOptions?.options?.autoRestart) {
         return this.scheduleAutoRestart(code);
       }
       return this.endSession(code);
@@ -706,7 +718,10 @@ export class SessionService implements ISessionService {
     return question ?? null;
   }
 
-  private async createSessionWithCode(quizId: number) {
+  private async createSessionWithCode(
+    quizId: number,
+    options: SessionOptionsDto,
+  ) {
     const attempts = 3;
 
     for (let i = 0; i < attempts; i += 1) {
@@ -717,6 +732,7 @@ export class SessionService implements ISessionService {
             quizId,
             code,
             status: SessionStatus.LOBBY,
+            options: { create: options },
           },
         });
       } catch {
