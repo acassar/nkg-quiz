@@ -25,7 +25,8 @@
       "empty": "Aucun résultat pour cette session.",
       "top3": "Top 3",
       "ranking": "Classement",
-      "score": "{score} pts"
+      "score": "{score} pts",
+      "back": "Retour"
     }
   }
 }

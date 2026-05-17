@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useSessionFetcher } from "../composables/useSessionFetcher";
 import type { PlayerResult } from "../types/results.types";
 
 const { t } = useI18n();
 
 const route = useRoute();
+const router = useRouter();
 const code = computed(() => route.params.code as string);
 
 const { getResults, getOptions } = useSessionFetcher();
@@ -64,6 +65,9 @@ onMounted(() => {
           <span>{{ t("screen.header.session", { code }) }}</span>
         </div>
       </div>
+      <button class="back-btn" @click="router.back()">
+        {{ t("screen.results.back") }}
+      </button>
     </header>
 
     <!-- Loading -->
@@ -139,6 +143,29 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* ------------------------------------------------------------------ */
+/* Back button                                                         */
+/* ------------------------------------------------------------------ */
+
+.back-btn {
+  border: none;
+  background: var(--bg-btn);
+  color: var(--text-on-btn);
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+
 /* ------------------------------------------------------------------ */
 /* Results card                                                        */
 /* ------------------------------------------------------------------ */
