@@ -2,13 +2,15 @@
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Player } from "../types/player.types";
-
-const { t } = useI18n();
 import SearchSessionByCode from "./SearchSessionByCode.vue";
 import SessionJoin from "./SessionJoin.vue";
 import { useSessionFetcher } from "../composable/useSessionFetcher";
+import { usePlayer } from "../composable/usePlayer";
+
+const { t } = useI18n();
 
 const { getState } = useSessionFetcher();
+const { getPlayerForSession } = usePlayer();
 
 const sessionCode = ref();
 const status = ref<"sessionCode" | "nickname">("sessionCode");
@@ -28,7 +30,7 @@ onMounted(() => {
   const code = new URLSearchParams(window.location.search).get("code");
   if (code) {
     sessionCode.value = code;
-    handleRetrievedPlayerForSession(undefined);
+    handleRetrievedPlayerForSession(getPlayerForSession(code));
   }
 });
 </script>
