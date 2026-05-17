@@ -26,6 +26,7 @@ front-*/vite.config.js.map
 # Env
 .env
 .env.*
+!.env.example
 
 # Editor
 .claude/
