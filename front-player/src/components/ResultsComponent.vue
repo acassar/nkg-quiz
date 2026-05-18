@@ -31,6 +31,16 @@ function getChoiceState(
   return "normal";
 }
 
+function getChoiceLabels(
+  choice: { id: number; isCorrect: boolean },
+  playerChoiceId: number | null,
+): string[] {
+  const labels: string[] = [];
+  if (choice.id === playerChoiceId) labels.push(t("player.results.yourAnswer"));
+  if (choice.isCorrect) labels.push(t("player.results.correctAnswer"));
+  return labels;
+}
+
 const fetchResults = async () => {
   if (!sessionCode.value || !currentPlayerId.value) {
     error.value = t("player.results.errors.noSession");
@@ -71,6 +81,7 @@ fetchResults();
             :key="choice.id"
             :choice="{ ...choice, questionId: currentQuestion.id }"
             :type="getChoiceState(choice, currentQuestion.playerChoiceId)"
+            :labels="getChoiceLabels(choice, currentQuestion.playerChoiceId)"
           />
         </div>
       </div>

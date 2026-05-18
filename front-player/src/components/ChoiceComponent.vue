@@ -9,9 +9,11 @@ const props = withDefaults(
   defineProps<{
     choice: Choice;
     type?: "normal" | "selected" | "disabled" | "correct" | "incorrect" | "missed";
+    labels?: string[];
   }>(),
   {
     type: "normal",
+    labels: () => [],
   },
 );
 
@@ -24,6 +26,12 @@ const handleClick = () => {
 <template>
   <button class="choice" :class="`choice--${type}`" @click="handleClick">
     <span class="choice-text">{{ choice.text }}</span>
+    <span v-if="labels.length" class="choice-labels">
+      <template v-for="(label, i) in labels" :key="label">
+        <span v-if="i > 0" class="choice-label-sep">•</span>
+        <span class="choice-label">{{ label }}</span>
+      </template>
+    </span>
   </button>
 </template>
 
@@ -36,10 +44,36 @@ const handleClick = () => {
   font-weight: 600;
   text-align: left;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .choice-text {
   color: var(--text);
+}
+
+.choice-labels {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.choice-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.choice-label-sep {
+  font-size: 0.7rem;
+  color: var(--text);
+  opacity: 0.4;
 }
 
 .choice--normal {

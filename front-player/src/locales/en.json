@@ -29,6 +29,8 @@
       "question": "Question {current} of {total}",
       "prev": "Previous",
       "next": "Next",
+      "yourAnswer": "Your answer",
+      "correctAnswer": "Correct answer",
       "errors": {
         "noSession": "No session found. Please join a session to see results.",
         "fetchError": "Failed to fetch results. Please try again."
