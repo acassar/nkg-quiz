@@ -80,45 +80,112 @@ watch(form, () => { if (!isHydrating.value) emits("form-changed"); }, { deep: tr
 </script>
 
 <template>
-  <div class="card grid">
-    <div class="section-title">
+  <div class="grid question-form">
+    <!-- Form title -->
+    <div class="form-title">
       {{ isNew ? t("question.form.titleNew") : t("question.form.titleEdit") }}
     </div>
 
+    <!-- Validation error -->
     <div v-if="error" class="error-message">{{ error }}</div>
 
-    <div class="field">
-      <label>{{ t("question.form.promptLabel") }}</label>
-      <textarea v-model.trim="form.prompt" :placeholder="t('question.form.promptPlaceholder')" />
-    </div>
-
-    <div class="row">
+    <!-- Question fields -->
+    <div class="form-panel grid">
       <div class="field">
-        <label>{{ t("question.form.timeLimitLabel") }}</label>
-        <input v-model.number="form.timeLimitSec" type="number" min="1" />
+        <label class="field-label">{{ t("question.form.promptLabel") }}</label>
+        <textarea v-model.trim="form.prompt" :placeholder="t('question.form.promptPlaceholder')" />
       </div>
-      <div class="field">
-        <label>{{ t("question.form.pointsLabel") }}</label>
-        <input v-model.number="form.points" type="number" min="0" />
+
+      <div class="row">
+        <div class="field">
+          <label class="field-label">{{ t("question.form.timeLimitLabel") }}</label>
+          <input v-model.number="form.timeLimitSec" type="number" min="1" />
+        </div>
+        <div class="field">
+          <label class="field-label">{{ t("question.form.pointsLabel") }}</label>
+          <input v-model.number="form.points" type="number" min="0" />
+        </div>
       </div>
     </div>
 
-    <div class="section-title">{{ t("question.form.choicesTitle") }}</div>
-    <div class="list">
-      <ChoiceRow
-        v-for="(choice, index) in form.choices"
-        :key="index"
-        v-model:text="choice.text"
-        v-model:is-correct="choice.isCorrect"
-        :can-remove="form.choices.length > 2"
-        @remove="removeChoice(index)"
-      />
+    <!-- Choices panel -->
+    <div class="choices-panel">
+      <div class="section-title">{{ t("question.form.choicesTitle") }}</div>
+      <div class="list">
+        <ChoiceRow
+          v-for="(choice, index) in form.choices"
+          :key="index"
+          v-model:text="choice.text"
+          v-model:is-correct="choice.isCorrect"
+          :can-remove="form.choices.length > 2"
+          @remove="removeChoice(index)"
+        />
+      </div>
+      <button class="secondary btn-add-choice" type="button" @click="addChoice">
+        {{ t("question.form.addChoice") }}
+      </button>
     </div>
 
-    <div class="row">
-      <button class="secondary" type="button" @click="addChoice">{{ t("question.form.addChoice") }}</button>
-      <button type="button" :disabled="!canSubmit" @click="submit">{{ t("question.form.save") }}</button>
-      <button class="secondary" type="button" @click="emits('cancel')">{{ t("question.form.cancel") }}</button>
+    <!-- Actions -->
+    <div class="form-actions">
+      <button class="secondary" type="button" @click="emits('cancel')">
+        {{ t("question.form.cancel") }}
+      </button>
+      <button type="button" :disabled="!canSubmit" @click="submit">
+        {{ t("question.form.save") }}
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.question-form {
+  gap: 1rem;
+}
+
+.form-title {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-section-title);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--ds-primary-lighter);
+}
+
+.form-panel {
+  background: var(--bg-subtle, var(--ds-secondary-light));
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  gap: 0.8rem;
+}
+
+.field-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.choices-panel {
+  display: grid;
+  gap: 0.6rem;
+  background: var(--ds-surface-raised);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.btn-add-choice {
+  justify-self: start;
+  font-size: 0.83rem;
+  padding: 0.4rem 0.85rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+</style>

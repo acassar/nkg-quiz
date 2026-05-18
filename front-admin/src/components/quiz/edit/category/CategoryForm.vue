@@ -26,14 +26,14 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="card">
+  <div class="new-category-form">
     <div class="section-title">{{ t("category.form.sectionTitle") }}</div>
-    <form class="row" @submit.prevent="submit">
+    <form class="form-row" @submit.prevent="submit">
       <input
         v-model.trim="name"
         :placeholder="t('category.form.namePlaceholder')"
         autofocus
-        class="flex-input"
+        class="name-input"
       />
       <button type="submit" :disabled="!name.trim()">{{ t("category.form.submit") }}</button>
       <button type="button" class="secondary" @click="$emit('cancel')">{{ t("category.form.cancel") }}</button>
@@ -42,8 +42,25 @@ const submit = async () => {
 </template>
 
 <style scoped>
-.flex-input {
+.new-category-form {
+  background: var(--ds-secondary-light);
+  border: 1.5px dashed var(--ds-border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.name-input {
   flex: 1;
+  min-width: 160px;
   width: auto;
 }
 </style>
