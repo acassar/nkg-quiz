@@ -64,12 +64,22 @@ fetchResults();
         <h2>{{ t("player.results.title") }}</h2>
         <span class="score">{{ t("player.results.score", { score }) }}</span>
         <span class="counter">
-          {{ t("player.results.question", { current: currentIndex + 1, total: questions.length }) }}
+          {{
+            t("player.results.question", {
+              current: currentIndex + 1,
+              total: questions.length,
+            })
+          }}
         </span>
       </div>
 
       <div class="progress-bar-track">
-        <div class="progress-bar-fill" :style="{ width: `${((currentIndex + 1) / questions.length) * 100}%` }" />
+        <div
+          class="progress-bar-fill"
+          :style="{
+            width: `${((currentIndex + 1) / questions.length) * 100}%`,
+          }"
+        />
       </div>
 
       <div class="card question-card">
@@ -120,6 +130,17 @@ fetchResults();
 
 .header h2 {
   margin: 0;
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .header > h2 {
+    flex: 1;
+    width: 100%;
+  }
 }
 
 .score {

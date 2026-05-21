@@ -8,7 +8,13 @@ const emit = defineEmits<{
 const props = withDefaults(
   defineProps<{
     choice: Choice;
-    type?: "normal" | "selected" | "disabled" | "correct" | "incorrect" | "missed";
+    type?:
+      | "normal"
+      | "selected"
+      | "disabled"
+      | "correct"
+      | "incorrect"
+      | "missed";
     labels?: string[];
   }>(),
   {
@@ -56,8 +62,19 @@ const handleClick = () => {
 
 .choice-labels {
   display: flex;
+  flex-direction: row;
   gap: 0.35rem;
   flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .choice-labels {
+    flex-direction: column;
+  }
+
+  .choice-label-sep {
+    display: none;
+  }
 }
 
 .choice-label {
