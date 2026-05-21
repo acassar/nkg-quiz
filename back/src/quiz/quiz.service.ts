@@ -143,7 +143,7 @@ export class QuizService {
             data: {
               prompt: q.prompt,
               timeLimitSec: q.timeLimitSec ?? null,
-              points: q.points ?? 1000,
+              points: q.points,
               orderIndex: qIdx,
               quizId: quiz.id,
               categoryId: category.id,

@@ -76,7 +76,7 @@ model Question {
   categoryId Int
   prompt     String
   timeLimitSec Int?
-  points     Int?     @default(1000)
+  points     Int?     @default(1)
   orderIndex Int
 
   choices Choice[]
