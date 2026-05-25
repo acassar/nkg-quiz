@@ -165,52 +165,108 @@ watch(selectedCategory, () => {
 
 <template>
   <div class="card grid">
-    <h3 class="section-title">{{ t("category.sectionTitle") }}</h3>
+    <!-- Categories section -->
+    <div class="categories-section">
+      <div class="section-header">
+        <h3 class="section-title">{{ t("category.sectionTitle") }}</h3>
+        <span v-if="categories.length > 0" class="count-badge">{{ categories.length }}</span>
+      </div>
 
-    <div v-if="editingCategory">
       <CategoryForm
+        v-if="editingCategory"
         :category="editingCategory"
         @created="handleCategoryCreated"
         @cancel="editingCategory = undefined"
       />
+
+      <div v-else class="categories-list">
+        <span v-if="categories.length === 0" class="muted">{{
+          t("category.none")
+        }}</span>
+        <CategoryCard
+          v-for="category in categories"
+          :key="category.id"
+          :category="category"
+          :selected="selectedCategory?.id === category.id"
+          @click="onCategoryClick(category)"
+          @delete="handleCategoryDelete(category)"
+        />
+        <button class="secondary btn-add" @click="handleClickCreateCategory">
+          {{ t("category.add") }}
+        </button>
+      </div>
     </div>
 
-    <div v-else class="row">
-      <span v-if="categories.length === 0" class="muted">{{
-        t("category.none")
-      }}</span>
-      <CategoryCard
-        v-for="category in categories"
-        :key="category.id"
-        :category="category"
-        :selected="selectedCategory?.id === category.id"
-        @click="onCategoryClick(category)"
-        @delete="handleCategoryDelete(category)"
+    <!-- Questions list (when category selected) -->
+    <div v-if="selectedCategory" class="questions-section">
+      <CategoryQuestions
+        :category="selectedCategory"
+        :selected-question="selectedQuestion"
+        @click="onQuestionClick"
+        @delete="handleQuestionDelete"
+        @click:new="() => handleAddQuestion(selectedCategory!.id)"
       />
-      <button class="secondary" @click="handleClickCreateCategory">
-        {{ t("category.add") }}
-      </button>
     </div>
 
-    <CategoryQuestions
-      v-if="selectedCategory"
-      :category="selectedCategory"
-      :selected-question="selectedQuestion"
-      @click="onQuestionClick"
-      @delete="handleQuestionDelete"
-      @click:new="() => handleAddQuestion(selectedCategory!.id)"
-    />
-
-    <QuestionForm
-      v-if="selectedQuestion"
-      :question="selectedQuestion"
-      @form-changed="hasUnsavedChanges = true"
-      @submit="onQuestionFormSubmit"
-    />
+    <!-- Question form (when question selected or new) -->
+    <div v-if="selectedQuestion" class="question-form-section">
+      <QuestionForm
+        :question="selectedQuestion"
+        @form-changed="hasUnsavedChanges = true"
+        @submit="onQuestionFormSubmit"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--ds-primary-lighter);
+  color: var(--ds-primary-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.categories-section {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.btn-add {
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+}
+
+.questions-section {
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
+.question-form-section {
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
 .muted {
   color: var(--text-muted);
   font-style: italic;
