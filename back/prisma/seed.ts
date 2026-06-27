@@ -143,7 +143,6 @@ async function seedCompletedSession(quizId: number) {
       quizId: quiz.id,
       code: "END001",
       status: "ENDED",
-      currentQuestionIndex: questions.length - 1,
       startedAt: new Date("2026-03-29T14:00:00Z"),
       endedAt: new Date("2026-03-29T14:25:00Z"),
     },
