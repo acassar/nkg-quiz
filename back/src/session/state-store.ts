@@ -1,15 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
-import { SessionStatus } from "@prisma/client";
+import { SessionMode, SessionStatus } from "@prisma/client";
 
 export type SessionState = {
   code: string;
   status: SessionStatus;
+  mode: SessionMode;
+  // null en mode AUTONOMOUS (chaque player gère son propre index côté client)
   currentQuestionIndex: number | null;
-  restartAt?: string | null;
-  restartInMs?: number | null;
-  stopAtEnd?: boolean;
+  // Timestamp (ms) de la prochaine action planifiée — mode BACK uniquement
+  // Sérialisable dans Redis, contrairement à un setTimeout
+  nextActionAt: number | null;
   updatedAt: string;
 };
 
