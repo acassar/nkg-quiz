@@ -157,7 +157,9 @@ export class SessionService {
 
     const answer = await this.crud.upsertAnswer({
       sessionId: session.id,
-      ...params,
+      playerId: params.playerId,
+      questionId: params.questionId,
+      choiceId: params.choiceId,
     });
 
     this.stats
