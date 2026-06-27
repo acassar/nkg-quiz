@@ -13,7 +13,6 @@ import { AuthenticatedRequest } from "../common/types/authenticated-request.type
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
 import { SessionService } from "./session.service";
-import { Session } from "@prisma/client";
 
 @Controller("sessions")
 export class SessionController {
@@ -25,9 +24,9 @@ export class SessionController {
     return this.sessionService.createSession(dto);
   }
 
-  @Get("active")
   @UseGuards(AuthGuard)
-  userActiveSessions(@Req() req: AuthenticatedRequest): Promise<Session[]> {
+  @Get("active")
+  userActiveSessions(@Req() req: AuthenticatedRequest) {
     return this.sessionService.userActiveSessions(req.user.sub);
   }
 
@@ -85,11 +84,6 @@ export class SessionController {
     return this.sessionService.restartSession(code, body?.keepAnswers ?? false);
   }
 
-  @Post(":code/next")
-  next(@Param("code") code: string) {
-    return this.sessionService.nextQuestion(code);
-  }
-
   @UseGuards(AuthGuard)
   @Post(":code/reveal")
   reveal(@Param("code") code: string) {
@@ -106,14 +100,5 @@ export class SessionController {
   @Post(":code/archive")
   archive(@Param("code") code: string) {
     return this.sessionService.archiveSession(code);
-  }
-
-  @UseGuards(AuthGuard)
-  @Post(":code/stop-at-end")
-  stopAtEnd(
-    @Param("code") code: string,
-    @Body() body: { value: boolean },
-  ) {
-    return this.sessionService.setStopAtEnd(code, body.value);
   }
 }

@@ -8,7 +8,10 @@ export type SESSION_STATUS =
   | "RESTARTING"
   | "ARCHIVED";
 
+export type SESSION_MODE = "SCREEN" | "ADMIN" | "BACK" | "AUTONOMOUS";
+
 export type SessionOptions = {
+  mode: SESSION_MODE;
   autoRestart: boolean;
   revealAnswers: boolean;
   showLeaderboard: boolean;
@@ -27,29 +30,23 @@ export type Session = {
 export type SessionState = {
   code: string;
   status: SESSION_STATUS;
+  mode: SESSION_MODE;
   currentQuestionIndex: number | null;
-  restartAt?: string | null;
-  restartInMs?: number | null;
-  stopAtEnd?: boolean;
+  nextActionAt: number | null;
 };
 
-export type SessionAction =
-  | "start"
-  | "next"
-  | "reveal"
-  | "end"
-  | "restart"
-  | "archive"
-  | "stop-at-end";
+export type SessionAction = "start" | "next" | "reveal" | "end" | "restart" | "archive";
 
 export type CreateSessionResponse = {
   session: Session;
   state: SessionState;
 };
 
-export type SessionStateResponse = {
-  state: SessionState;
-  options?: SessionOptions | null;
+export type AnswerResult = {
+  answerId: number;
+  isCorrect: boolean;
+  correctChoiceId: number;
+  points: number;
 };
 
 export type LiveStatsPlayer = {

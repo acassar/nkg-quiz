@@ -3,760 +3,251 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
+import { SessionMode, SessionStatus } from "@prisma/client";
+import { S2C_EVENTS } from "@nkg-quiz/shared-socket-types";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { JoinSessionDto } from "./dto/join-session.dto";
-import { SessionState, SessionStateStore } from "./state-store";
-import { nanoid } from "nanoid";
-import { Prisma, Question, Session, SessionStatus } from "@prisma/client";
+import { AutonomousModeHandler } from "./handlers/autonomous.handler";
+import { SessionModeHandler } from "./handlers/session-mode.handler";
+import { SynchronizedModeHandler } from "./handlers/synchronized.handler";
+import { SessionCrudService } from "./services/session-crud.service";
+import { SessionStatsService } from "./services/session-stats.service";
+import { SessionTimerService } from "./services/session-timer.service";
+import { FlowResult, NextTimerAction } from "./session.types";
+import { SessionStateStore } from "./state-store";
 import { SessionGateway } from "./session.gateway";
-import { ISessionService } from "./model/sessionService.model";
-import { S2C_EVENTS } from "@nkg-quiz/shared-socket-types";
-import { SessionOptionsDto } from "./dto/session-options.dto";
-
-//TODO make interfaces to create contracts between service and users of the service (controller and gateway).
 
 @Injectable()
-export class SessionService implements ISessionService {
+export class SessionService {
+  private readonly handlers: Record<SessionMode, SessionModeHandler>;
+
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly crud: SessionCrudService,
+    private readonly stats: SessionStatsService,
     private readonly stateStore: SessionStateStore,
+    private readonly timer: SessionTimerService,
+    synchronized: SynchronizedModeHandler,
+    autonomous: AutonomousModeHandler,
     @Inject(forwardRef(() => SessionGateway))
     private readonly gateway: SessionGateway,
-  ) {}
-
-  async startSession(code: string) {
-    return this._startSession(code);
+  ) {
+    this.handlers = {
+      [SessionMode.SCREEN]: synchronized,
+      [SessionMode.ADMIN]: synchronized,
+      [SessionMode.BACK]: synchronized,
+      [SessionMode.AUTONOMOUS]: autonomous,
+    };
   }
 
-  async restartSession(code: string, keepAnswers = false) {
-    if (!keepAnswers) {
-      const session = await this.getSessionByCode(code);
-      await this.prisma.sessionAnswer.deleteMany({
-        where: { sessionId: session.id },
-      });
-    }
-    return this.scheduleAutoRestart(code);
-  }
+  // ─── Session lifecycle ────────────────────────────────────────────────────────
 
-  async setStopAtEnd(code: string, value: boolean) {
-    const state = await this.stateStore.update(code, {
-      stopAtEnd: value,
-      updatedAt: new Date().toISOString(),
-    });
-
-    await this.handleBroadcastSessionState(code, state);
-    return { state };
-  }
-
-  async archiveSession(code: string) {
-    const session = await this.getSessionByCode(code);
-
-    if (session.status === SessionStatus.ARCHIVED) {
-      throw new BadRequestException("Session already archived");
-    }
-
-    return this.prisma.session.update({
-      where: { id: session.id },
-      data: { status: SessionStatus.ARCHIVED },
-    });
-  }
-
-  /**
-   * Create a session for a quiz. Fails if an active session already exists for the quiz.
-   * An active session is a session that is in LOBBY, RUNNING, REVEAL or ENDED status.
-   * The session starts in LOBBY status and must be started to move to RUNNING status.
-   * Initializes session state in the state store and returns the session and its state.
-   */
   async createSession(dto: CreateSessionDto) {
-    const existingSession = await this.prisma.session.findFirst({
-      where: {
-        quizId: dto.quizId,
-        status: {
-          in: [
-            SessionStatus.LOBBY,
-            SessionStatus.RUNNING,
-            SessionStatus.REVEAL,
-            SessionStatus.ENDED,
-          ],
-        },
-      },
-    });
-
-    if (existingSession) {
-      throw new BadRequestException(
-        "An active session already exists for this quiz",
-      );
+    if (await this.crud.hasActiveSession(dto.quizId)) {
+      throw new BadRequestException("An active session already exists for this quiz");
     }
+    await this.crud.validateQuizForSession(dto.quizId);
 
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: dto.quizId },
-      include: {
-        questions: {
-          orderBy: { orderIndex: "asc" },
-          include: { choices: true },
-        },
-      },
-    });
-
-    if (!quiz) {
-      throw new NotFoundException("Quiz not found");
-    }
-
-    if (!quiz.questions.length) {
-      throw new BadRequestException("Quiz has no questions");
-    }
-
-    const session = await this.createSessionWithCode(quiz.id, dto.options);
+    const options = {
+      mode: dto.options?.mode ?? (await this.crud.getDefaultMode(dto.quizId)),
+      ...dto.options,
+    };
+    const session = await this.crud.createWithCode(dto.quizId, options);
 
     const state = await this.stateStore.set({
       code: session.code,
       status: session.status,
+      mode: options.mode,
       currentQuestionIndex: null,
+      nextActionAt: null,
       updatedAt: new Date().toISOString(),
     });
 
     return { session, state };
   }
 
-  /**
-   * Get all active sessions for a user
-   * @param userId User ID
-   * @returns Array of active sessions
-   */
-  async userActiveSessions(userId: number) {
-    const sessions = await this.prisma.session.findMany({
-      where: {
-        quiz: {
-          createdById: userId,
-        },
-        status: {
-          in: [
-            SessionStatus.LOBBY,
-            SessionStatus.RUNNING,
-            SessionStatus.REVEAL,
-            SessionStatus.ENDED,
-          ],
-        },
-      },
-    });
-    return sessions;
-  }
-
   async joinSession(code: string, dto: JoinSessionDto) {
-    const session = await this.getSessionByCode(code);
-
-    let player: Prisma.SessionPlayerGetPayload<{}> | null = null;
-    if (dto.playerId) {
-      // If playerId is provided, try to find the player in the session. This allows rejoining with the same player ID if the connection is lost.
-      // For the moment, nickname correlation is not enforced when rejoining with playerId, but it could be added as an extra check later.
-      player = await this.prisma.sessionPlayer.findFirst({
-        where: {
-          id: parseInt(dto.playerId),
-          sessionId: session.id,
-        },
-      });
-
-      if (!player) throw new NotFoundException("Player not found");
-
-      // If the player is found and the nickname is different, update the nickname. This allows players to change their nickname when rejoining if needed.
-      if (player.nickname !== dto.nickname) {
-        await this.prisma.sessionPlayer.update({
-          where: { id: player.id },
-          data: { nickname: dto.nickname },
-        });
-      }
-    } else {
-      try {
-        // If no playerId is provided, create a new player with the provided nickname. This allows new players to join the session.
-        player = await this.prisma.sessionPlayer.create({
-          data: {
-            sessionId: session.id,
-            nickname: dto.nickname,
-          },
-        });
-
-        if (!player) throw new BadRequestException("Failed to create player");
-      } catch {
-        throw new BadRequestException("Nickname already taken");
-      }
-    }
-
-    return { playerId: player.id };
+    const session = await this.crud.findByCodeOrThrow(code);
+    return this.crud.findOrCreatePlayer(session.id, dto);
   }
 
-  /**
-   * Retrieve session state from the state store. If not found, initialize it from the session data in the database.
-   * @param code session code
-   * @returns the session state
-   */
   async getState(code: string) {
-    const session = await this.getSessionByCode(code);
-    const state =
-      (await this.stateStore.get(code)) ??
-      (await this.stateStore.set({
-        code: session.code,
-        status: session.status,
-        currentQuestionIndex: session.currentQuestionIndex ?? null,
-        updatedAt: new Date().toISOString(),
-      }));
+    const cached = await this.stateStore.get(code);
+    if (cached) return { state: cached };
 
-    const restartInMs = state.restartAt
-      ? Math.max(0, new Date(state.restartAt).getTime() - Date.now())
-      : null;
-    return { state: { ...state, restartInMs } };
+    const session = await this.crud.findByCodeWithOptions(code);
+    const state = await this.stateStore.set({
+      code: session.code,
+      status: session.status,
+      mode: session.options?.mode ?? SessionMode.SCREEN,
+      currentQuestionIndex: null,
+      nextActionAt: null,
+      updatedAt: new Date().toISOString(),
+    });
+    return { state };
   }
 
   async getOptions(code: string) {
-    const session = await this.prisma.session.findUnique({
-      where: { code },
-      include: { options: true },
-    });
-    if (!session) throw new NotFoundException("Session not found");
+    const session = await this.crud.findByCodeWithOptions(code);
     return { options: session.options };
   }
 
   async getQuiz(code: string) {
-    const session = await this.getSessionByCode(code);
-
-    if (!session) throw new NotFoundException("Session not found");
-
-    return this.prisma.quiz.findUnique({
-      where: { id: session.quizId },
-      include: {
-        categories: {
-          orderBy: { orderIndex: "asc" },
-          include: {
-            questions: {
-              orderBy: { orderIndex: "asc" },
-              include: { choices: { select: { text: true, id: true } } },
-            },
-          },
-        },
-        questions: {
-          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
-          include: {
-            category: true,
-            choices: { select: { text: true, id: true } },
-          },
-        },
-      },
-    });
+    const session = await this.crud.findByCodeOrThrow(code);
+    return this.crud.getFullQuizForPlayer(session.quizId);
   }
 
-  /**
-   * Resets session status to LOBBY and deletes answers for a restart. Used when restarting a session that is already running or ended.
-   */
-  private async handleRestartSession(session: Session, keepAnswers = false) {
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: {
-        status: SessionStatus.RUNNING,
-        currentQuestionIndex: null,
-        startedAt: new Date(),
-        ...(keepAnswers
-          ? {}
-          : { answers: { deleteMany: { sessionId: session.id } } }),
-      },
-    });
+  async userActiveSessions(userId: number) {
+    return this.crud.getActiveSessionsByUser(userId);
   }
 
-  /**
-   * Start a session by code
-   * @param code Session code
-   * @param restart If true, restart the session if already running or ended
-   * @returns Session state and the first question
-   */
-  private async _startSession(
-    code: string,
-    restart = false,
-    keepAnswers = false,
-  ) {
-    const session = await this.getSessionByCode(code);
-    const currentQuestionIndex = 0;
-    const question = await this.getQuestionByIndex(
-      session.quizId,
-      currentQuestionIndex,
-    );
-
-    if (!question) {
-      throw new BadRequestException("No question available");
+  async archiveSession(code: string) {
+    const session = await this.crud.findByCodeOrThrow(code);
+    if (session.status === SessionStatus.ARCHIVED) {
+      throw new BadRequestException("Session already archived");
     }
-
-    if (session.status !== SessionStatus.LOBBY) {
-      if (restart) {
-        await this.handleRestartSession(session, keepAnswers);
-      } else {
-        throw new BadRequestException("Session already started");
-      }
-    } else {
-      // Update session status and current question index in the database
-      await this.prisma.session.update({
-        where: { id: session.id },
-        data: {
-          status: SessionStatus.RUNNING,
-          currentQuestionIndex,
-          startedAt: new Date(),
-        },
-      });
-    }
-
-    // Update session state in the state store
-    const state = await this.stateStore.update(session.code, {
-      status: SessionStatus.RUNNING,
-      currentQuestionIndex,
-      restartAt: null,
-      stopAtEnd: false,
-      updatedAt: new Date().toISOString(),
-    });
-
-    // Broadcast session state
-    await this.handleBroadcastSessionState(code, state);
-
-    return { state, question };
+    return this.crud.archiveSession(session.id);
   }
 
-  async handleBroadcastSessionState(code: string, state: SessionState) {
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_STATE, state);
-    await this.handleBroadcastLiveStats(code);
-  }
+  // ─── Session flow ─────────────────────────────────────────────────────────────
 
-  async handleBroadcastLiveStats(code: string) {
-    this.gateway?.broadcast(
-      code,
-      S2C_EVENTS.LIVE_STATS,
-      await this.getLiveStats(code),
-    );
-  }
-
-  // ==================== Session Flow Handlers ====================
-
-  /**
-   * Move to the next question in the session. If no more questions are available, end the session.
-   * @param code session code
-   * @returns session state
-   */
-  async nextQuestion(code: string) {
-    const session = await this.getSessionByCode(code);
-    const nextIndex = (session.currentQuestionIndex ?? 0) + 1;
-
-    const question = await this.getQuestionByIndex(session.quizId, nextIndex);
-    if (!question) {
-      const sessionWithOptions = await this.prisma.session.findUnique({
-        where: { code },
-        include: { options: true },
-      });
-      if (sessionWithOptions?.options?.autoRestart) {
-        const state = await this.stateStore.get(code);
-        if (state?.stopAtEnd) {
-          return this.endSession(code);
-        }
-        return this.scheduleAutoRestart(code);
-      }
-      return this.endSession(code);
-    }
-
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: {
-        status: SessionStatus.RUNNING,
-        currentQuestionIndex: nextIndex,
-      },
-    });
-
-    const state = await this.stateStore.update(session.code, {
-      status: SessionStatus.RUNNING,
-      currentQuestionIndex: nextIndex,
-      updatedAt: new Date().toISOString(),
-    });
-
-    await this.handleBroadcastSessionState(code, state);
-
+  async startSession(code: string) {
+    const { state } = await this.run(code, (h) => h.start(code));
     return { state };
   }
 
-  /**
-   * Reveal the answer for the current question by setting session status to REVEAL.
-   * Players can submit answers only when the session is in RUNNING status, so this effectively locks answer submission until the next question is shown.
-   * @param code session code
-   * @returns the session state
-   */
   async revealAnswer(code: string) {
-    const session = await this.getSessionByCode(code);
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: { status: SessionStatus.REVEAL },
-    });
-
-    const state = await this.stateStore.update(session.code, {
-      status: SessionStatus.REVEAL,
-      currentQuestionIndex: session.currentQuestionIndex ?? null,
-      updatedAt: new Date().toISOString(),
-    });
-
-    await this.handleBroadcastSessionState(code, state);
-    this.gateway?.broadcast(code, S2C_EVENTS.ANSWER_REVEAL, { ok: true });
-
+    const { state } = await this.run(code, (h) => h.reveal(code));
     return { state };
   }
 
-  /**
-   * End the session by setting status to ENDED. Players can no longer submit answers and the session is effectively closed.
-   * @param code session code
-   * @returns the session state
-   */
+  async nextQuestion(code: string) {
+    const { state } = await this.run(code, (h) => h.advance(code));
+    return { state };
+  }
+
   async endSession(code: string) {
-    const session = await this.getSessionByCode(code);
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: { status: SessionStatus.ENDED, endedAt: new Date() },
-    });
+    const mode = await this.getMode(code);
+    this.timer.cancel(code);
+    const result = await this.handlers[mode].end(code);
+    this.applyBroadcast(code, result);
+    return { state: result.state };
+  }
 
-    const state = await this.stateStore.update(session.code, {
-      status: SessionStatus.ENDED,
-      currentQuestionIndex: null,
-      stopAtEnd: false,
-      updatedAt: new Date().toISOString(),
-    });
-
-    this.gateway?.broadcast(code, S2C_EVENTS.SESSION_END, state);
-
+  async restartSession(code: string, keepAnswers = false) {
+    this.timer.cancel(code);
+    const { state } = await this.run(code, (h) => h.restart(code, keepAnswers));
     return { state };
   }
 
-  /**
-   * Set session to RESTARTING status and schedule an automatic restart after a countdown.
-   * Clients that join mid-countdown receive the RESTARTING state and can derive the remaining
-   * time from `restartAt` without needing a separate event.
-   */
-  private async scheduleAutoRestart(code: string) {
-    const session = await this.getSessionByCode(code);
+  // ─── Player actions ───────────────────────────────────────────────────────────
 
-    const COUNTDOWN_SEC = 10;
-    const restartAt = new Date(Date.now() + COUNTDOWN_SEC * 1000).toISOString();
-
-    await this.prisma.session.update({
-      where: { id: session.id },
-      data: { status: SessionStatus.RESTARTING },
-    });
-
-    const state = await this.stateStore.update(code, {
-      status: SessionStatus.RESTARTING,
-      currentQuestionIndex: null,
-      restartAt,
-      restartInMs: COUNTDOWN_SEC * 1000,
-      stopAtEnd: false,
-      updatedAt: new Date().toISOString(),
-    });
-
-    await this.handleBroadcastSessionState(code, state);
-
-    setTimeout(async () => {
-      try {
-        await this._startSession(code, true, true);
-      } catch (e) {
-        console.error("[auto-restart] Failed to restart session", code, e);
-      }
-    }, COUNTDOWN_SEC * 1000);
-
-    return { state };
-  }
-
-  /**
-   * Submit an answer for the current question in the session.
-   * @param params the parameters for submitting an answer
-   * @returns the ID of the submitted answer
-   */
   async submitAnswer(params: {
     code: string;
     playerId: number;
     questionId: number;
     choiceId: number;
   }) {
-    const session = await this.getSessionByCode(params.code);
-
+    const session = await this.crud.findByCodeOrThrow(params.code);
     const state = await this.stateStore.get(params.code);
+
     if (!state || state.status !== SessionStatus.RUNNING) {
       throw new BadRequestException("Session is not accepting answers");
     }
 
-    const answer = await this.prisma.sessionAnswer.upsert({
-      where: {
-        sessionId_playerId_questionId: {
-          sessionId: session.id,
-          playerId: params.playerId,
-          questionId: params.questionId,
-        },
-      },
-      update: { choiceId: params.choiceId, answeredAt: new Date() },
-      create: {
-        sessionId: session.id,
-        playerId: params.playerId,
-        questionId: params.questionId,
-        choiceId: params.choiceId,
-      },
+    const answer = await this.crud.upsertAnswer({
+      sessionId: session.id,
+      ...params,
     });
 
-    this.getLiveStats(params.code)
-      .then((stats) =>
-        this.gateway?.broadcast(params.code, S2C_EVENTS.LIVE_STATS, stats),
-      )
+    this.stats
+      .getLiveStats(params.code)
+      .then((s) => this.gateway.broadcast(params.code, S2C_EVENTS.LIVE_STATS, s))
       .catch(() => undefined);
+
+    if (state.mode === SessionMode.AUTONOMOUS) {
+      const result = await this.crud.getAnswerResult(params.questionId, params.choiceId);
+      return { answerId: answer.id, ...result };
+    }
 
     return { answerId: answer.id };
   }
 
-  async getPlayerAnswers(
-    sessionCode: string,
-    playerId: number,
-  ): Promise<Record<number, number>> {
-    const session = await this.getSessionByCode(sessionCode);
-    const answers = await this.prisma.sessionAnswer.findMany({
-      where: { sessionId: session.id, playerId },
-      select: { questionId: true, choiceId: true },
+  async playerComplete(code: string, playerId: number) {
+    await this.crud.findByCodeOrThrow(code);
+    await this.crud.markPlayerCompleted(playerId);
+
+    const player = await this.stats
+      .getLiveStats(code)
+      .then((s) => s.players.find((p) => p.playerId === playerId));
+
+    this.gateway.broadcast(code, S2C_EVENTS.PLAYER_COMPLETED, {
+      playerId,
+      nickname: player?.nickname ?? "",
     });
-    return Object.fromEntries(answers.map((a) => [a.questionId, a.choiceId]));
+
+    return { ok: true };
   }
 
-  /**
-   * Compute results for a session by aggregating correct answers per player.
-   * Falls back to stored SessionResult rows if they exist, otherwise computes on the fly.
-   */
+  async getPlayerAnswers(code: string, playerId: number) {
+    const session = await this.crud.findByCodeOrThrow(code);
+    return this.stats.getPlayerAnswerMap(session.id, playerId);
+  }
+
   async getLiveStats(code: string) {
-    const session = await this.getSessionByCode(code);
-    const state = await this.stateStore.get(code);
-
-    const players = await this.prisma.sessionPlayer.findMany({
-      where: { sessionId: session.id, isActive: true },
-      orderBy: { joinedAt: "asc" },
-    });
-
-    const allAnswers = await this.prisma.sessionAnswer.findMany({
-      where: { sessionId: session.id },
-      include: {
-        question: { select: { points: true } },
-        choice: { select: { isCorrect: true } },
-      },
-    });
-
-    let currentQuestion:
-      | (Partial<Question> & { category: string; answersCount: number })
-      | null = null;
-
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: session.quizId },
-      include: {
-        questions: {
-          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
-          include: { category: { select: { name: true } } },
-        },
-      },
-    });
-
-    const currentIndex = state?.currentQuestionIndex;
-    if (currentIndex !== null && currentIndex !== undefined) {
-      const q = quiz?.questions[currentIndex];
-      if (q) {
-        currentQuestion = {
-          id: q.id,
-          prompt: q.prompt,
-          category: q.category.name,
-          points: q.points,
-          answersCount: allAnswers.filter((a) => a.questionId === q.id).length,
-        };
-      }
-    }
-
-    const playerStats = players.map((player) => {
-      const playerAnswers = allAnswers.filter((a) => a.playerId === player.id);
-      const score = playerAnswers
-        .filter((a) => a.choice.isCorrect)
-        .reduce((sum, a) => sum + (a.question.points ?? 0), 0);
-      const answeredCurrentQuestion = currentQuestion
-        ? playerAnswers.some((a) => a.questionId === currentQuestion!.id)
-        : false;
-
-      return {
-        playerId: player.id,
-        nickname: player.nickname,
-        totalAnswers: playerAnswers.length,
-        score,
-        answeredCurrentQuestion,
-      };
-    });
-
-    const sorted = playerStats
-      .sort((a, b) => b.score - a.score)
-      .map((p, i) => ({ ...p, rank: i + 1 }));
-
-    const totalQuestions = quiz?.questions.length ?? 0;
-
-    return {
-      code: session.code,
-      status: state?.status ?? session.status,
-      currentQuestionIndex: state?.currentQuestionIndex ?? null,
-      currentQuestion,
-      totalPlayers: players.length,
-      totalQuestions,
-      players: sorted,
-    };
+    return this.stats.getLiveStats(code);
   }
 
   async getResults(code: string) {
-    const session = await this.getSessionByCode(code);
-
-    const answers = await this.prisma.sessionAnswer.findMany({
-      where: { sessionId: session.id },
-      include: {
-        player: { select: { id: true, nickname: true } },
-        choice: { select: { isCorrect: true } },
-        question: { select: { points: true } },
-      },
-    });
-
-    const scoreMap = new Map<number, { nickname: string; score: number }>();
-
-    for (const answer of answers) {
-      const current = scoreMap.get(answer.playerId) ?? {
-        nickname: answer.player.nickname,
-        score: 0,
-      };
-      if (answer.choice.isCorrect) {
-        current.score += answer.question.points ?? 0;
-      }
-      scoreMap.set(answer.playerId, current);
-    }
-
-    const sorted = [...scoreMap.entries()]
-      .sort((a, b) => b[1].score - a[1].score)
-      .map(([playerId, { nickname, score }], index) => ({
-        playerId,
-        nickname,
-        score,
-        rank: index + 1,
-      }));
-
-    return { results: sorted };
+    return this.stats.getResults(code);
   }
 
   async getPlayerResults(code: string, playerId: number) {
-    const session = await this.prisma.session.findUnique({
-      where: { code },
-      include: {
-        quiz: {
-          include: {
-            questions: {
-              orderBy: [
-                { category: { orderIndex: "asc" } },
-                { orderIndex: "asc" },
-              ],
-              include: { choices: true },
-            },
-          },
-        },
-        answers: {
-          where: { playerId },
-          select: { questionId: true, choiceId: true },
-        },
-      },
-    });
-
-    if (!session) throw new NotFoundException("Session not found");
-
-    // Map questionId to choiceId for the player's answers
-    const answerMap = new Map(
-      session.answers.map((a) => [a.questionId, a.choiceId]),
-    );
-
-    // Build the results with player's choice and correctness
-    const questions = session.quiz.questions.map((q) => ({
-      id: q.id,
-      prompt: q.prompt,
-      timeLimitSec: q.timeLimitSec,
-      points: q.points,
-      choices: q.choices.map((c) => ({
-        id: c.id,
-        text: c.text,
-        isCorrect: c.isCorrect,
-      })),
-      playerChoiceId: answerMap.get(q.id) ?? null,
-    }));
-
-    const score = questions.reduce((total, q) => {
-      const choiceId = q.playerChoiceId;
-      const isCorrect =
-        choiceId != null &&
-        q.choices.some((c) => c.id === choiceId && c.isCorrect);
-      return total + (isCorrect ? (q.points ?? 0) : 0);
-    }, 0);
-
-    return { questions, score };
+    return this.stats.getPlayerResults(code, playerId);
   }
 
-  // ==================== Private Helpers ====================
+  // ─── Broadcast helper (accessible depuis la gateway) ─────────────────────────
 
-  private async getSessionByCode(code: string) {
-    const session = await this.prisma.session.findUnique({
-      where: { code },
-    });
+  applyBroadcast(code: string, result: FlowResult): void {
+    for (const { event, data } of result.instructions) {
+      this.gateway.broadcast(code, event, data);
+    }
+  }
 
-    if (!session) {
-      throw new NotFoundException("Session not found");
+  // ─── Helpers privés ───────────────────────────────────────────────────────────
+
+  private async getMode(code: string): Promise<SessionMode> {
+    const state = await this.stateStore.get(code);
+    if (state?.mode) return state.mode as SessionMode;
+    const session = await this.crud.findByCodeWithOptions(code);
+    return session.options?.mode ?? SessionMode.SCREEN;
+  }
+
+  private async run(
+    code: string,
+    action: (handler: SessionModeHandler) => Promise<FlowResult>,
+  ): Promise<FlowResult> {
+    const mode = await this.getMode(code);
+    const result = await action(this.handlers[mode]);
+
+    this.applyBroadcast(code, result);
+
+    if (mode === SessionMode.BACK && result.timer) {
+      this.scheduleBackAction(code, result.timer.delayMs, result.timer.nextAction);
     }
 
-    return session;
+    return result;
   }
 
-  private async getQuestionByIndex(
-    quizId: number,
-    index: number,
-  ): Promise<Prisma.QuestionGetPayload<{
-    include: { choices: { select: { text: true; id: true } } };
-  }> | null> {
-    const quiz = await this.prisma.quiz.findFirst({
-      where: { id: quizId },
-      include: {
-        questions: {
-          orderBy: [{ category: { orderIndex: "asc" } }, { orderIndex: "asc" }],
-          include: {
-            category: true,
-            choices: { select: { text: true, id: true } },
-          },
-        },
-      },
+  private scheduleBackAction(
+    code: string,
+    delayMs: number,
+    action: NextTimerAction,
+  ): void {
+    this.timer.schedule(code, delayMs, async () => {
+      if (action === "reveal") await this.revealAnswer(code);
+      else if (action === "advance") await this.nextQuestion(code);
+      else if (action === "restart") await this.restartSession(code, true);
     });
-
-    const question = quiz?.questions[index];
-
-    return question ?? null;
-  }
-
-  private async createSessionWithCode(
-    quizId: number,
-    options: SessionOptionsDto,
-  ) {
-    const attempts = 3;
-
-    for (let i = 0; i < attempts; i += 1) {
-      const code = nanoid(6).toUpperCase();
-      try {
-        return await this.prisma.session.create({
-          data: {
-            quizId,
-            code,
-            status: SessionStatus.LOBBY,
-            options: { create: options },
-          },
-        });
-      } catch {
-        if (i === attempts - 1) {
-          throw new BadRequestException("Failed to generate session code");
-        }
-      }
-    }
-
-    throw new BadRequestException("Failed to generate session code");
   }
 }

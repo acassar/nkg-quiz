@@ -2,10 +2,15 @@
 export const C2S_EVENTS = {
   JOIN_SESSION: "join-session",
   PLAYER_ANSWER: "player:answer",
-  SCREEN_UPDATE_STATE: "screen:update-state",
-  SCREEN_SHOW_QUESTION: "screen:show-question",
-  SCREEN_REVEAL_ANSWER: "screen:reveal-answer",
-  SCREEN_END_SESSION: "screen:end-session",
+  PLAYER_COMPLETE: "player:complete",
+  // Screen-driven mode
+  SCREEN_ADVANCE: "screen:advance",
+  SCREEN_REVEAL: "screen:reveal",
+  SCREEN_END: "screen:end",
+  // Admin-driven mode
+  ADMIN_ADVANCE: "admin:advance",
+  ADMIN_REVEAL: "admin:reveal",
+  ADMIN_END: "admin:end",
 } as const;
 
 // ─── Server-to-Client events (S2C) ───────────────────────────────────────────
@@ -14,9 +19,11 @@ export const S2C_EVENTS = {
   SESSION_NOT_FOUND: "session:not-found",
   SESSION_STATE: "session:state",
   SESSION_END: "session:end",
-  ANSWER_RECEIVED: "answer:received",
   QUESTION_SHOW: "question:show",
   ANSWER_REVEAL: "answer:reveal",
+  ANSWER_RECEIVED: "answer:received",
+  ANSWER_RESULT: "answer:result",
+  PLAYER_COMPLETED: "player:completed",
   LIVE_STATS: "session:live-stats",
 } as const;
 
