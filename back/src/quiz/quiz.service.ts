@@ -98,20 +98,8 @@ export class QuizService {
         ...(dto.options && {
           options: {
             upsert: {
-              create: {
-                autoRestart: dto.options.autoRestart,
-                revealAnswers: dto.options.revealAnswers,
-                showLeaderboard: dto.options.showLeaderboard,
-                showScores: dto.options.showScores,
-                showFullRanking: dto.options.showFullRanking,
-              },
-              update: {
-                autoRestart: dto.options.autoRestart,
-                revealAnswers: dto.options.revealAnswers,
-                showLeaderboard: dto.options.showLeaderboard,
-                showScores: dto.options.showScores,
-                showFullRanking: dto.options.showFullRanking,
-              },
+              create: dto.options,
+              update: dto.options,
             },
           },
         }),
