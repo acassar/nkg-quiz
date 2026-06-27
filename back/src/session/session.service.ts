@@ -75,16 +75,36 @@ export class SessionService {
     const cached = await this.stateStore.get(code);
     if (cached) return { state: cached };
 
+    // Pas d'état en cache → le serveur a redémarré ou le TTL Redis a expiré.
+    // On ne sait pas reprendre une session en cours (l'index de question vivait
+    // en cache uniquement) : on la rabat sur LOBBY. Les réponses déjà données
+    // restent en DB. Les statuts terminaux (ENDED/ARCHIVED) sont préservés.
     const session = await this.crud.findByCodeWithOptions(code);
+    const recoveredStatus = this.recoverStatus(session.status);
+
+    if (recoveredStatus !== session.status) {
+      await this.crud.updateStatus(session.id, recoveredStatus);
+    }
+
     const state = await this.stateStore.set({
       code: session.code,
-      status: session.status,
+      status: recoveredStatus,
       mode: session.options?.mode ?? SessionMode.SCREEN,
       currentQuestionIndex: null,
       nextActionAt: null,
       updatedAt: new Date().toISOString(),
     });
     return { state };
+  }
+
+  /** Rabat les statuts "en cours" non reprenables sur LOBBY après perte de cache. */
+  private recoverStatus(status: SessionStatus): SessionStatus {
+    const nonResumable: SessionStatus[] = [
+      SessionStatus.RUNNING,
+      SessionStatus.REVEAL,
+      SessionStatus.RESTARTING,
+    ];
+    return nonResumable.includes(status) ? SessionStatus.LOBBY : status;
   }
 
   async getOptions(code: string) {

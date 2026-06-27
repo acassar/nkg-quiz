@@ -66,6 +66,7 @@ describe("Session modes (intégration)", () => {
   let service: SessionService;
   let prisma: PrismaService;
   let timer: SessionTimerService;
+  let stateStore: SessionStateStore;
   let gateway: { broadcast: jest.Mock };
 
   beforeAll(async () => {
@@ -92,6 +93,7 @@ describe("Session modes (intégration)", () => {
     service = moduleRef.get(SessionService);
     prisma = moduleRef.get(PrismaService);
     timer = moduleRef.get(SessionTimerService);
+    stateStore = moduleRef.get(SessionStateStore);
     await prisma.$connect();
   });
 
@@ -211,6 +213,45 @@ describe("Session modes (intégration)", () => {
       // En mode BACK, démarrer doit programmer la prochaine action automatiquement
       expect(scheduleSpy).toHaveBeenCalledTimes(1);
       scheduleSpy.mockRestore();
+    });
+  });
+
+  // ─── Reprise après perte de cache (redémarrage serveur) ───────────────────────
+
+  describe("reprise après perte de cache", () => {
+    it("rabat une session RUNNING sur LOBBY quand l'état n'est plus en cache", async () => {
+      const { quizId } = await seedQuiz(prisma);
+      const { session } = await service.createSession({
+        quizId,
+        options: { mode: SessionMode.SCREEN },
+      });
+      await service.startSession(session.code);
+
+      // Simule le redémarrage serveur : l'état vivant disparaît du store
+      await stateStore.cleanup(session.code);
+
+      const { state } = await service.getState(session.code);
+      expect(state.status).toBe("LOBBY");
+      expect(state.currentQuestionIndex).toBeNull();
+
+      // La DB est rabattue elle aussi (cohérence)
+      const inDb = await prisma.session.findUnique({ where: { code: session.code } });
+      expect(inDb?.status).toBe("LOBBY");
+    });
+
+    it("préserve une session ENDED après perte de cache", async () => {
+      const { quizId } = await seedQuiz(prisma);
+      const { session } = await service.createSession({
+        quizId,
+        options: { mode: SessionMode.SCREEN },
+      });
+      await service.startSession(session.code);
+      await service.endSession(session.code);
+
+      await stateStore.cleanup(session.code);
+
+      const { state } = await service.getState(session.code);
+      expect(state.status).toBe("ENDED");
     });
   });
 
